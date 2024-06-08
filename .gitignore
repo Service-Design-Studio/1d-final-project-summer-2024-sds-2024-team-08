@@ -1,0 +1,17 @@
+######## Ignore mac files ########
+.DS_Store
+
+######## Ignore rails stuff ########
+# Ignore bundler config.
+rails-server/.bundle
+
+# Ignore the default SQLite database.
+rails/db/*.sqlite3
+rails/db/*.sqlite3-journal
+
+# Ignore all logfiles and tempfiles.
+rails/log/*
+# !/log/.keep
+rails/tmp
+
+######## Ignore python stuff ########

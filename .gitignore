@@ -15,3 +15,5 @@ rails/log/*
 rails/tmp
 
 ######## Ignore python stuff ########
+.venv
+python-server/__pycache__

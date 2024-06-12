@@ -12,6 +12,6 @@ rails/db/*.sqlite3-journal
 # Ignore all logfiles and tempfiles.
 rail-servers/log/*
 # !/log/.keep
-rails-server/tmp/*
+rails-server/tmp/
 
 ######## Ignore python stuff ########

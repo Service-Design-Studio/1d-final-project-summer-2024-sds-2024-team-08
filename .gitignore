@@ -10,7 +10,7 @@ rails/db/*.sqlite3
 rails/db/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
-rail-servers/log/*
+rails-server/log/*
 # !/log/.keep
 rails-server/tmp/
 

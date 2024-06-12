@@ -1,15 +1,149 @@
-/*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
- *= require_tree .
- *= require_self
- */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+  }
+  
+  body {
+    display: flex;
+    width: 100%;
+  }
+  
+  .sidebar {
+    width: 20%;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    height: 100%;
+  }
+  
+  .menu-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+  
+  .new-chat {
+    margin-top: 20px;
+  }
+  
+  .new-chat-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #e0e0e0;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .sections {
+    flex: 1;
+  }
+  
+  .section-title {
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  li {
+    margin-top: 10px;
+  }
+  
+  .settings {
+    margin-bottom: 20px;
+  }
+  
+  .settings button {
+    width: 100%;
+    padding: 10px;
+    background-color: #e0e0e0;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .main-content {
+    margin-left: 20%;
+    width: 80%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    position: relative;
+  }
+  
+  .center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .welcome-message {
+    text-align: center;
+  }
+  
+  .genie-logo {
+    width: 100px;
+    margin-bottom: 20px;
+  }
+  
+  .bottom-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .action-btn {
+    padding: 10px 20px;
+    background-color: #e0e0e0;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .explore {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  .explore input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-right: none;
+  }
+  
+  .explore-btn {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  

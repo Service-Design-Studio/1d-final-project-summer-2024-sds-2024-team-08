@@ -1,38 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Genie Dashboard</title>
-  <%= stylesheet_link_tag 'application', media: 'all' %>
-  <%= javascript_include_tag 'application' %>
-  <%= csrf_meta_tags %>
+    <title>Genie Dashboard</title>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+    <%= csrf_meta_tags %>
 </head>
 <body>
-  <div class="sidebar">
-    <button class="menu-toggle">☰</button>
-    <div class="new-chat">
-      <button class="new-chat-btn">+ New Chat</button>
+    <div class="sidebar">
+        <button class="menu-toggle">☰</button>
+        <div class="new-chat">
+            <button class="new-chat-btn">+ New Chat</button>
+        </div>
+        <div class="sections">
+            <div class="section-title">Today</div>
+            <ul>
+                <!-- CHAT TITLES GO HERE -->
+            </ul>
+            <div class="section-title">Previous 7 Days</div>
+            <ul>
+                <!-- CHAT TITLES GO HERE -->
+                <% @user_1_chat_id.each do |chat_hash| %>
+                    <li>
+                    <%= link_to("#{chat_hash[:id]} #{chat_hash[:title]}", get_chat_with_id_path(chat_hash[:id])) %>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+        <div class="settings">
+            <button>Settings</button>
+        </div>
     </div>
-    <div class="sections">
-      <div class="section-title">Today</div>
-      <ul>
-         <!-- CHAT TITLES GO HERE -->
-      </ul>
-      <div class="section-title">Previous 7 Days</div>
-      <ul>
-        <!-- CHAT TITLES GO HERE -->
-        <% @user_1_chat_id.each do |chat_hash| %>
-            <li>
-            <%= link_to("#{chat_hash[:id]} #{chat_hash[:title]}", get_chat_with_id_path(chat_hash[:id])) %>
-            </li>
-        <% end %>
-      </ul>
-    </div>
-    <div class="settings">
-      <button>Settings</button>
-    </div>
-  </div>
+
     <!-- Chat messages here -->
     <%= yield %>
-    
 </body>
 </html>

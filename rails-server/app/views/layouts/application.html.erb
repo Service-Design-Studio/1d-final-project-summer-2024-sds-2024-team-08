@@ -20,9 +20,9 @@
             <div class="section-title">Previous 7 Days</div>
             <ul>
                 <!-- CHAT TITLES GO HERE -->
-                <% @user_1_chat_id.each do |chat_hash| %>
+                <% @list_of_chat_ids.each do |chat_id| %>
                     <li>
-                    <%= link_to("#{chat_hash[:id]} #{chat_hash[:title]}", get_chat_with_id_path(chat_hash[:id])) %>
+                    <%= link_to("Chat id: #{chat_id}", get_chat_with_id_path(chat_id)) %>
                     </li>
                 <% end %>
             </ul>

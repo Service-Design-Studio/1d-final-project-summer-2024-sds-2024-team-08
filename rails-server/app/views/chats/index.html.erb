@@ -5,7 +5,9 @@
             <p>Hi XXX, ask Genie to get the latest insights</p>
         </div>
         <div class="welcome-message">
-            <p>aaa<%= @chat_history.to_s %></p>
+            <% @chat_history.each do |msg| %>
+                <p>aaa<%= msg.to_s %></p>
+            <% end %>
         </div>
     </div>
     <div class="bottom-section">

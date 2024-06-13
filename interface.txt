@@ -1,14 +1,24 @@
-API interface between Rails and Python server 
-Note: ids are strings
+# API interface between Rails and Python server 
+Note: ids are integers
 
-// get user with id: returns all chat ids associated with that user 
-a = {
+# Chats GET
+## Python server expects:
+GET: <python-service-domain>/chats?uid=1
+
+## Rails server expects:
+    200 OK:
+{
     "uid": 1,
     "chat_ids": [1,2,3]
 }
 
-// given chat id, get messages associated 
-b = {
+# Messages GET
+## Python server expects:
+GET: <python-service-domain>/messages?chat_id=1
+
+## Rails server expects:
+200 OK:
+{
     "chat_id": 1,
     "messages": [
         {

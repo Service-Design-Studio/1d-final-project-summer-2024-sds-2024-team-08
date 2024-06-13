@@ -20,33 +20,19 @@
       <div class="section-title">Previous 7 Days</div>
       <ul>
         <!-- CHAT TITLES GO HERE -->
+        <% @user_1_chat_id.each do |chat_hash| %>
+            <li>
+            <%= link_to("#{chat_hash[:id]} #{chat_hash[:title]}", get_chat_with_id_path(chat_hash[:id])) %>
+            </li>
+        <% end %>
       </ul>
     </div>
     <div class="settings">
       <button>Settings</button>
     </div>
   </div>
-  <div class="main-content">
-    <div class="center-content">
-      <div class="welcome-message">
-        <img src="/assets/genie-logo.png" alt="Genie Logo" class="genie-logo">
-        <p>Hi XXX, ask Genie to get the latest insights</p>
-      </div>
-    </div>
-    <div class="bottom-section">
-      <div class="actions">
-        <button class="action-btn">Impact Analysis</button>
-        <button class="action-btn">Analyze Sentiments</button>
-        <button class="action-btn">Identify Competitor</button>
-        <button class="action-btn">Identify Stakeholder</button>
-        <button class="action-btn">Assess Compliance</button>
-        <button class="action-btn">Forecast Trend</button>
-      </div>
-      <div class="explore">
-        <input type="text" placeholder="What would you like to explore now?">
-        <button class="explore-btn">→</button>
-      </div>
-    </div>
-  </div>
+    <!-- Chat messages here -->
+    <%= yield %>
+    
 </body>
 </html>

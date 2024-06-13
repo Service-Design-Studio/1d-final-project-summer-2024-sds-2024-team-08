@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   
-  root("chats#index")
-  get("/c", to: "chats#index")
+    root("chats#index")
+    get("/c", to: "chats#index")
+    get("c/:chat_id", to: "chats#get_chat_with_id", as: "get_chat_with_id")
 end

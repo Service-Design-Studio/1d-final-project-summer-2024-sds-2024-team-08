@@ -1,0 +1,20 @@
+API interface between Rails and Python server 
+Note: ids are strings
+
+// get user with id: returns all chat ids associated with that user 
+a = {
+    "uid": 1,
+    "chat_ids": [1,2,3]
+}
+
+// given chat id, get messages associated 
+b = {
+    "chat_id": 1,
+    "messages": [
+        {
+            "id": 12763671,
+            "role": "user", // or assistant 
+            "content": "some fat ass string"
+        }
+    ]
+}

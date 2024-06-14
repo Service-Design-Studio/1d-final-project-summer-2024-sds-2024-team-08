@@ -1,5 +1,8 @@
 import sqlite3
 import re
+import os
+
+data_dir = os.path.join('.', 'data')
 
 def get_stakeholders(stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
     """_summary_
@@ -14,8 +17,8 @@ def get_stakeholders(stakeholder_id: int = None, name: str = None, summary: bool
     Returns:
         _type_: _description_
     """
-    
-    conn = sqlite3.connect('stakeholders_cleaned.db')  # Connect to the SQLite database // REMEMBER TO CHANGE THIS TO THE PATH OF THE DATABASE FILE
+    db_file = os.path.join(data_dir, 'stakeholders.db')
+    conn = sqlite3.connect(db_file)  # Connect to the SQLite database // REMEMBER TO CHANGE THIS TO THE PATH OF THE DATABASE FILE
     cursor = conn.cursor()  # Create a cursor object using the connection
 
     # Base query
@@ -70,8 +73,8 @@ def get_relationships(subject: int = None, predicate: str = None, object: int = 
     Returns:
         _type_: _description_
     """
-    
-    conn = sqlite3.connect('stakeholders_cleaned.db')  # Connect to the SQLite database // REMEMBER TO CHANGE THIS TO THE PATH OF THE DATABASE FILE
+    db_file = os.path.join(data_dir, 'stakeholders.db')
+    conn = sqlite3.connect(db_file)  # Connect to the SQLite database // REMEMBER TO CHANGE THIS TO THE PATH OF THE DATABASE FILE
     cursor = conn.cursor()  # Create a cursor object using the connection
 
     query = "SELECT subject, predicate, object FROM relationships WHERE 1=1"
@@ -103,7 +106,8 @@ def get_stakeholder_name(stakeholder_id: int) -> str:
     Returns:
         str: _description_
     """
-    conn = sqlite3.connect('stakeholders_cleaned.db')  # Connect to the SQLite database // REMEMBER TO CHANGE THIS TO THE PATH OF THE DATABASE FILE
+    db_file = os.path.join(data_dir, 'stakeholders.db')
+    conn = sqlite3.connect(db_file)  # Connect to the SQLite database // REMEMBER TO CHANGE THIS TO THE PATH OF THE DATABASE FILE
     cursor = conn.cursor()  # Create a cursor object using the connection
 
     query = "SELECT name FROM stakeholders WHERE stakeholder_id = ?"
@@ -147,3 +151,53 @@ def get_relationships_with_names(subject: int = None, predicate: str = None, obj
         return 'No results found.'
     return relationships_with_names
 
+def get_chats_from_user(user_id: int) -> list:
+    """_summary_
+    
+    Args: 
+        user_id (int): _description_
+        
+    Returns:
+        List[int]: _description_
+            
+    """
+    db_file = os.path.join(data_dir, 'users.db')
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT chat_id
+    FROM chats
+    WHERE user_id = ?
+    ''', (user_id,))
+
+    chat_ids = [row[0] for row in cursor.fetchall()]
+
+    conn.close()
+    return chat_ids
+
+def get_messages_from_chat(chat_id: int) -> list:
+    """_summary_
+    
+    Args: 
+        chat_id (int): _description_
+        
+    Returns:
+        List[Dict[str, Union[int, str]]]: _description_
+        
+    """
+    db_file = os.path.join(data_dir, 'users.db')
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT id, role, content
+    FROM messages
+    WHERE chat_id = ?
+    ORDER BY id
+    ''', (chat_id,))
+
+    messages = [{'id': row[0], 'role': row[1], 'content': row[2]} for row in cursor.fetchall()]
+
+    conn.close()
+    return messages

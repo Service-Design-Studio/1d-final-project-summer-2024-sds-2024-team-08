@@ -17,3 +17,9 @@ rails/tmp
 ######## Ignore python stuff ########
 .venv
 python-server/__pycache__
+
+# Ignore everything in the data folder
+/data/*
+
+# But don't ignore the users.db file
+!/data/users.db

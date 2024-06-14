@@ -1,91 +1,13 @@
-# import sqlite3
-# import pandas as pd
-# import os
-
-# # Define file paths
-# data_dir = os.path.join('.', 'data')
-# csv_dir = os.path.join(data_dir, 'csv')
-# stakeholders_csv = os.path.join(csv_dir, 'stakeholders.csv')
-# relationships_csv = os.path.join(csv_dir, 'relationships_cleaned.csv')
-# db_file = os.path.join(data_dir, 'stakeholders.db')
-
-# # Function to create and/or connect to the database, create tables, and clear existing data
-# def setup_database(db_path):
-#     # Connect to SQLite database (or create it if it doesn't exist)
-#     conn = sqlite3.connect(db_path)
-#     cursor = conn.cursor()
-
-#     # Create the stakeholders table
-#     cursor.execute('''
-#     CREATE TABLE IF NOT EXISTS stakeholders (
-#         stakeholder_id INTEGER PRIMARY KEY,
-#         name TEXT,
-#         headline TEXT,
-#         summary TEXT,
-#         photo TEXT,
-#         source TEXT,
-#         source_id TEXT,
-#         series INTEGER
-#     )
-#     ''')
-
-#     # Create the relationships table
-#     cursor.execute('''
-#     CREATE TABLE IF NOT EXISTS relationships (
-#         id INTEGER PRIMARY KEY AUTOINCREMENT,
-#         subject INTEGER,
-#         predicate TEXT,
-#         object INTEGER,
-#         FOREIGN KEY (subject) REFERENCES stakeholders(stakeholder_id),
-#         FOREIGN KEY (object) REFERENCES stakeholders(stakeholder_id)
-#     )
-#     ''')
-
-#     # Clear existing data in the tables
-#     cursor.execute('DELETE FROM stakeholders')
-#     cursor.execute('DELETE FROM relationships')
-
-#     # Commit changes and return connection and cursor
-#     conn.commit()
-#     return conn, cursor
-
-# # Function to insert data into the stakeholders table
-# def insert_stakeholder(cursor, data):
-#     cursor.execute('''
-#     INSERT OR IGNORE INTO stakeholders (stakeholder_id, name, headline, summary, photo, source, source_id, series)
-#     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-#     ''', (data['stakeholder_id'], data['name'], data['headline'], data['summary'], data['photo'], data['source'], data['source_id'], data['series']))
-
-# # Function to insert data into the relationships table
-# def insert_relationship(cursor, data):
-#     cursor.execute('''
-#     INSERT INTO relationships (subject, predicate, object)
-#     VALUES (?, ?, ?)
-#     ''', (data['subject'], data['predicate'], data['object']))
-
-# # Function to load CSV data into the SQLite database
-# def load_csv_to_db(db_path, stakeholders_csv, relationships_csv):
-#     # Set up the database and clear existing data
-#     conn, cursor = setup_database(db_path)
-
-#     # Load stakeholders data
-#     stakeholders_df = pd.read_csv(stakeholders_csv)
-#     for _, row in stakeholders_df.iterrows():
-#         insert_stakeholder(cursor, row)
+"""
+    Make sure you have the data folder that contains a csv folder. So the path should look like ./data/csv
+    Make sure that you have the following files in the ./data/csv folder named as follows: stakeholders.csv, relationships_cleaned.csv, media_cleaned.csv
     
-#     # Load relationships data
-#     relationships_df = pd.read_csv(relationships_csv)
-#     for _, row in relationships_df.iterrows():
-#         insert_relationship(cursor, row)
+    To run and create your database, go to terminal and type 'python build_database.py' for windows users and 'python3 build_database.py' for mac users.
+    The created databases should end up in your data folder named as follows: stakeholders.db and media.db
     
-#     # Commit changes and close the connection
-#     conn.commit()
-#     conn.close()
-
-# # Call the function with your CSV file paths
-# load_csv_to_db(db_file, stakeholders_csv, relationships_csv)
-# print("Data has been loaded into the database")
-# print("stakeholders.db has been created in the data directory")
+    stakeholders database contains two tables: stakeholders and relationships
+    media database contains one table: media
+"""
 
 import sqlite3
 import pandas as pd

@@ -19,7 +19,7 @@ rails/tmp
 python-server/__pycache__
 
 # Ignore everything in the data folder
-/data/*
+python-server/data/*
 
 # But don't ignore the users.db file
-!/data/users.db
+!python-server/data/users.db

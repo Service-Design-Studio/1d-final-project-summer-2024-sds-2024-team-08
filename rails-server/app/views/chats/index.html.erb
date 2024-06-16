@@ -1,30 +1,21 @@
-<div class="main-content">
-    <div class="center-content">
-        <div class="welcome-message">
-            <img src="/assets/genie-logo.png" alt="Genie Logo" class="genie-logo">
-            <p>Hi XXX, ask Genie to get the latest insights</p>
+<% if @default_landing_page %>
+  <div class="welcome-message text-center mb-4">
+    <img src="/assets/genie-logo.png" alt="Genie Logo" class="genie-logo mb-3">
+    <p>Hi <%= @user_name %>, ask Genie to get the latest insights</p>
+  </div>
+<% else %>
+  <div class="container chat-history d-flex justify-content-center">
+    <div class="messages-wrapper w-100">
+      <% @chat_history.each do |msg| %>
+        <div class="row mb-3">
+          <div class="col-12 d-flex justify-content-start">
+            <div class="message-content <%= msg[:role] == 'user' ? 'bg-primary text-white' : 'bg-light' %> p-3 rounded">
+              <strong><%= msg[:role] == 'user' ? 'You' : 'Genie' %></strong>
+              <p class="mb-0"><%= msg[:content] %></p>
+            </div>
+          </div>
         </div>
-        <div class="welcome-message">
-            <% @chat_history.each do |msg| %>
-                <p>aaa<%= msg.to_s %></p>
-            <% end %>
-        </div>
+      <% end %>
     </div>
-    <div class="bottom-section">
-        <div class="actions">
-            <button class="action-btn">Impact Analysis</button>
-            <button class="action-btn">Analyze Sentiments</button>
-            <button class="action-btn">Identify Competitor</button>
-            <button class="action-btn">Identify Stakeholder</button>
-            <button class="action-btn">Assess Compliance</button>
-            <button class="action-btn">Forecast Trend</button>
-        </div>
-        <div>
-            <h1></h1>
-        </div>
-        <div class="explore">
-            <input type="text" placeholder="What would you like to explore now?">
-            <button class="explore-btn">→</button>
-        </div>
-    </div>
-</div>
+  </div>
+<% end %>

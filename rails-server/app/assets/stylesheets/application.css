@@ -1,149 +1,163 @@
 html, body {
-    height: 100%;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-  }
-  
-  body {
-    display: flex;
-    width: 100%;
-  }
-  
-  .sidebar {
-    width: 20%;
-    background-color: #f4f4f4;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: fixed;
-    height: 100%;
-  }
-  
-  .menu-toggle {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    align-self: flex-start;
-  }
-  
-  .new-chat {
-    margin-top: 20px;
-  }
-  
-  .new-chat-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #e0e0e0;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .sections {
-    flex: 1;
-  }
-  
-  .section-title {
-    font-weight: bold;
-    margin-top: 20px;
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  li {
-    margin-top: 10px;
-  }
-  
-  .settings {
-    margin-bottom: 20px;
-  }
-  
-  .settings button {
-    width: 100%;
-    padding: 10px;
-    background-color: #e0e0e0;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .main-content {
-    margin-left: 20%;
-    width: 80%;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #ffffff;
-    position: relative;
-  }
-  
-  .center-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .welcome-message {
-    text-align: center;
-  }
-  
-  .genie-logo {
-    width: 100px;
-    margin-bottom: 20px;
-  }
-  
-  .bottom-section {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    bottom: 20px;
-    left: 0;
-  }
-  
-  .actions {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .action-btn {
-    padding: 10px 20px;
-    background-color: #e0e0e0;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .explore {
-    width: 100%;
-    display: flex;
-    align-items: center;
-  }
-  
-  .explore input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-right: none;
-  }
-  
-  .explore-btn {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-fluid {
+  height: 100%;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  position: relative;
+}
+
+.sidebar ul li a {
+  display: flex;
+  align-items: center;
+  padding: 8px 0px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #333; /* Default text color */
+  font-weight: 400;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+  background-color: #e0e0e0; /* Background color on hover */
+  color: #333; /* Text color on hover */
+  font-weight: 700; /* Bold text on hover */
+}
+
+.menu-section {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  min-height: 100vh;
+  background-color: #ffffff;
+  flex-grow: 1;
+}
+
+.center-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 80vh;
+  margin-bottom: 50px;
+  justify-content: flex-start;
+  overflow-y: auto; /* Add this if you want a scrollbar for overflowing content */
+}
+
+.welcome-message {
+  text-align: center;
+}
+
+.genie-logo {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.bottom-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  padding: 10px 20px;
+  background-color: #e0e0e0;
+  border: none;
+  cursor: pointer;
+}
+
+.explore {
+  width: 100%;
+  display: table;
+}
+
+.explore-input {
+  display: table-cell;
+  width: 96%;
+  padding-right: 10px; /* Add padding to separate from the button */
+}
+
+.explore-btn {
+  display: table-cell;
+  width: 4%;
+  padding: 10px 20px; /* Add padding inside the button */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.centered-alert {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050; /* Bootstrap modal's z-index is 1040, so this will overlay it */
+  width: 80%;
+  max-width: 500px;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-content {
+  text-align: left; 
+  word-wrap: break-word; 
+  min-width: 50vw; 
+  max-width: 50vw;
+}
+
+.chat-history {
+  display: flex;
+  flex-direction: column; /* Align items in a column */
+  justify-content: flex-start; /* Start from the top */
+}
+
+.messages-wrapper {
+  width: 100%;
+  max-width: 800px; /* Adjust as needed */
+}
+
+.chat-history p {
+  margin: 0;
+}
+
+.chat-history strong {
+  display: block;
+  margin-bottom: 5px;
+}
+

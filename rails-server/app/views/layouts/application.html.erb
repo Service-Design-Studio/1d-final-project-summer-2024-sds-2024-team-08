@@ -25,7 +25,7 @@
                         <% @list_of_chat_ids.each do |chat| %>
                             <li class="mt-2">
                                 <%= link_to chat[:chat_name], get_chat_with_id_path(chat[:chat_id]), 
-                                class: ('text-primary ellipsis ' + (chat[:chat_id] == params[:chat_id].to_i ? 'active' : '')) %>
+                                class: ('text-primary ellipsis ' + (chat[:chat_id] == params[:chat_id].to_i ? 'active' : '')), id: "chat-#{chat[:chat_id]}" %>
                             </li>
                         <% end %>
                     </ul>
@@ -53,8 +53,8 @@
                         <button class="action-btn btn btn-light">Forecast Trend</button>
                     </div>
                     <div class="explore w-100 d-flex align-items-center">
-                        <input type="text" class="form-control" placeholder="What would you like to explore now?">
-                        <button class="explore-btn btn btn-primary ml-2">&#9654;</button>
+                        <input type="text" class="form-control" placeholder="What would you like to explore now?" id="explore-input">
+                        <button class="explore-btn btn btn-primary ml-2" id="explore-btn">&#9654;</button>
                     </div>
                 </div>
             </div>

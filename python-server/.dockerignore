@@ -1,0 +1,6 @@
+*.txt
+!requirements.txt
+*_test.py
+__pycache__
+data/csv
+build_database.py

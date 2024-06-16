@@ -2,7 +2,7 @@ import sqlite3
 import re
 import os
 
-data_dir = os.path.join('.', 'data')
+data_dir = os.path.join(__file__,os.pardir, 'data')
 
 def get_stakeholders(stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
     """_summary_

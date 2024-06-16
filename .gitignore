@@ -16,6 +16,8 @@ rails/tmp
 
 ######## Ignore python stuff ########
 .venv
+.vscode
+.pytest_cache
 python-server/__pycache__
 
 # Ignore everything in the data folder

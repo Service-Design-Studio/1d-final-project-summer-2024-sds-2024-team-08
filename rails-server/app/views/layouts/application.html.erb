@@ -3,7 +3,7 @@
 <head>
     <title>Genie Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <%# <link rel="stylesheet" href="styles.css"> %>
     <%= stylesheet_link_tag 'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
     <%= csrf_meta_tags %>
@@ -21,7 +21,7 @@
                 </div>
                 <div class="sections flex-grow-1">
                     <div class="section-title font-weight-bold">Today</div>
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" id="past-chats">
                         <% @list_of_chat_ids.each do |chat| %>
                             <li class="mt-2">
                                 <%= link_to chat[:chat_name], get_chat_with_id_path(chat[:chat_id]), 

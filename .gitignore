@@ -13,7 +13,6 @@ rails/db/*.sqlite3-journal
 rails-server/log/
 # !/log/.keep
 rails-server/tmp
-rails-server/tmp/cache
 rails-server/.byebug_history
 
 ######## Ignore python stuff ########

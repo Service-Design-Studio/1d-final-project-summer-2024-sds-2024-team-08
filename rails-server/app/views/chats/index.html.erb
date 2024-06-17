@@ -6,12 +6,12 @@
 <% else %>
   <div class="container chat-history d-flex justify-content-center" id="chat-history">
     <div class="messages-wrapper w-100">
-        <% @chat_history.each_with_index do |msg, index| %>
+        <% @chat_history.each do |msg| %>
             <div class="row mb-3">
                 <div class="col-12 d-flex justify-content-start">
-                    <div id="message-content-<%= index %>" class="message-content <%= msg[:role] == 'user' ? 'bg-primary text-white' : 'bg-light' %> p-3 rounded">
-                        <strong><%= msg[:role] == 'user' ? 'You' : 'Genie' %></strong>
-                        <p class="mb-0"><%= msg[:content] %></p>
+                    <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'bg-primary text-white' : 'bg-light' %> p-3 rounded">
+                        <strong><%= msg['role'] == 'user' ? 'You' : 'Genie' %></strong>
+                        <p class="mb-0"><%= msg["content"] %></p>
                     </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@ class ChatsController < ApplicationController
 
     # define constants here 
     PY_SERVER_URL = "https://python-server-vdvad4wjla-de.a.run.app"
-    USER = 3
+    #shifted USER to application controller
 
     def index # Rails auto look for action_name.html.erb template
         @chat_history = []

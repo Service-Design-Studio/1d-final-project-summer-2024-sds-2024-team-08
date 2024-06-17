@@ -161,3 +161,8 @@ html, body {
   margin-bottom: 5px;
 }
 
+.scrollable-section {
+  max-height: 75vh; 
+  overflow-y: auto; 
+}
+

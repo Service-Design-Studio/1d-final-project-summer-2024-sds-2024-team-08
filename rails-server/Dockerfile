@@ -13,13 +13,12 @@ ENV RAILS_ENV="production" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
 
-
 # Throw-away build stage to reduce size of final image
 FROM base as build
 
-# Install packages needed to build gems
+# Install packages needed to build gems and Node.js for ExecJS
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libvips pkg-config
+    apt-get install --no-install-recommends -y build-essential git libvips pkg-config nodejs
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
@@ -36,13 +35,12 @@ RUN bundle exec bootsnap precompile app/ lib/
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
-
 # Final stage for app image
 FROM base
 
-# Install packages needed for deployment
+# Install packages needed for deployment, including Node.js
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libsqlite3-0 libvips && \
+    apt-get install --no-install-recommends -y curl libsqlite3-0 libvips nodejs && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built artifacts: gems, application
@@ -58,5 +56,5 @@ USER rails:rails
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 8080
 CMD ["./bin/rails", "server"]

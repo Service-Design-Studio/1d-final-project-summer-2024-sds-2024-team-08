@@ -9,13 +9,14 @@ Feature: For different users, display list of chats and chat history for each ch
     Background: 
         Given Im at the home page 
 
-    Scenario: analyst account (uid=1)
+    Scenario: analyst account (uid=2)
         When I click on past chat 
         Then I should see the chat history 
 
-    Scenario: new user account 
-        Then I should see no past chats 
+    Scenario: new user account (uid=3)
+        When I switch to a new account
+        Then I should see no past chats
 
-    Scenario: analyst account (uid=2)
+    Scenario: any user account (uid=3)
         When I attempt to access a chat by url that is not mine
-        Then I should see the chat history 
+        Then I should see an alert stopping me

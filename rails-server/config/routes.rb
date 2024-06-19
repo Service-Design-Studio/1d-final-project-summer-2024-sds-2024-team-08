@@ -11,4 +11,5 @@ Rails.application.routes.draw do
     root("chats#index")
     get("/c", to: "chats#index")
     get("c/:chat_id", to: "chats#get_chat_with_id", as: "get_chat_with_id")
+    get('change_user/:user_id', to: 'application#change_user', as: 'change_user')
 end

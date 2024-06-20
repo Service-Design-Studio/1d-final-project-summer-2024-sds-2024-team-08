@@ -10,9 +10,10 @@ rails/db/*.sqlite3
 rails/db/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
-rails/log/*
+rails-server/log/
 # !/log/.keep
-rails/tmp
+rails-server/tmp
+rails-server/.byebug_history
 
 ######## Ignore python stuff ########
 .venv

@@ -16,6 +16,6 @@ class ApplicationController < ActionController::Base
         $USER = user_id
         simulate_login
         redirect_to root_path, notice: "Switched to User #{user_id}"
-      end
+    end
 
 end

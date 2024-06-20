@@ -2,7 +2,7 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: calc(0.5vw + 0.5vh + 0.2s5vmin); /* Responsive font size */
+  font-size: calc(0.5vw + 0.5vh + 0.5vmin); /* Responsive font size */
 }
 
 .container-fluid {
@@ -16,6 +16,11 @@ html, body {
   padding: 2vh 2vw;
   position: relative;
   height: 100vh;
+  transition: transform 0.3s ease;
+}
+
+.sidebar ul li{
+  margin-left: -2vw;
 }
 
 .sidebar ul li a {
@@ -26,6 +31,7 @@ html, body {
   text-decoration: none;
   color: #333;
   font-weight: 400;
+  padding: 1vh 0 1vh 3vw; /* Add left padding to offset text */
 }
 
 .sidebar ul li a:hover,
@@ -65,13 +71,25 @@ html, body {
 }
 
 .welcome-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 .genie-logo {
-  width: 10vw;
-  margin-bottom: 2vh;
+  width: 100%; /* Adjust the width as needed */
+  max-width: 80vw; /* Set a maximum width */
+  height: auto; /* Maintain aspect ratio */
 }
+
+.responsive-svg {
+  width: 100%; /* Make SVG responsive */
+  height: auto; /* Maintain aspect ratio */
+}
+
 
 .bottom-section {
   width: 100%;

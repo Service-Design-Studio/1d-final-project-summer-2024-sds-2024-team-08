@@ -71,3 +71,7 @@ group :test do
   gem 'cucumber-rails', require: false
   gem 'rspec-rails'
 end
+
+group :production do 
+    gem 'execjs'
+end

@@ -77,4 +77,6 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
+
+  config.hosts << "rails-server-426806-bzomyiugwq-de.a.run.app"
 end

@@ -16,3 +16,13 @@ rails-server/tmp
 rails-server/.byebug_history
 
 ######## Ignore python stuff ########
+.venv
+.vscode
+.pytest_cache
+python-server/__pycache__
+
+# Ignore everything in the data folder
+python-server/data/*
+
+# But don't ignore the users.db file
+!python-server/data/users.db

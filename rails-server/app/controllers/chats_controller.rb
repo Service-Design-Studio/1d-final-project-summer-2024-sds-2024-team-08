@@ -25,7 +25,7 @@ class ChatsController < ApplicationController
     private # methods defined here onwards is private 
 
     def set_chat_ids
-        user_id = USER # change this to show diff users 
+        user_id = $USER # change this to show diff users 
         @user_name = "User #{user_id}"
         @list_of_chat_ids = get_chatid_given_userid(user_id)
     end

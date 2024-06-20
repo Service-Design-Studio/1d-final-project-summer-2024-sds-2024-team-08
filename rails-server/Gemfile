@@ -70,8 +70,9 @@ group :test do
   gem "selenium-webdriver"
   gem 'cucumber-rails', require: false
   gem 'rspec-rails'
+  gem 'simplecov', require: false
 end
 
-group :production do 
+group :production do
     gem 'execjs'
 end

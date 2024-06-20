@@ -15,4 +15,5 @@ rails-server/log/
 rails-server/tmp
 rails-server/.byebug_history
 
+rails-server/coverage
 ######## Ignore python stuff ########

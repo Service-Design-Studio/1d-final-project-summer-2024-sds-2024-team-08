@@ -4,7 +4,15 @@
 # instead of editing this one. Cucumber will automatically load all features/**/*.rb
 # files.
 
+# Require SimpleCov and start coverage
+require 'simplecov'
+SimpleCov.start 'rails' do
+  add_filter 'test/' # Exclude test files
+  add_filter 'spec/' # Exclude spec files
+  add_filter 'features/' # Exclude feature files
+end
 
+# Load Cucumber and Rails
 require 'cucumber/rails'
 Capybara.default_selector = :css
 Capybara.default_driver = :selenium_chrome

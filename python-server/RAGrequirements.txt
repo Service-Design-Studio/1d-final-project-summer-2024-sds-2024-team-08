@@ -1,0 +1,8 @@
+langchain_google_genai == 1.0.6
+langchain == 0.2.5
+langchain-community == 0.2.5
+
+
+langchainhub == 0.1.20
+langchain-chroma == 0.1.1
+bs4 == 0.0.2

@@ -14,7 +14,7 @@ import pandas as pd
 import os
 
 # Define file paths using os.path
-data_dir = os.path.join('.', 'data')
+data_dir = os.path.join(__file__, os.pardir, 'data')
 csv_dir = os.path.join(data_dir, 'csv')
 stakeholders_csv = os.path.join(csv_dir, 'stakeholders.csv')
 relationships_csv = os.path.join(csv_dir, 'relationships_cleaned.csv')

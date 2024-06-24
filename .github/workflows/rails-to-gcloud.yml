@@ -1,27 +1,39 @@
-name: Deploy rails app to gcloud 
-run-name: ${{ github.actor }} triggered workflow to deploy to gcloud 
+name: Deploy to Cloud Run
 
 # trigger this action on...? 
-on: 
-    push: 
-        branches: 
-            - rails-server
-            - rails-github-actions 
+on:
+  push:
+    branches:
+      - rails-server
+      - rails-github-actions
 
 # can define multiple jobs here 
-jobs: 
-    deploy-to-gcloud: # name of job, cannot have space 
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo "Starting deployment"
-            - name: Set up Cloud SDK
-              uses: google-github-actions/setup-gcloud@v1
-              with:
-                version: 'latest'
-                project_id: ${{ secrets.GCP_PROJECT_ID }}
-                service_account_key: ${{ secrets.GCP_SA_KEY }}
-            - name: Go to rails-server branch 
-              uses: actions/checkout@v4
-            - run: cd rails-server 
-            - name: Build 
-              run: gcloud builds submit
+jobs:
+  deploy-to-gcloud: # name of job, cannot have space
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        version: 'latest'
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: list directory 
+      run: ls -al 
+    - name: cd into rails-server 
+      run: cd rails-server 
+    - name: Build with Cloud Build
+      run: |
+        gcloud builds submit
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy myapp \
+          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/myapp:$GITHUB_SHA \
+          --region us-central1 \
+          --platform managed \
+          --allow-unauthenticated

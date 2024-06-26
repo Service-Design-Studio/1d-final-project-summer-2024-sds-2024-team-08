@@ -35,3 +35,18 @@
     </div>
   </div>
 <% end %>
+
+<% if @chat_id %>
+    <% content_for :message_form do %>
+        <%= form_with url: handle_user_msg_path(@chat_id), method: :post do |form| %>
+            <div class="field">
+                <%= text_field_tag(:message, nil, placeholder: "Ask me anything :)") %>
+            </div>
+            <div class="actions">
+                <%= button_tag(type: 'submit', class: 'explore-btn') do %>
+                    →
+                <% end %>
+            </div>
+        <% end %>
+    <% end %>
+<% end %>

@@ -16,10 +16,20 @@ class ChatsController < ApplicationController
     end
 
     def get_chat_with_id
-        chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
-        @chat_history = get_messages_given_chatid(chat_id)
+        @chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
+        @chat_history = get_messages_given_chatid(@chat_id)
         @default_landing_page = false
         render("index")
+    end 
+
+    def handle_user_msg
+        puts params[:message]
+        
+        # send form contents to python side 
+
+        params[:message] = nil
+        get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
+        return 
     end 
 
     private # methods defined here onwards is private 

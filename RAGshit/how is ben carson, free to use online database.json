@@ -1,0 +1,236 @@
+[chain/start] [chain:RunnableSequence] Entering Chain run with input:
+{
+  "question": "How is Ben Carson"
+}
+[chain/start] [chain:RunnableSequence > prompt:ChatPromptTemplate] Entering Prompt run with input:
+{
+  "question": "How is Ben Carson"
+}
+[chain/end] [chain:RunnableSequence > prompt:ChatPromptTemplate] [1ms] Exiting Prompt run with output:
+[outputs]
+[llm/start] [chain:RunnableSequence > llm:ChatGoogleGenerativeAI] Entering LLM run with input:
+{
+  "prompts": [
+    "Human: How is Ben Carson"
+  ]
+}
+[llm/end] [chain:RunnableSequence > llm:ChatGoogleGenerativeAI] [5.64s] Exiting LLM run with output:
+{
+  "generations": [
+    [
+      {
+        "text": "Ben Carson is a retired neurosurgeon, author, and politician. He served as the 17th United States Secretary of Housing and Urban Development from 2017 to 2021.\n\n**Health**\n\nAs of 2023, Ben Carson is 72 years old. He is generally healthy, but he has had some health problems in the past. In 2015, he was diagnosed with prostate cancer, but he underwent surgery and is now cancer-free. In 2018, he was hospitalized for a blood clot in his leg, but he recovered and was able to return to work.\n\n**Political career**\n\nBen Carson was first elected to the United States Senate in 2014. He served on the Senate Committee on Banking, Housing, and Urban Affairs, the Senate Committee on Foreign Relations, and the Senate Committee on Small Business and Entrepreneurship. In 2016, he ran for President of the United States, but he dropped out of the race after finishing in last place in the Iowa caucuses.\n\nIn 2017, President Donald Trump nominated Carson to be Secretary of Housing and Urban Development. He was confirmed by the Senate by a vote of 52-47. As Secretary of HUD, Carson oversaw the implementation of the Trump administration's housing policies, which included tax cuts for homeowners and increased funding for affordable housing.\n\n**Current activities**\n\nAfter leaving the Trump administration in 2021, Ben Carson returned to the private sector. He is currently a senior fellow at the American Enterprise Institute, a conservative think tank. He is also the author of several books, including \"Gifted Hands,\" \"One Nation,\" and \"Take the Risk.\"",
+        "generation_info": {
+          "finish_reason": "STOP",
+          "safety_ratings": [
+            {
+              "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            },
+            {
+              "category": "HARM_CATEGORY_HATE_SPEECH",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            },
+            {
+              "category": "HARM_CATEGORY_HARASSMENT",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            },
+            {
+              "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            }
+          ]
+        },
+        "type": "ChatGeneration",
+        "message": {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain",
+            "schema",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "Ben Carson is a retired neurosurgeon, author, and politician. He served as the 17th United States Secretary of Housing and Urban Development from 2017 to 2021.\n\n**Health**\n\nAs of 2023, Ben Carson is 72 years old. He is generally healthy, but he has had some health problems in the past. In 2015, he was diagnosed with prostate cancer, but he underwent surgery and is now cancer-free. In 2018, he was hospitalized for a blood clot in his leg, but he recovered and was able to return to work.\n\n**Political career**\n\nBen Carson was first elected to the United States Senate in 2014. He served on the Senate Committee on Banking, Housing, and Urban Affairs, the Senate Committee on Foreign Relations, and the Senate Committee on Small Business and Entrepreneurship. In 2016, he ran for President of the United States, but he dropped out of the race after finishing in last place in the Iowa caucuses.\n\nIn 2017, President Donald Trump nominated Carson to be Secretary of Housing and Urban Development. He was confirmed by the Senate by a vote of 52-47. As Secretary of HUD, Carson oversaw the implementation of the Trump administration's housing policies, which included tax cuts for homeowners and increased funding for affordable housing.\n\n**Current activities**\n\nAfter leaving the Trump administration in 2021, Ben Carson returned to the private sector. He is currently a senior fellow at the American Enterprise Institute, a conservative think tank. He is also the author of several books, including \"Gifted Hands,\" \"One Nation,\" and \"Take the Risk.\"",
+            "response_metadata": {
+              "prompt_feedback": {
+                "block_reason": 0,
+                "safety_ratings": []
+              },
+              "finish_reason": "STOP",
+              "safety_ratings": [
+                {
+                  "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                },
+                {
+                  "category": "HARM_CATEGORY_HATE_SPEECH",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                },
+                {
+                  "category": "HARM_CATEGORY_HARASSMENT",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                },
+                {
+                  "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                }
+              ]
+            },
+            "type": "ai",
+            "id": "run-b9de1f9e-34ab-46bb-b538-2e92133807bb-0",
+            "usage_metadata": {
+              "input_tokens": 5,
+              "output_tokens": 362,
+              "total_tokens": 367
+            },
+            "tool_calls": [],
+            "invalid_tool_calls": []
+          }
+        }
+      }
+    ]
+  ],
+  "llm_output": {
+    "prompt_feedback": {
+      "block_reason": 0,
+      "safety_ratings": []
+    }
+  },
+  "run": null
+}
+[chain/start] [chain:RunnableSequence > parser:StrOutputParser] Entering Parser run with input:
+[inputs]
+[chain/end] [chain:RunnableSequence > parser:StrOutputParser] [2ms] Exiting Parser run with output:
+{
+  "output": "Ben Carson is a retired neurosurgeon, author, and politician. He served as the 17th United States Secretary of Housing and Urban Development from 2017 to 2021.\n\n**Health**\n\nAs of 2023, Ben Carson is 72 years old. He is generally healthy, but he has had some health problems in the past. In 2015, he was diagnosed with prostate cancer, but he underwent surgery and is now cancer-free. In 2018, he was hospitalized for a blood clot in his leg, but he recovered and was able to return to work.\n\n**Political career**\n\nBen Carson was first elected to the United States Senate in 2014. He served on the Senate Committee on Banking, Housing, and Urban Affairs, the Senate Committee on Foreign Relations, and the Senate Committee on Small Business and Entrepreneurship. In 2016, he ran for President of the United States, but he dropped out of the race after finishing in last place in the Iowa caucuses.\n\nIn 2017, President Donald Trump nominated Carson to be Secretary of Housing and Urban Development. He was confirmed by the Senate by a vote of 52-47. As Secretary of HUD, Carson oversaw the implementation of the Trump administration's housing policies, which included tax cuts for homeowners and increased funding for affordable housing.\n\n**Current activities**\n\nAfter leaving the Trump administration in 2021, Ben Carson returned to the private sector. He is currently a senior fellow at the American Enterprise Institute, a conservative think tank. He is also the author of several books, including \"Gifted Hands,\" \"One Nation,\" and \"Take the Risk.\""
+}
+[chain/end] [chain:RunnableSequence] [5.65s] Exiting Chain run with output:
+{
+  "output": "Ben Carson is a retired neurosurgeon, author, and politician. He served as the 17th United States Secretary of Housing and Urban Development from 2017 to 2021.\n\n**Health**\n\nAs of 2023, Ben Carson is 72 years old. He is generally healthy, but he has had some health problems in the past. In 2015, he was diagnosed with prostate cancer, but he underwent surgery and is now cancer-free. In 2018, he was hospitalized for a blood clot in his leg, but he recovered and was able to return to work.\n\n**Political career**\n\nBen Carson was first elected to the United States Senate in 2014. He served on the Senate Committee on Banking, Housing, and Urban Affairs, the Senate Committee on Foreign Relations, and the Senate Committee on Small Business and Entrepreneurship. In 2016, he ran for President of the United States, but he dropped out of the race after finishing in last place in the Iowa caucuses.\n\nIn 2017, President Donald Trump nominated Carson to be Secretary of Housing and Urban Development. He was confirmed by the Senate by a vote of 52-47. As Secretary of HUD, Carson oversaw the implementation of the Trump administration's housing policies, which included tax cuts for homeowners and increased funding for affordable housing.\n\n**Current activities**\n\nAfter leaving the Trump administration in 2021, Ben Carson returned to the private sector. He is currently a senior fellow at the American Enterprise Institute, a conservative think tank. He is also the author of several books, including \"Gifted Hands,\" \"One Nation,\" and \"Take the Risk.\""
+}
+[llm/start] [llm:ChatGoogleGenerativeAI] Entering LLM run with input:
+{
+  "prompts": [
+    "Human: How is Ben Carson"
+  ]
+}
+[llm/end] [llm:ChatGoogleGenerativeAI] [5.79s] Exiting LLM run with output:
+{
+  "generations": [
+    [
+      {
+        "text": "**Background and Early Life:**\n\n* Born Benjamin Solomon Carson Sr. on September 18, 1951, in Detroit, Michigan.\n* Raised in a single-parent household by his mother, Sonya Carson.\n* Faced academic challenges in his early years but eventually excelled in school.\n* Graduated from Yale University with a degree in psychology and the University of Michigan Medical School with a degree in medicine.\n\n**Medical Career:**\n\n* Became a world-renowned pediatric neurosurgeon at Johns Hopkins Hospital.\n* Performed ground-breaking surgeries on children with complex neurological conditions.\n* Developed the \"Carson Technique\" for separating conjoined twins.\n* Published numerous medical books and articles.\n\n**Political Career:**\n\n* Entered politics in 2015 as a Republican candidate for President of the United States.\n* Known for his conservative views and religious beliefs.\n* Served as Secretary of Housing and Urban Development under President Donald Trump from 2017 to 2021.\n\n**Post-Political Life:**\n\n* Returned to practicing medicine after leaving government.\n* Established the Carson Scholars Fund, a non-profit organization that provides scholarships to students.\n* Published a memoir, \"Gifted Hands: The Ben Carson Story,\" which became a New York Times bestseller.\n\n**Personal Life:**\n\n* Married to Candy Carson since 1975.\n* Has three sons: Benjamin Jr., Murray, and Rhoeyce.\n* Resides in West Palm Beach, Florida.\n\n**Current Health Status:**\n\n* As of 2023, Ben Carson is in good health.\n* He continues to practice medicine and is actively involved in charitable work.",
+        "generation_info": {
+          "finish_reason": "STOP",
+          "safety_ratings": [
+            {
+              "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            },
+            {
+              "category": "HARM_CATEGORY_HATE_SPEECH",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            },
+            {
+              "category": "HARM_CATEGORY_HARASSMENT",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            },
+            {
+              "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+              "probability": "NEGLIGIBLE",
+              "blocked": false
+            }
+          ]
+        },
+        "type": "ChatGeneration",
+        "message": {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain",
+            "schema",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "**Background and Early Life:**\n\n* Born Benjamin Solomon Carson Sr. on September 18, 1951, in Detroit, Michigan.\n* Raised in a single-parent household by his mother, Sonya Carson.\n* Faced academic challenges in his early years but eventually excelled in school.\n* Graduated from Yale University with a degree in psychology and the University of Michigan Medical School with a degree in medicine.\n\n**Medical Career:**\n\n* Became a world-renowned pediatric neurosurgeon at Johns Hopkins Hospital.\n* Performed ground-breaking surgeries on children with complex neurological conditions.\n* Developed the \"Carson Technique\" for separating conjoined twins.\n* Published numerous medical books and articles.\n\n**Political Career:**\n\n* Entered politics in 2015 as a Republican candidate for President of the United States.\n* Known for his conservative views and religious beliefs.\n* Served as Secretary of Housing and Urban Development under President Donald Trump from 2017 to 2021.\n\n**Post-Political Life:**\n\n* Returned to practicing medicine after leaving government.\n* Established the Carson Scholars Fund, a non-profit organization that provides scholarships to students.\n* Published a memoir, \"Gifted Hands: The Ben Carson Story,\" which became a New York Times bestseller.\n\n**Personal Life:**\n\n* Married to Candy Carson since 1975.\n* Has three sons: Benjamin Jr., Murray, and Rhoeyce.\n* Resides in West Palm Beach, Florida.\n\n**Current Health Status:**\n\n* As of 2023, Ben Carson is in good health.\n* He continues to practice medicine and is actively involved in charitable work.",
+            "response_metadata": {
+              "prompt_feedback": {
+                "block_reason": 0,
+                "safety_ratings": []
+              },
+              "finish_reason": "STOP",
+              "safety_ratings": [
+                {
+                  "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                },
+                {
+                  "category": "HARM_CATEGORY_HATE_SPEECH",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                },
+                {
+                  "category": "HARM_CATEGORY_HARASSMENT",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                },
+                {
+                  "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                  "probability": "NEGLIGIBLE",
+                  "blocked": false
+                }
+              ]
+            },
+            "type": "ai",
+            "id": "run-7fc1a8e5-51b7-4ff3-8f9d-da4c8c1c9515-0",
+            "usage_metadata": {
+              "input_tokens": 5,
+              "output_tokens": 351,
+              "total_tokens": 356
+            },
+            "tool_calls": [],
+            "invalid_tool_calls": []
+          }
+        }
+      }
+    ]
+  ],
+  "llm_output": {
+    "prompt_feedback": {
+      "block_reason": 0,
+      "safety_ratings": []
+    }
+  },
+  "run": null
+}
+chain response: Ben Carson is a retired neurosurgeon, author, and politician. He served as the 17th United States Secretary of Housing and Urban Development from 2017 to 2021.
+
+**Health**
+
+As of 2023, Ben Carson is 72 years old. He is generally healthy, but he has had some health problems in the past. In 2015, he was diagnosed with prostate cancer, but he underwent surgery and is now cancer-free. In 2018, he was hospitalized for a blood clot in his leg, but he recovered and was able to return to work.
+
+**Political career**
+
+Ben Carson was first elected to the United States Senate in 2014. He served on the Senate Committee on Banking, Housing, and Urban Affairs, the Senate Committee on Foreign Relations, and the Senate Committee on Small Business and Entrepreneurship. In 2016, he ran for President of the United States, but he dropped out of the race after finishing in last place in the Iowa caucuses.
+
+In 2017, President Donald Trump nominated Carson to be Secretary of Housing and Urban Development. He was confirmed by the Senate by a vote of 52-47. As Secretary of HUD, Carson oversaw the implementation of the Trump administration's housing policies, which included tax cuts for homeowners and increased funding for affordable housing.
+
+**Current activities**
+
+After leaving the Trump administration in 2021, Ben Carson returned to the private sector. He is currently a senior fellow at the American Enterprise Institute, a conservative think tank. He is also the author of several books, including "Gifted Hands," "One Nation," and "Take the Risk."
+llm tool calls: []

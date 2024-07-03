@@ -25,4 +25,4 @@ test:
 
 production:
   <<: *default
-  host: /cloudsql/rails-server-sprint1:asia-east1:user-db
+  host: 35.221.170.97

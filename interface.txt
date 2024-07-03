@@ -1,0 +1,30 @@
+# API interface between Rails and Python server 
+Note: ids are integers
+
+# Chats GET
+## Python server expects:
+GET: <python-service-domain>/chats?uid=1
+
+## Rails server expects:
+    200 OK:
+{
+    "uid": 1,
+    "chat_ids": [1,2,3]
+}
+
+# Messages GET
+## Python server expects:
+GET: <python-service-domain>/messages?chat_id=1
+
+## Rails server expects:
+200 OK:
+{
+    "chat_id": 1,
+    "messages": [
+        {
+            "id": 12763671,
+            "role": "user", // or assistant 
+            "content": "some fat ass string"
+        }
+    ]
+}

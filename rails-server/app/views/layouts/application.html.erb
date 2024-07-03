@@ -1,16 +1,101 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>RailsServer</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+    <title>Genie Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <%# <link rel="stylesheet" href="styles.css"> %>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
     <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+</head>
+<body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Sidebar -->
+            <div id="sidebar" class="col-3 col-lg-2 bg-light border-right d-flex flex-column justify-content-between p-3 sidebar">
+                <div class="menu-section">
+                    <button id="menu-toggle"class="menu-toggle btn btn-link text-dark p-0">&#9776;</button>
+                </div>
+                <!-- Change User ID Dropdown -->
+                <div class="dropdown mb-3">
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-test="change-user-dropdown">
+                        Change User ID
+                    </button>
+                    <div class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
+                        <% [1, 2, 3].each do |user_id| %>
+                            <%= link_to "User #{user_id}", change_user_path(user_id: user_id), class: "dropdown-item", "data-test" => "user-#{user_id}-link" %>
+                        <% end %>
+                    </div>
+                </div>
+                <div class="new-chat mb-3">
+                    <button class="new-chat-btn btn btn-secondary w-100">+ New Chat</button>
+                </div>
+                <div class="sections flex-grow-1 scrollable-section">
+                    <div class="section-title font-weight-bold">Today</div>
+                    <ul class="list-unstyled" id="past-chats">
+                        <% @list_of_chat_ids.each do |chat| %>
+                            <li class="mt-2">
+                                <%= link_to chat[:chat_name], get_chat_with_id_path(chat[:chat_id]), 
+                                class: ('text-primary ellipsis ' + (chat[:chat_id] == params[:chat_id].to_i ? 'active' : '')), id: "chat-#{chat[:chat_id]}" %>
+                            </li>
+                        <% end %>
+                    </ul>
+                    <div class="section-title font-weight-bold mt-4">Previous 7 Days</div>
+                    <ul class="list-unstyled">
+                        <!-- CHATS GO HERE-->
+                    </ul>
+                </div>
+                <div class="settings mt-4">
+                    <button class="btn btn-secondary w-100">Settings</button>
+                </div>
+            </div>
+            <!-- Main Content -->
+            <div class="col-9 col-lg-10 d-flex flex-column align-items-center justify-content-center main-content">
+                <div class="center-content text-center">
+                    <%= yield %>
+                </div>
+                <div class="bottom-section w-100 position-absolute d-flex flex-column align-items-center" style="bottom: 20px;">
+                    <div class="actions d-flex justify-content-around w-100 mb-3">
+                        <button class="action-btn btn btn-light">Impact Analysis</button>
+                        <button class="action-btn btn btn-light">Analyze Sentiments</button>
+                        <button class="action-btn btn btn-light">Identify Competitor</button>
+                        <button class="action-btn btn btn-light">Identify Stakeholder</button>
+                        <button class="action-btn btn btn-light">Assess Compliance</button>
+                        <button class="action-btn btn btn-light">Forecast Trend</button>
+                    </div>
+                    <div class="explore w-100 d-flex align-items-center">
+                        <input type="text" class="form-control" placeholder="What would you like to explore now?" id="explore-input">
+                        <button class="explore-btn btn btn-primary ml-2" id="explore-btn">&#9654;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('hidden');
+    });
+    </script>
 
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-  </head>
+    <% if flash[:alert] %>
+        <div class="alert alert-danger alert-dismissible fade show centered-alert" role="alert">
+            <%= flash[:alert] %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <% end %>  
 
-  <body>
-    <%= yield %>
-  </body>
+    <% if flash[:notice] %>
+        <div class="alert alert-success alert-dismissible fade show centered-alert" role="alert" data-test="flash-notice">
+            <%= flash[:notice] %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <% end %>  
+</body>
 </html>

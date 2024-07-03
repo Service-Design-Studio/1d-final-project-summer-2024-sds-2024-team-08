@@ -1,0 +1,28 @@
+steps:
+  - id: "build image"
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: 'bash'
+    args: ["-c", "docker build -t gcr.io/${PROJECT_ID}/${_SERVICE_NAME} . "]
+
+  - id: "push image"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}"]
+
+  - id: "run deploy"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      [
+        "run", "deploy",
+        "${_SERVICE_NAME}",
+        "--platform", "managed",
+        "--region", "${_REGION}",
+        "--image", "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}"
+      ]
+
+substitutions:
+  _REGION: "asia-east1"
+  _SERVICE_NAME: "rails-server-426806"
+
+images:
+  - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}"

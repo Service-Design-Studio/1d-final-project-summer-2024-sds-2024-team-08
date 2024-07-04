@@ -1,6 +1,10 @@
 from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
+# from langchain.agents import create_react_agent
 from langchain_google_vertexai import ChatVertexAI
+from langgraph.checkpoint import MemorySaver
+
+
 import os
 import requests
 import urllib
@@ -49,24 +53,49 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
 
     return requests.get(parsed_url).content #Returns the result in JSON format (bytes)
 
-def query_model(query:str) -> str:
+def print_stream(graph, inputs, config):
+    for s in graph.stream(inputs, config, stream_mode="values"):
+        message = s["messages"][-1]
+        if isinstance(message, tuple):
+            print(message)
+        else:
+            message.pretty_print()
+
+def query_model(query:str, memory = None) -> str:
     """
     Call this function from outside the module
     """
     
-
-    model = ChatVertexAI(model="gemini-1.5-flash")
-    
+    if memory is None:
+        memory = MemorySaver()
+        
+    model = ChatVertexAI(model="gemini-1.5-flash") 
     tools = [read_stakeholders]
-    graph = create_react_agent(model, tools=tools)
+    graph = create_react_agent(model, tools=tools,checkpointer=memory)
+    config = {"configurable": {"thread_id": "thread-1"}}
     
     inputs = {"messages": [
         ("user", query)
         ]}  #similar to chat template
     
-    response = graph.invoke(inputs, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
-    # return response
+    # response = graph.invoke(inputs, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
+
+    return memory, print_stream(graph, inputs, config)
     return response, response[-1]['agent']['messages'][-1].content #some nonsense to get to the actual text you want. Can implement StrOutputParser in the future to make it neater
 
 if __name__ == '__main__':
-    print(query_model("Who is Ben Carson?"))
+    # print(query_model("Who is Ben Carson?"))
+    prompt = input("Enter your prompt: ")
+    memory, _ = query_model(prompt)
+    while True:
+        prompt = input("Enter your prompt: ")
+        if prompt.lower() == 'q':
+            print("Exiting loop.")
+            break
+        memory, _ = query_model(prompt,memory)
+        # print(memory.storage)
+        prompt = None
+
+        
+        
+    

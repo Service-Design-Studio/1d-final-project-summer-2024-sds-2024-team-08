@@ -4,6 +4,8 @@ from langgraph.prebuilt import create_react_agent
 from langchain_google_vertexai import ChatVertexAI
 from langgraph.checkpoint import MemorySaver
 
+from IPython.display import Markdown
+
 
 import os
 import requests

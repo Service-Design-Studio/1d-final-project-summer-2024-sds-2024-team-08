@@ -29,6 +29,10 @@ class Relationship(RelationshipBase):
 
     class Config:
         orm_mode: True
+        
+class AliasesBase(BaseModel):
+    stakeholder_id: int
+    other_names: str
 
 # class ItemBase(BaseModel):
 #     title: str

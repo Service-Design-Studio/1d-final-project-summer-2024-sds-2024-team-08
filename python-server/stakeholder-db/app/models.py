@@ -26,6 +26,8 @@ class Stakeholder(Base):
         back_populates="object_stakeholder",
         primaryjoin="Stakeholder.stakeholder_id == Relationship.object"
     )
+    
+    aliases = relationship("Aliases", back_populates="stakeholder")
 
 class Relationship(Base):
     __tablename__ = 'relationships'
@@ -45,6 +47,15 @@ class Relationship(Base):
         foreign_keys=[object],
         back_populates="objects"
     )
+    
+class Aliases(Base):
+    __tablename__ = 'aliases'
+
+    id = Column(Integer, primary_key=True, index=True)
+    stakeholder_id = Column(Integer, ForeignKey('stakeholders.stakeholder_id'))
+    other_names = Column(Text)
+    
+    stakeholder = relationship("Stakeholder", back_populates="aliases")
 
 
 # items = relationship("Item", back_populates="owner")

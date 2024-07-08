@@ -9,6 +9,7 @@ class ChatsController < ApplicationController
     #shifted USER to application controller
     
     def index # Rails auto look for action_name.html.erb template
+        @chat_id = params[:chat_id] || 0
         @chat_history = []
         @default_landing_page = true
     end

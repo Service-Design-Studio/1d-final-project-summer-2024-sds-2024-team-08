@@ -27,3 +27,8 @@ python-server/data/*
 
 # But don't ignore the users.db file
 !python-server/data/users.db
+cloud-sql-proxy
+proxy.log
+cloud-sql-proxy
+cloud-sql-proxy
+cloud_sql_proxy.exe

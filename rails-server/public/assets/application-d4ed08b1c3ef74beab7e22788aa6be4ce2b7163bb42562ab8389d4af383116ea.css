@@ -103,13 +103,6 @@ html, body {
   box-sizing: border-box;
 }
 
-.form-control {
-  border: none;
-  box-shadow: none;
-  flex-grow: 1; /* Ensures the input field grows to take up remaining space */
-  text-align: center; /* Center text inside the input field */
-}
-
 .actions {
   display: flex;
   justify-content: space-around;

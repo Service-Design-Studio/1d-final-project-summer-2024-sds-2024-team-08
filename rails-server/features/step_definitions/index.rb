@@ -18,7 +18,7 @@ end
 # New user user story (uid=3)
 When(/I switch to a new account/) do
     find("[data-test='change-user-dropdown']").click
-    find("[data-test='user-3-link']").click
+    find("[data-test='user-1-link']").click
 end
 
 # New user user story (uid=3)
@@ -36,4 +36,13 @@ end
 Then(/I should see an alert stopping me/) do
     alert = find('.alert.alert-danger', visible: true)
     expect(alert.text).to include('You are not authorized to access this chat.')
+end
+
+When(/I ask Genie a question and click submit/) do
+    fill_in 'message', with: 'Who is Ben Carson?'
+    find('button[name="button"]').click
+end
+
+Then(/^I should see the question asked disappear$/) do
+    expect(page).not_to have_selector('#message', text: 'Who is Ben Carson?')
 end

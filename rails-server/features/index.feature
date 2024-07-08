@@ -20,3 +20,7 @@ Feature: For different users, display list of chats and chat history for each ch
     Scenario: any user account (uid=3)
         When I attempt to access a chat by url that is not mine
         Then I should see an alert stopping me
+
+    Scenario: any user account (uid=3)
+        When I ask Genie a question and click submit
+        Then I should see the question asked disappear

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from . import models
+import models
 import re
 
 def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):

@@ -5,9 +5,11 @@ import os
 import requests
 import urllib
 import rapidfuzz
-from .database import SessionLocal
-from .models import Aliases
+from database import engine
+from sqlalchemy.orm import Session
+from models import Aliases
 import re
+
 
 os.environ["GOOGLE_API_KEY"] = "INSERT API KEY HERE"
 
@@ -19,7 +21,7 @@ def normalize_name(name):
     return name
 
 
-with SessionLocal() as session:
+with Session(engine) as session:
     aliases = session.query(Aliases.id, Aliases.stakeholder_id, Aliases.other_names).all()
     aliases_dict = {alias.id: normalize_name(alias.other_names) for alias in aliases}  # Dictionary of id : normalized name
     aliases_sid_dict = {alias.id: [alias.stakeholder_id, normalize_name(alias.other_names)] for alias in aliases}  # Dictionary of id : [stakeholder_id, normalized name]

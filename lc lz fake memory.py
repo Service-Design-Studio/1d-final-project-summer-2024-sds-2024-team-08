@@ -67,7 +67,8 @@ def print_stream(graph, inputs, config):
         else:
             message.pretty_print()
 
-def query_model(query:str, memory = None) -> str:
+
+def query_model(query:str, history = None) -> str:
     """
     Call this function from outside the module
     """
@@ -100,19 +101,16 @@ def query_model(query:str, memory = None) -> str:
     
     # response = graph.invoke(inputs, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
 
-    return memory, print_stream(graph, inputs, config)
+    return history, print_stream(graph, inputs, config)
     return response, response[-1]['agent']['messages'][-1].content #some nonsense to get to the actual text you want. Can implement StrOutputParser in the future to make it neater
 
 if __name__ == '__main__':
-    # print(query_model("Who is Ben Carson?"))
-    prompt = input("Enter your prompt: ")
-    memory, _ = query_model(prompt)
     while True:
         prompt = input("Enter your prompt: ")
         if prompt.lower() == 'q':
             print("Exiting loop.")
             break
-        memory, _ = query_model(prompt,memory)
+        history, _ = query_model(prompt, history)
         # print(memory)
         prompt = None
 

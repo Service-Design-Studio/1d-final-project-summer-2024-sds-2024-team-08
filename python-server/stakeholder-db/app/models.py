@@ -38,7 +38,7 @@ class Stakeholder(Base):
         primaryjoin="Stakeholder.stakeholder_id == Relationship.object"
     )
     
-    aliases = relationship("Aliases", back_populates="stakeholder")
+    #aliases = relationship("Aliases", back_populates="stakeholders")
 
 class Relationship(Base):
     __tablename__ = 'relationships'
@@ -59,14 +59,14 @@ class Relationship(Base):
         back_populates="objects"
     )
     
-class Aliases(Base):
+class Alias(Base):
     __tablename__ = 'aliases'
 
     id = Column(Integer, primary_key=True, index=True)
     stakeholder_id = Column(Integer, ForeignKey('stakeholders.stakeholder_id'))
     other_names = Column(Text)
     
-    stakeholder = relationship("Stakeholder", back_populates="aliases")
+    #stakeholder = relationship("Stakeholder", back_populates="aliases")
     
 class Chat(Base):
     __tablename__ = 'chats'

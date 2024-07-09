@@ -1,17 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from typing import List
-from . import crud, models, schemas
-from .database import SessionLocal, engine
-from typing import Literal
-from langchain_core.tools import tool
-from langgraph.prebuilt import create_react_agent
-import getpass
-import os
-import requests
-from . import lc
+import crud, models, schemas
+from database import stakeholder_engine
+import langc
 
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=stakeholder_engine)
 
 app = FastAPI()
 
@@ -23,7 +17,7 @@ if __name__ == "__main__":
 async def db_session_middleware(request: Request, call_next):
     response = Response("Internal server error", status_code=500)
     try:
-        request.state.db = SessionLocal()
+        request.state.db = Session(stakeholder_engine)
         response = await call_next(request)
     finally:
         request.state.db.close()
@@ -31,11 +25,8 @@ async def db_session_middleware(request: Request, call_next):
 
 # Dependency
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    with Session(stakeholder_engine) as s:
+        yield s
         
 @app.get("/")
 def read_root():
@@ -65,7 +56,7 @@ def read_relationships_with_names(subject: int = None, predicate: str = None, ob
 def langchain_endpoint(user_input: schemas.UserInput):
     try:
         user_message = user_input.message
-        output = lc.query_model(user_message) 
+        output = langc.query_model(user_message) 
         return {'responses': output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -1,17 +1,36 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Database connection parameters
-db_params = {
+db_params_users = {
     'dbname': 'users',
-    'user': 'dbadmin',
-    'password': 'SDSteam8',
-    'host': '35.221.170.97',
-    'port': '5432'
+    'user': getenv('USERS_DB_USERNAME'),
+    'password': getenv("USERS_DB_PASSWORD"),
+    'host': getenv("USERS_DB_HOST"),
+    'port': getenv("USERS_DB_PORT")
+}
+
+db_params_stakeholders = {
+    'dbname': 'stakeholders',
+    'user': getenv('STAKEHOLDERS_DB_USERNAME'),
+    'password': getenv("STAKEHOLDERS_DB_PASSWORD"),
+    'host': getenv("STAKEHOLDERS_DB_HOST"),
+    'port': getenv("STAKEHOLDERS_DB_PORT")
 }
 
 # Database connection URL
-db_url = f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
+def get_db_url(params):
+    str = (f"postgresql+psycopg2://"+\
+    f"{params['user']}:"+\
+    f"{params['password']}@"+\
+    f"{params['host']}:"+\
+    f"{params['port']}/"+\
+    f"{params['dbname']}")
+    return str
 
 # Create a SQLAlchemy engine
-engine = create_engine(db_url)
+user_engine = create_engine(get_db_url(db_params_users))
+stakeholder_engine = create_engine(get_db_url(db_params_stakeholders))

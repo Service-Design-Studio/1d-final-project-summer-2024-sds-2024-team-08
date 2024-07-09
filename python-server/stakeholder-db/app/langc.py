@@ -1,17 +1,18 @@
 from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
 from langchain_google_vertexai import ChatVertexAI
-import os
 import requests
 import urllib
 import rapidfuzz
-from database import engine
 from sqlalchemy.orm import Session
-from models import Aliases
+from sqlalchemy import select
+from models import Alias, Message
+from database import user_engine, stakeholder_engine
+from PostgreSQLMemorySaver import PostgreSQLMemorySaver
 import re
+from dotenv import load_dotenv
 
-
-os.environ["GOOGLE_API_KEY"] = "INSERT API KEY HERE"
+load_dotenv()
 
 def normalize_name(name):
     """
@@ -20,9 +21,8 @@ def normalize_name(name):
     name = re.sub(r'[^a-z0-9\s]', '', name.lower())
     return name
 
-
-with Session(engine) as session:
-    aliases = session.query(Aliases.id, Aliases.stakeholder_id, Aliases.other_names).all()
+with Session(stakeholder_engine) as session:
+    aliases = session.scalars(select(Alias)).all()
     aliases_dict = {alias.id: normalize_name(alias.other_names) for alias in aliases}  # Dictionary of id : normalized name
     aliases_sid_dict = {alias.id: [alias.stakeholder_id, normalize_name(alias.other_names)] for alias in aliases}  # Dictionary of id : [stakeholder_id, normalized name]
 
@@ -102,22 +102,48 @@ def get_name_matches(name: str) -> list:
         return result
 
 
-def query_model(query:str) -> str:
+def query_model(query:str, user_id:int, chat_id:int) -> str:
     """
     Call this function from outside the module
     """
+
+    with Session(user_engine) as s:
+        message = Message()
+        message.chat_id = chat_id
+        message.content = query
+        message.sender_id = user_id
+        message.role = 'user'
+
+        s.add(message)
+        s.commit()
+
     model = ChatVertexAI(model="gemini-1.5-flash")
     
     tools = [read_stakeholders, get_name_matches]
-    graph = create_react_agent(model, tools=tools)
+    graph = create_react_agent(model, tools=tools, checkpointer=PostgreSQLMemorySaver(engine=user_engine))
     
     inputs = {"messages": [
         ("user", query)
         ]}
     
-    response = graph.invoke(inputs, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
+    config = {
+        'configurable': {'thread_id': chat_id}
+    }
+    
+    response = graph.invoke(inputs, config=config, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
+    response_str = response[-1]['agent']['messages'][-1].content
 
-    return response[-1]['agent']['messages'][-1].content #some nonsense to get to the actual text you want. Can implement StrOutputParser in the future to make it neater
+    with Session(user_engine) as s:
+        message = Message()
+        message.chat_id = chat_id
+        message.content = response_str
+        message.sender_id = 1
+        message.role = 'assistant'
+
+        s.add(message)
+        s.commit()
+
+    return response_str
 
 if __name__ == '__main__':
-    print(query_model("Who is Ben Carson?"))
+    print(query_model("Who is Ben Carson?", 3, 5))

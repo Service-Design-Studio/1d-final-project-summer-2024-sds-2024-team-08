@@ -3,6 +3,13 @@ from langgraph.prebuilt import create_react_agent
 from langchain_google_vertexai import ChatVertexAI
 from langgraph.checkpoint import MemorySaver
 
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import(
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder
+)
 
 import os
 import requests
@@ -73,9 +80,23 @@ def query_model(query:str, memory = None) -> str:
     graph = create_react_agent(model, tools=tools,checkpointer=memory)
     config = {"configurable": {"thread_id": "thread-1"}}
     
-    inputs = {"messages": [
-        ("user", query)
-        ]}  #similar to chat template #input history here
+
+
+    qa_system_prompt = """You are an assistant for question-answering tasks. \
+                        If you don't know the answer, just say that you don't know."""
+
+    qa_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", qa_system_prompt),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{query}"),
+        ]
+    )
+
+
+    # inputs =  {"messages": [
+    #     ("user", query)
+    #     ]}  #similar to chat template #input history here
     
     # response = graph.invoke(inputs, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
 

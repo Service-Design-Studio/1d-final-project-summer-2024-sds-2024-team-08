@@ -3,6 +3,8 @@ from typing import Optional
 
 class UserInput(BaseModel):
     message: str
+    chat_id: int
+    user_id: int
 
 class StakeholderBase(BaseModel):
     name: Optional[str]

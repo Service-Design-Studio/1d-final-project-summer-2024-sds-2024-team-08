@@ -5,13 +5,9 @@ import crud, models, schemas
 from database import stakeholder_engine
 import langc
 
-models.Base.metadata.create_all(bind=stakeholder_engine)
+#models.Base.metadata.create_all(bind=stakeholder_engine)
 
 app = FastAPI()
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8080)
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
@@ -55,8 +51,11 @@ def read_relationships_with_names(subject: int = None, predicate: str = None, ob
 @app.post("/langchain/")
 def langchain_endpoint(user_input: schemas.UserInput):
     try:
-        user_message = user_input.message
-        output = langc.query_model(user_message) 
+        output = langc.query_model(user_input.message, user_input.user_id, user_input.chat_id) 
         return {'responses': output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)

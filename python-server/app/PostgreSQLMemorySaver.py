@@ -12,7 +12,7 @@ from langgraph.checkpoint import Checkpoint
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from models import Checkpoint_ORM
+from .models import Checkpoint_ORM
 
 class PostgreSQLMemorySaver(BaseCheckpointSaver):
     def __init__(self, engine, *, serde: Optional[SerializerProtocol] = None) -> None:

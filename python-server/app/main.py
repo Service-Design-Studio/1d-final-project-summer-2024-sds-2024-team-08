@@ -1,9 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from typing import List
-import crud, models, schemas
-from database import stakeholder_engine
-import langc
+from . import (
+    crud, 
+    schemas, 
+    langc)
+from .database import stakeholder_engine
 
 #models.Base.metadata.create_all(bind=stakeholder_engine)
 

@@ -1,5 +1,5 @@
 # Use the official image as a parent image
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10-slim
 
 # Set the working directory
 WORKDIR /app
@@ -7,6 +7,7 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y upgrade && apt-get install -y libpq-dev gcc
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 

@@ -6,11 +6,11 @@ import urllib
 import rapidfuzz
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from models import Alias, Message
-from database import user_engine, stakeholder_engine
-from PostgreSQLMemorySaver import PostgreSQLMemorySaver
+from .PostgreSQLMemorySaver import PostgreSQLMemorySaver
 import re
 from dotenv import load_dotenv
+from .models import Alias, Message
+from .database import user_engine, stakeholder_engine
 
 load_dotenv()
 
@@ -45,10 +45,12 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
     Returns:
         _type_: _description_
     """
+    #TODO: REFACTOR THIS TO PROPERLY POINT TO THE CORRECT MODULE
+    #IT IS CURRENTLY CALLING ITSELF (????)
     
     #Cleaner way of building urls
-    url = r'https://stakeholder-api-hafh6z44mq-de.a.run.app/stakeholders/?'
-
+    url = r'https://python-server-ohgaalojiq-de.a.run.app?'
+    
     params = {'summary': summary,
             'headline': headline,
             'photo': photo}

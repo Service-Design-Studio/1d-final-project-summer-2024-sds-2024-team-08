@@ -3,7 +3,7 @@ require 'uri'
 require 'json'
 
 # constants here 
-LANGCHAIN_API = "https://stakeholder-api-hafh6z44mq-de.a.run.app"
+LANGCHAIN_API = "https://python-server-ohgaalojiq-de.a.run.app/"
 
 class ChatsController < ApplicationController
     before_action :set_chat_ids
@@ -26,7 +26,7 @@ class ChatsController < ApplicationController
 
     def handle_user_msg
         # message must be a string, post() expects a string
-        message = {'message'=>params[:message]}.to_json.to_s
+        message = {'message'=>params[:message], 'chat_id'=>params[:chat_id], 'user_id'=> $USER}.to_json.to_s
         puts message
 
         # send form contents to python side 
@@ -46,7 +46,6 @@ class ChatsController < ApplicationController
 
         params[:message] = nil
         # get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-        @chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
         get_chat_with_id
         return 
     end 

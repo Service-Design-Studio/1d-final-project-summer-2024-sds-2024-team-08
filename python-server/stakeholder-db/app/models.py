@@ -1,6 +1,16 @@
-from sqlalchemy import Column, Integer, Text, ForeignKey
-from sqlalchemy.orm import relationship
-from .database import Base
+from sqlalchemy import (
+    Column, 
+    Text, 
+    Integer, 
+    DateTime, 
+    ForeignKey, 
+    BLOB,
+    func)
+
+from sqlalchemy.orm import relationship, DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
 
 class Stakeholder(Base):
     __tablename__ = 'stakeholders'
@@ -20,6 +30,7 @@ class Stakeholder(Base):
         back_populates="subject_stakeholder",
         primaryjoin="Stakeholder.stakeholder_id == Relationship.subject"
     )
+
     objects = relationship(
         "Relationship",
         foreign_keys="[Relationship.object]",
@@ -56,28 +67,25 @@ class Aliases(Base):
     other_names = Column(Text)
     
     stakeholder = relationship("Stakeholder", back_populates="aliases")
+    
+class Chat(Base):
+    __tablename__ = 'chats'
+    chat_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer)
 
-
-# items = relationship("Item", back_populates="owner")
-
-
-# class User(Base):
-#     __tablename__ = "users"
-
-#     id = Column(Integer, primary_key=True)
-#     email = Column(String, unique=True, index=True)
-#     hashed_password = Column(String)
-#     is_active = Column(Boolean, default=True)
-
-#     items = relationship("Item", back_populates="owner")
-
-
-# class Item(Base):
-#     __tablename__ = "items"
-
-#     id = Column(Integer, primary_key=True)
-#     title = Column(String, index=True)
-#     description = Column(String, index=True)
-#     owner_id = Column(Integer, ForeignKey("users.id"))
-
-#     owner = relationship("User", back_populates="items")
+class Checkpoint_ORM(Base):
+    __tablename__ = 'checkpoints'
+    cp_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    chat_id = Column(Integer, ForeignKey('chats.chat_id'), index=True)
+    timestamp = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+    cp_data = Column(BLOB)
+    metadata_data = Column(BLOB, name='metadata')
+    
+class Message(Base):
+    __tablename__ = 'messages'
+    message_id = Column(Integer, autoincrement=True, primary_key=True)
+    chat_id = Column(Integer, ForeignKey('chats.chat_id'), index=True)
+    sender_id = Column(Integer, index=True)
+    role = Column(Text, index=True)
+    content = Column(Text)
+    timestamp = Column(DateTime)

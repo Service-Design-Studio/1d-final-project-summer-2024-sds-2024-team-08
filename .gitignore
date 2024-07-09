@@ -21,6 +21,7 @@ rails-server/coverage
 .vscode
 .pytest_cache
 python-server/__pycache__
+__pycache__
 
 # Ignore everything in the data folder
 python-server/data/*

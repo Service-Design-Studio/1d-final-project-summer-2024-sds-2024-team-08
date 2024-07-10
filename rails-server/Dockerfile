@@ -40,10 +40,10 @@ ENV RAILS_LOG_TO_STDOUT=true
 ENV SECRET_KEY_BASE='cfecc4c9cd963cbe9dad280e985daa3e'
 
 # Precompile assets
-RUN bundle exec rake assets:precompile
+# RUN bundle exec rake assets:precompile
 
 # Run database setup tasks
-RUN bundle exec rake db:create db:migrate db:seed
+# RUN bundle exec rake db:create db:migrate db:seed
 
 # Expose port 8080
 EXPOSE 8080

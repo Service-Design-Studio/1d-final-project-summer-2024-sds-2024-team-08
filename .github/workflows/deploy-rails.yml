@@ -44,45 +44,45 @@
 #   Cloud Run builds from source        - https://cloud.google.com/run/docs/deploying-source-code
 #   Principle of least privilege        - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
-name: Deploy to Cloud Run from Source
+# name: Deploy to Cloud Run from Source
 
-on:
-  push:
-    branches: []
+# on:
+#   push:
+#     branches: []
 
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} # TODO: update Google Cloud project id
-  SERVICE: rails-server-426806 # TODO: update Cloud Run service name
-  REGION: asia-east1 # TODO: update Cloud Run service region
+# env:
+#   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} # TODO: update Google Cloud project id
+#   SERVICE: rails-server-426806 # TODO: update Cloud Run service name
+#   REGION: asia-east1 # TODO: update Cloud Run service region
 
-jobs:
-  deploy:
-    # Add 'id-token' with the intended permissions for workload identity federation
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+# jobs:
+#   deploy:
+#     # Add 'id-token' with the intended permissions for workload identity federation
+#     permissions:
+#       contents: 'read'
+#       id-token: 'write'
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
 
-      # NOTE: Alternative option - authentication via credentials json
-      - name: Google Auth
-        id: auth
-        uses: 'google-github-actions/auth@v0'
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+#       # NOTE: Alternative option - authentication via credentials json
+#       - name: Google Auth
+#         id: auth
+#         uses: 'google-github-actions/auth@v0'
+#         with:
+#           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v0
-        with:
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
-          # NOTE: If required, update to the appropriate source folder
-          source: ./rails-server
+#       - name: Deploy to Cloud Run
+#         id: deploy
+#         uses: google-github-actions/deploy-cloudrun@v0
+#         with:
+#           service: ${{ env.SERVICE }}
+#           region: ${{ env.REGION }}
+#           # NOTE: If required, update to the appropriate source folder
+#           source: ./rails-server
 
-      # If required, use the Cloud Run url output in later steps
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+#       # If required, use the Cloud Run url output in later steps
+#       - name: Show Output
+#         run: echo ${{ steps.deploy.outputs.url }}

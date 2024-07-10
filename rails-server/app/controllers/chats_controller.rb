@@ -25,6 +25,13 @@ class ChatsController < ApplicationController
     end 
 
     def handle_user_msg
+        # handle empty request 
+        if params[:message] == "" 
+            params[:message] = nil
+            get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
+            return 
+        end 
+
         # message must be a string, post() expects a string
         message = {'message'=>params[:message], 'chat_id'=>params[:chat_id], 'user_id'=> $USER}.to_json.to_s
         puts message
@@ -45,8 +52,7 @@ class ChatsController < ApplicationController
         data = {"id"=>100, "role"=>"assistant", "content"=> (data == nil ? "" : data["responses"])}
 
         params[:message] = nil
-        # get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-        get_chat_with_id
+        get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
         return 
     end 
 

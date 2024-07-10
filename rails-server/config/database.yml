@@ -27,4 +27,5 @@ test:
 
 production:
   <<: *default
-  host: 35.221.170.97
+  host: "/cloudsql/rails-server-sprint1:asia-east1:user-db"
+  port: 5432

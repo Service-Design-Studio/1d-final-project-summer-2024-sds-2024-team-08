@@ -48,7 +48,7 @@ name: Deploy to Cloud Run from Source
 
 on:
   push:
-    branches: [ "rails-server", "rails-github-actions" ]
+    branches: []
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} # TODO: update Google Cloud project id

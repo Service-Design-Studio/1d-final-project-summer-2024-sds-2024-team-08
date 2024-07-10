@@ -17,7 +17,8 @@ steps:
         "${_SERVICE_NAME}",
         "--platform", "managed",
         "--region", "${_REGION}",
-        "--image", "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}"
+        "--image", "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}",
+        "--add-cloudsql-instances", "rails-server-sprint1:asia-east1:user-db"
       ]
 
 substitutions:

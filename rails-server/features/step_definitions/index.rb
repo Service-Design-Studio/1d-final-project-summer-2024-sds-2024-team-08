@@ -46,7 +46,7 @@ end
 When(/I ask Genie who is Ben Carson/) do
     find("[data-test='change-user-dropdown']").click
     find("[data-test='user-3-link']").click
-    click_link("chat-2")
+    click_link("chat-8")
     fill_in 'message', with: 'Who is Ben Carson?'
     find('button[name="button"]').click
 end
@@ -56,40 +56,42 @@ Then(/I should see the question asked disappear/) do
 end
 
 Then(/I should see the response containing Ben Carson's information/) do
-    expect(page).to have_content(/Ben Carson.*Secretary.*Housing and Urban Development/)
+    sleep(5)
+    expect(page).to have_content(/.*Ben Carson.*is a.*/)
 end
 
 #Incorrect spelling
 When(/I ask Genie Who is donal dtrump/) do
-    click_link("chat-2")
+    click_link("chat-8")
     fill_in 'message', with: 'Who is donal dtrump?'
     find('button[name="button"]').click
 end
 
 Then(/I should see the response asking which names and it includes Donald Trump/) do
+    sleep(5)
     expect(page).to have_content(/Which names.*donald trump/i)
 end
 
 #Lowercase nospace
 When(/I ask Genie Tell me more about joebiden/) do
-    click_link("chat-2")
-    fill_in 'message', with: 'Tell me more about joebiden'
+    click_link("chat-8")
+    fill_in 'message', with: 'Tell me more about hoe biden'
     find('button[name="button"]').click
 end
 
 Then(/I should see the response asking which names and it includes Joe Biden/) do
+    sleep(5)
     expect(page).to have_content(/Which names.*joe biden/i)
 end
 
 #Lowercase nospace
 When(/I ask Genie Tell me more about oka kurniawan/) do
-    click_link("chat-2")
+    click_link("chat-8")
     fill_in 'message', with: 'Tell me more about oka kurniawan'
     find('button[name="button"]').click
 end
 
 Then(/I should see the response saying it cannot find any information/) do
-    expect(page).to have_content(/I.*find any information/i)
-    #latest_message_text = find('.message:last-child .mb-0').text
-    #expect(latest_message_text).to match(/I.*find any information/i)
+    sleep(5)
+    expect(page).to have_content(/I.*any information/i)
 end

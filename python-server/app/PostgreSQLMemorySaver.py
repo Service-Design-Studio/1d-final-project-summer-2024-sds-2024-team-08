@@ -28,10 +28,10 @@ class PostgreSQLMemorySaver(BaseCheckpointSaver):
         if ts := config["configurable"].get("thread_ts"):
             query = query.where(Checkpoint_ORM.timestamp == ts)
         else:
-            query = query.order_by(Checkpoint_ORM.timestamp.desc()).limit(1)
+            query = query.order_by(Checkpoint_ORM.timestamp.desc())
         
         with Session(self.engine) as s:
-            checkpoint = s.scalars(query).one_or_none()
+            checkpoint = s.scalars(query.limit(1)).one_or_none()
         
         if checkpoint is None: return
 
@@ -87,7 +87,7 @@ class PostgreSQLMemorySaver(BaseCheckpointSaver):
         with Session(self.engine) as s:
             new_checkpoint = s.scalars(
                 select(Checkpoint_ORM)
-                .where(Checkpoint_ORM.chat_id == chat_id)).one_or_none()
+                .where(Checkpoint_ORM.chat_id == chat_id).limit(1)).one_or_none()
             
             if new_checkpoint is None:
                 new_checkpoint = Checkpoint_ORM()

@@ -103,11 +103,14 @@ html, body {
   box-sizing: border-box;
 }
 
+.input-group {
+  align-items: center;
+}
+
 .form-control {
   border: none;
   box-shadow: none;
   flex-grow: 1; /* Ensures the input field grows to take up remaining space */
-  text-align: center; /* Center text inside the input field */
 }
 
 .actions {
@@ -135,6 +138,7 @@ html, body {
 
 .explore-input {
   display: table-cell;
+  height: 100%;
   width: 96%;
   padding-right: 1vw;
 }

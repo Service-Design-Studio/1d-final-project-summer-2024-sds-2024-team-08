@@ -75,8 +75,7 @@ class Chat(Base):
 
 class Checkpoint_ORM(Base):
     __tablename__ = 'checkpoints'
-    cp_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    chat_id = Column(Integer, ForeignKey('chats.chat_id'), index=True)
+    chat_id = Column(Integer, ForeignKey('chats.chat_id'),primary_key=True, unique=True)
     timestamp = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
     cp_data = Column(BLOB)
     metadata_data = Column(BLOB, name='metadata')

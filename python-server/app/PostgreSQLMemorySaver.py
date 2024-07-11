@@ -11,6 +11,7 @@ from langgraph.checkpoint import Checkpoint
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import insert
 
 from .models import Checkpoint_ORM
 
@@ -75,7 +76,6 @@ class PostgreSQLMemorySaver(BaseCheckpointSaver):
                 checkpoint=self.serde.loads(checkpoint.cp_data),
                 metadata_data=metadata_data
             )
-
     def put(
         self,
         config: RunnableConfig,
@@ -85,20 +85,19 @@ class PostgreSQLMemorySaver(BaseCheckpointSaver):
         chat_id = config["configurable"]["thread_id"]
 
         with Session(self.engine) as s:
-            new_checkpoint = s.scalars(
-                select(Checkpoint_ORM)
-                .where(Checkpoint_ORM.chat_id == chat_id).limit(1)).one_or_none()
+            query = insert(Checkpoint_ORM).values(
+                chat_id=chat_id,
+                cp_data=self.serde.dumps(checkpoint),
+                metadata_data=self.serde.dumps(metadata),
+            )
+            query = query.on_conflict_do_update(
+                index_elements=[Checkpoint_ORM.chat_id],
+                set_=query.excluded
+            ).returning(Checkpoint_ORM.timestamp)
             
-            if new_checkpoint is None:
-                new_checkpoint = Checkpoint_ORM()
-                new_checkpoint.chat_id = chat_id
+            ts = s.scalar(query)
             
-            new_checkpoint.cp_data = self.serde.dumps(checkpoint)
-            new_checkpoint.metadata_data = self.serde.dumps(metadata)
-            
-            s.add(new_checkpoint)
             s.commit()
-            ts = new_checkpoint.timestamp
         
         return {
             "configurable": {

@@ -49,7 +49,7 @@ class ChatsController < ApplicationController
         p data 
 
         # package response
-        data = {"id"=>100, "role"=>"assistant", "content"=> (data == nil ? "" : data["responses"])}
+        # data = {"id"=>100, "role"=>"assistant", "content"=> (data == nil ? "" : data["responses"])}
 
         params[:message] = nil
         get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 

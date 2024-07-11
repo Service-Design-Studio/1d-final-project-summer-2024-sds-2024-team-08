@@ -19,6 +19,8 @@ class ChatsController < ApplicationController
 
     def get_chat_with_id
         @chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
+        
+        # this fetches all messages to display, will need to change this if we using JS to load messages async
         @chat_history = get_messages_given_chatid(@chat_id)
         @default_landing_page = false
         render("index")
@@ -48,9 +50,7 @@ class ChatsController < ApplicationController
         end
         p data 
 
-        # package response
-        # data = {"id"=>100, "role"=>"assistant", "content"=> (data == nil ? "" : data["responses"])}
-
+        # reset message to have empty text input 
         params[:message] = nil
         get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
         return 

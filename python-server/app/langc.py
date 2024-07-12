@@ -71,7 +71,11 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
 def get_name_matches(name: str) -> list:
     """Use this tool to get the best matches for a given name. This tool will return a list of up to 5 stakeholder_ids who have names that are the best matches with the given name. 
     If the output only contains one stakeholder_id, then that is the best match use the tool read_stakeholders tool to get the information about the identified stakeholder.
-    If the output contains more than one stakeholder_id, then you should ask the user to clarify which stakeholder they are referring to. Following the format "Which names are you referring to?: list the name".
+    If the output contains more than one stakeholder_id, then you should ask the user to clarify which stakeholder they are referring to. Following the format :
+        "Which names are you referring to?: 
+        1. [name 1]
+        2. [name 2]
+        ..."
     If the output contains no names, then there are no matches for the given name.
     
     Args:

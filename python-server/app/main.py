@@ -47,7 +47,8 @@ def read_relationships(subject: int = None, predicate: str = None, object: int =
 def read_relationships_with_names(subject: int = None, predicate: str = None, object: int = None, db: Session = Depends(get_db)):
     relationships_with_names = crud.get_relationships_with_names(db, subject, predicate, object)
     if relationships_with_names == 'No results found.':
-        raise HTTPException(status_code=404, detail="No relationships found")
+        # raise HTTPException(status_code=404, detail="No relationships found")  # do we want to return this or return []? raising an exception might cause problems for our  llm
+        return []
     return relationships_with_names
             
 @app.post("/langchain/")

@@ -107,6 +107,24 @@ def get_name_matches(name: str) -> list:
                 
         return result
 
+@tool # does this need to be a tool? can this just be a function called by the tool that graphs?
+def get_relationships_with_names(subject_id:int = None, object_id:int = None) -> bytes:
+    '''
+    Use this tool to get the relationships stakeholders have with one another. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
+    If the output is an empty list then it means that the subject has no relationships with the object.
+    '''
+    
+    url = r'https://python-server-ohgaalojiq-de.a.run.app/relationships-with-names/?'
+    params = {}
+    if subject_id is not None:
+        params['subject'] = subject_id
+    
+    if object_id is not None:
+        params['object'] = object_id
+        
+    parsed_url = url + urllib.parse.urlencode(params)
+    
+    return requests.get(parsed_url).content #Returns the result in JSON format (bytes)
 
 def query_model(query:str, user_id:int, chat_id:int) -> str:
     """

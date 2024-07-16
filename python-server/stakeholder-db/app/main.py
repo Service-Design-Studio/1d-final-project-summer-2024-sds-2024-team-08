@@ -23,7 +23,11 @@ if __name__ == "__main__":
 async def db_session_middleware(request: Request, call_next):
     response = Response("Internal server error", status_code=500)
     try:
+<<<<<<< Updated upstream:python-server/stakeholder-db/app/main.py
         request.state.db = SessionLocal()
+=======
+        request.state.db = Session(stakeholder_engine) #session intialises a connection to stakeholder_engine which is a address for the database connection
+>>>>>>> Stashed changes:python-server/app/main.py
         response = await call_next(request)
     finally:
         request.state.db.close()

@@ -15,8 +15,8 @@ class Base(DeclarativeBase):
 class Stakeholder(Base):
     __tablename__ = 'stakeholders'
 
-    stakeholder_id = Column(Integer, primary_key=True, index=True)
-    name = Column(Text)
+    stakeholder_id = Column(Integer, primary_key=True, index=True)#at least one thing needs to ebbe a primary key
+    name = Column(Text) #i should expect text from a column
     headline = Column(Text)
     summary = Column(Text)
     photo = Column(Text)

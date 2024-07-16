@@ -3,6 +3,8 @@ from typing import Optional
 
 class UserInput(BaseModel):
     message: str
+    chat_id: int
+    user_id: int
 
 class StakeholderBase(BaseModel):
     name: Optional[str]
@@ -29,6 +31,10 @@ class Relationship(RelationshipBase):
 
     class Config:
         orm_mode: True
+        
+class AliasesBase(BaseModel):
+    stakeholder_id: int
+    other_names: str
 
 # class ItemBase(BaseModel):
 #     title: str

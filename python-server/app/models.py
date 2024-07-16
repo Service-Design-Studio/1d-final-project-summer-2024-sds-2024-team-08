@@ -88,3 +88,12 @@ class Message(Base):
     role = Column(Text, index=True)
     content = Column(Text)
     timestamp = Column(DateTime)
+    network_graph_id = Column(Integer, ForeignKey('network_graph.id'))
+    
+class Network_Graph(Base):
+    __tablename__ = 'network_graph'
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(Text)
+    chat_id = Column(Integer, ForeignKey('chats.chat_id'), index=True)
+
+    # I don't think we need to write explicit code for the foreign key relationships?

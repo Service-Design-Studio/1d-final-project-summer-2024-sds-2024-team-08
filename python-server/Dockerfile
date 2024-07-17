@@ -1,12 +1,21 @@
-FROM python:3.12.4-slim
+# Use the official image as a parent image
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10-slim
 
-RUN pip install --upgrade pip
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r  requirements.txt
+# Set the working directory
+WORKDIR /app
 
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
+# Copy the current directory contents into the container at /app
+COPY . /app
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y upgrade && apt-get install -y libpq-dev gcc
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+
+# Make port 80 available to the world outside this container
 EXPOSE 8080
-CMD gunicorn -k uvicorn.workers.UvicornWorker main:app
+
+# Define environment variable
+ENV PYTHONUNBUFFERED=1
+
+# Run app.py when the container launches
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

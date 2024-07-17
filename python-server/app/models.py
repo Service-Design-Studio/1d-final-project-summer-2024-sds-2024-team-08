@@ -92,7 +92,7 @@ class Message(Base):
     
 class Network_Graph(Base):
     __tablename__ = 'network_graph'
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     content = Column(Text)
     chat_id = Column(Integer, ForeignKey('chats.chat_id'), index=True)
 

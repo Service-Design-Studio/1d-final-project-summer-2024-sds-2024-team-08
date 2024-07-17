@@ -46,19 +46,15 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
     The result returned will be in JSON format.
 
     Args:
-        stakeholder_id (int, optional): _description_. Defaults to None.
-        name (str, optional): _description_. Defaults to None.
-        summary (bool, optional): _description_. Defaults to True.
-        headline (bool, optional): _description_. Defaults to True.
-        photo (bool, optional): _description_. Defaults to True.
-        db (Session, optional): _description_. Defaults to Depends(get_db).
+        stakeholder_id (int, optional): Defaults to None.
+        name (str, optional): Defaults to None.
+        summary (bool, optional): Defaults to True.
+        headline (bool, optional): Defaults to True.
+        photo (bool, optional): Defaults to True.
         
     Returns:
-        _type_: _description_
+        str: _description_
     """
-    #TODO: REFACTOR THIS TO PROPERLY POINT TO THE CORRECT MODULE
-    #IT IS CURRENTLY CALLING ITSELF (????)
-    
     with Session(stakeholder_engine) as session:
         stakeholders = crud.get_stakeholders(session, stakeholder_id, name, summary, headline, photo)
         
@@ -82,7 +78,6 @@ def get_name_matches(name: str) -> list:
     Returns:
         list: A list of up to 5 stakeholder_id who have names that are the best matches with the given name.
     """
-    
     normalized_input_name = normalize_name(name)
     
     if normalized_input_name  in aliases_dict.values():
@@ -112,6 +107,12 @@ def get_relationships_with_names(subject_id:int = None) -> bytes:
     Use this tool to get the every relationship the stakeholders have with one another. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
     After you have the relationships, you can use the tool generate_network to generate a network graph. The network graph will be generated and stored in the database. Once the graph has been stored, you will need to return the network_graph_id. This id will be used to retrieve the graph from the database.
     If the output is an empty list then it means that the subject has no relationships with the object.
+
+    Args:
+        subject_id (int): The name of the stakeholder you want to find matches for.
+        
+    Returns:
+        list: A list of subjects, predicates and objects
     '''
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships_with_names(session, subject=subject_id)
@@ -129,7 +130,7 @@ def get_relationships_with_names(subject_id:int = None) -> bytes:
 
 def get_photo(name):
     with Session(stakeholder_engine) as session:
-        response = session.scalars(select(Stakeholder)).filter(Stakeholder.name == name).limit(1).one_or_none()
+        response = session.scalars(select(Stakeholder).where(Stakeholder.name == name).limit(1)).one_or_none()
         if response is not None:
             ref_pic = response.photo
             if ref_pic:
@@ -141,54 +142,6 @@ def get_photo(name):
         else:
             print(f"stakeholder {name} does not exist")
             return None
-
-@tool
-def generate_network(config, relationships: list) -> bytes:
-    """You need to consider the predicates in each of the relationships and identify the appropriate ones only based on the user input. If the user did not mention any specific context, then you can consider all the relationships. 
-    You can use the tool map_data to generate the network graph. The network graph will be generated and stored in the database. Once the graph has been stored, you will need to return the network_graph_id. This id will be used to retrieve the graph from the database.
-    
-    Args:
-        config (JSON): A JSON object containing the chat_id of the chat that the network graph is associated with.
-        relationships (list): A list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
-
-    Returns:
-        bytes: A JSON object containing the network_graph_id.
-    """
-    subj_color="#77E4C8"
-    obj_color="#3DC2EC"
-    edge_color="#96C9F4"
-    subj_shape="image"
-    obj_shape="image"
-    alg="barnes"
-    buttons=False
-    g = Network(height="1024px", width="100%",font_color="black")
-    if buttons == True:
-        g.width = "75%"
-        g.show_buttons(filter_=["edges", "physics"])
-    for rs in relationships:
-        subj = rs[0]
-        pred = rs[1]
-        obj = rs[2]
-        s_pic = get_photo(subj)
-        o_pic = get_photo(obj)
-        g.add_node(subj, color=subj_color, shape=subj_shape, image=s_pic)
-        g.add_node(obj, color=obj_color, shape=obj_shape, image=o_pic)
-        g.add_edge(subj,obj,label=pred, color=edge_color, smooth=False)
-    g.barnes_hut()
-    g.toggle_physics(False)
-    g.set_edge_smooth("dynamic")
-    network_graph = g.generate_html()
-    with Session(user_engine) as session:
-        graph = Network_Graph()
-        graph.content = network_graph
-        graph.chat_id = config['chat_id']
-        
-        session.add(graph)
-        session.commit()
-        generated_id = graph.id
-        # Why do we need the network_graph_id in the messages table again?
-    
-    return {"network_graph_id": generated_id}
 
 def query_model(query:str, user_id:int, chat_id:int) -> str:
     """
@@ -205,11 +158,63 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
         s.add(message)
         s.commit()
 
-    model = ChatVertexAI(model="gemini-1.5-flash")
+    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
     
-    tools = [read_stakeholders, get_name_matches, get_relationships_with_names, use_config(chat_id=chat_id)(generate_network)]
+    @tool
+    def generate_network(relationships: list[list[str]]) -> dict:
+        """You need to consider the predicates in each of the relationships and identify the appropriate ones only based on the user input. If the user did not mention any specific context, then you can consider all the relationships. 
+        You can use the tool map_data to generate the network graph. The network graph will be generated and stored in the database. Once the graph has been stored, you will need to return the network_graph_id. This id will be used to retrieve the graph from the database.
+        
+        Args:
+            relationships (list): A list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
+
+        Returns:
+            results (str): A JSON object containing the network_graph_id.
+        """
+        subj_color="#77E4C8"
+        obj_color="#3DC2EC"
+        edge_color="#96C9F4"
+        subj_shape="image"
+        obj_shape="image"
+        alg="barnes"
+        buttons=False
+        g = Network(height="1024px", width="100%",font_color="black")
+        if buttons == True:
+            g.width = "75%"
+            g.show_buttons(filter_=["edges", "physics"])
+            
+        for rs in relationships:
+            subj = rs[0]
+            pred = rs[1]
+            obj = rs[2]
+            s_pic = get_photo(subj)
+            o_pic = get_photo(obj)
+            g.add_node(subj, color=subj_color, shape=subj_shape, image=s_pic)
+            g.add_node(obj, color=obj_color, shape=obj_shape, image=o_pic)
+            g.add_edge(subj,obj,label=pred, color=edge_color, smooth=False)
+        
+        g.barnes_hut()
+        g.toggle_physics(False)
+        g.set_edge_smooth("dynamic")
+        network_graph = g.generate_html()
+        with Session(user_engine) as session:
+            graph = Network_Graph()
+            graph.content = network_graph
+            graph.chat_id = chat_id
+            
+            session.add(graph)
+            session.commit()
+            generated_id = graph.id
+        
+        return {"network_graph_id": generated_id}
+
+    tools = [read_stakeholders, 
+             get_name_matches, 
+             get_relationships_with_names,
+             generate_network,
+             ]
+    
     graph = create_react_agent(model, tools=tools, checkpointer=PostgreSQLMemorySaver(engine=user_engine))
-    
     inputs = {"messages": [
         ("user", query)
         ]}

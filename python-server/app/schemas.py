@@ -36,6 +36,11 @@ class AliasesBase(BaseModel):
     stakeholder_id: int
     other_names: str
 
+class Fuck(BaseModel):
+    id: int
+    media_id: int
+    stakeholder_id: int
+
 # class ItemBase(BaseModel):
 #     title: str
 #     description: str | None = None

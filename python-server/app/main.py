@@ -58,14 +58,19 @@ def langchain_endpoint(user_input: schemas.UserInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/test/")
+@app.get("/test/", response_model=List[schemas.Fuck])
 def test_endpoint(id: int) -> str:
-    return id
-
+    # return f"Received id: {id}"
+    # return f"Received gay id: {id}" 
     with Session(media_engine) as s:
+        id = int(id)
         result = crud.get_stakeholders_from_media_id(s, id)
 
     return result
+    if result:
+        return result
+    else:
+        return f"Received gay id: {id}" 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)

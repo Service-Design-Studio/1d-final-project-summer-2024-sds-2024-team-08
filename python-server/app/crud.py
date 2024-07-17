@@ -75,11 +75,18 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
 
 
 def get_stakeholders_from_media_id(db: Session, id: int) -> str:
-    # result = db.query(models.Stakeholders_mentioned).filter(models.Stakeholders_mentioned.stakeholder_id == id).all()
-
-    return {"Gay"}
+    columns = [
+        models.Stakeholders_mentioned.id,
+        models.Stakeholders_mentioned.media_id,
+        models.Stakeholders_mentioned.stakeholder_id,
+    ]
+    
+    query = db.query(*columns)
+    # query = db.query(models.Stakeholders_mentioned).filter(models.Stakeholders_mentioned.stakeholder_id == id).first()
+    return query
+    # return f"Received gay id: {id}"
     if result:
-        return "Gay"
+        # return "certified Gay"
         return result.stakeholder_id
-    return None
+    return f"failed at gay id: {id}"
 

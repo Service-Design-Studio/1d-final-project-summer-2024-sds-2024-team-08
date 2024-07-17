@@ -94,4 +94,4 @@ class Stakeholders_mentioned(Base):
     __tablename__ = 'stakeholders_mentioned'
     id = Column(Integer, primary_key=True, index=True)
     media_id = Column(Integer)
-    stakeholder_ids = Column(Integer)
+    stakeholder_id = Column(Integer)

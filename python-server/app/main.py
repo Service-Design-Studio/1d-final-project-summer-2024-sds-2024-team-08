@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
 from . import (
@@ -10,6 +11,8 @@ from .database import stakeholder_engine
 #models.Base.metadata.create_all(bind=stakeholder_engine)
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):

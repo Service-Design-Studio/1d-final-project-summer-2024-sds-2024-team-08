@@ -6,7 +6,7 @@ from . import (
     crud, 
     schemas, 
     langc)
-from .database import stakeholder_engine
+from .database import stakeholder_engine, media_engine
 
 #models.Base.metadata.create_all(bind=stakeholder_engine)
 
@@ -61,6 +61,13 @@ def langchain_endpoint(user_input: schemas.UserInput):
         return {'responses': output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/media_id/",response_model=List[schemas.StakeholdersMentioned])
+def media_id_from_stakeholder(stakeholder_id: int):
+  with Session(media_engine) as s:
+    media_ids = crud.get_media_id_from_stakeholder(s, stakeholder_id=stakeholder_id)
+  return media_ids 
+
     
 if __name__ == "__main__":
     import uvicorn

@@ -21,6 +21,14 @@ db_params_stakeholders = {
     'port': getenv("STAKEHOLDERS_DB_PORT")
 }
 
+db_params_media = {
+    'dbname': 'media',
+    'user': getenv('STAKEHOLDERS_DB_USERNAME'),
+    'password': getenv("STAKEHOLDERS_DB_PASSWORD"),
+    'host': getenv("STAKEHOLDERS_DB_HOST"),
+    'port': getenv("STAKEHOLDERS_DB_PORT")
+}
+
 # Database connection URL
 def get_db_url(params):
     str = (f"postgresql+psycopg2://"+\
@@ -34,3 +42,4 @@ def get_db_url(params):
 # Create a SQLAlchemy engine
 user_engine = create_engine(get_db_url(db_params_users))
 stakeholder_engine = create_engine(get_db_url(db_params_stakeholders))
+media_engine = create_engine(get_db_url(db_params_media))

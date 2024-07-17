@@ -78,3 +78,17 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
     if not relationships_with_names:
         return 'No results found.'
     return relationships_with_names
+
+  
+def get_media_id_from_stakeholder(db: Session, id: int= None, media_id : int = None, stakeholder_id: int = None):
+  query = db.query(models.StakeholdersMentioned)
+  
+  if stakeholder_id is not None:
+    query = query.filter(models.StakeholdersMentioned.stakeholder_id == stakeholder_id)
+
+  if media_id is not None:
+    query = query.filter(models.StakeholderMentioned.media_id == media_id)
+
+  results = query.all()
+  return results  
+

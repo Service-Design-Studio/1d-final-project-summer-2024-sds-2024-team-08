@@ -97,3 +97,26 @@ class Network_Graph(Base):
     chat_id = Column(Integer, ForeignKey('chats.chat_id'), index=True)
 
     # I don't think we need to write explicit code for the foreign key relationships?
+
+
+class Media(Base):
+  __tablename__ = 'media'
+  country_ids = Column(Text) 
+  cluster_id = Column(Integer)
+  id = Column(Integer, primary_key=True, index=True)
+  published_at = Column(Text)
+  language = Column(Text)
+  stakeholder_ids = Column(Text)
+  type = Column(Text) 
+  industry_ids = Column(Text)
+  publisher = Column(Text)
+  content = Column(Text)
+  title = Column(Text)
+  issues = Column(Text)
+  subcountry_ids = Column(Text)  
+
+class StakeholdersMentioned(Base):
+    __tablename__ = 'stakeholders_mentioned'
+    id = Column(Integer, primary_key=True, index=True)
+    media_id = Column(Integer)
+    stakeholder_id = Column(Integer)

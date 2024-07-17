@@ -10,7 +10,7 @@ from .PostgreSQLMemorySaver import PostgreSQLMemorySaver
 import re
 from dotenv import load_dotenv
 from .models import Alias, Message, Stakeholder, Network_Graph
-from .database import user_engine, stakeholder_engine
+from .database import user_engine, stakeholder_engine, media_engine
 from . import crud
 from pyvis.network import Network
 import json

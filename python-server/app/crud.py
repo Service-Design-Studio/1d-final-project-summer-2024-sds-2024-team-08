@@ -23,7 +23,7 @@ def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, 
         columns.remove(models.Stakeholder.photo)
     
     query = db.query(*columns)
-    
+    #stakeholder_id is matched to sql table header
     if stakeholder_id is not None:
         query = query.filter(models.Stakeholder.stakeholder_id == stakeholder_id)
     
@@ -66,6 +66,7 @@ def extract_after_last_slash(text: str) -> str:
     return None
 
 def get_relationships_with_names(db: Session, subject: int = None, predicate: str = None, object: int = None):
+
     relationships = get_relationships(db, subject, predicate, object)
     relationships_with_names = []
     for result in relationships:

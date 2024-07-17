@@ -10,7 +10,7 @@ class StakeholderBase(BaseModel):
     name: Optional[str]
     headline: Optional[str]
     summary: Optional[str]
-    photo: Optional[str]
+    photo: Optional[str] 
     source: Optional[str]
     source_id: Optional[str]
     series: Optional[int]

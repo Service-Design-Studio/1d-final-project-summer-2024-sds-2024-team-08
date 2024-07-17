@@ -59,24 +59,10 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
     #TODO: REFACTOR THIS TO PROPERLY POINT TO THE CORRECT MODULE
     #IT IS CURRENTLY CALLING ITSELF (????)
     
-    #Cleaner way of building urls
-    url = r'https://python-server-ohgaalojiq-de.a.run.app?'
-    
-    params = {'summary': summary,
-            'headline': headline,
-            'photo': photo}
-    
-    #Only insert stakeholder_id and name into the URL if given
-    if stakeholder_id is not None:
-        params['stakeholder_id'] = stakeholder_id
-    
-    if name is not None: #Remove periods from names (in cases such as Dr.)
-        name = name.replace('.', '')
-        params['name'] = name
-
-    parsed_url = url + urllib.parse.urlencode(params)
-
-    return requests.get(parsed_url).content #Returns the result in JSON format (bytes)
+    with Session(stakeholder_engine) as session:
+        stakeholders = crud.get_stakeholders(session, stakeholder_id, name, summary, headline, photo)
+        
+    return stakeholders
 
 @tool
 def get_name_matches(name: str) -> list:

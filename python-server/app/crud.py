@@ -14,6 +14,13 @@ def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, 
         models.Stakeholder.photo
     ]
     
+    if summary == False:
+        columns.remove(models.Stakeholder.summary)
+    if headline == False:
+        columns.remove(models.Stakeholder.headline)
+    if photo == False:
+        columns.remove(models.Stakeholder.photo)
+    
     query = db.query(*columns)
     
     if stakeholder_id is not None:

@@ -37,3 +37,11 @@ Feature: For different users, display list of chats and chat history for each ch
     Scenario: SAD PATH: asking Genie question (uid=3)
         When I ask Genie Tell me more about oka kurniawan
         Then I should see the response saying it cannot find any information
+
+    Scenario: explicitly asking for graph (uid=3) 
+        When I ask for a network graph about stakeholders 
+        Then I should see a network graph 
+
+    Scenario: SAD PATH: explicitly asking for graph (uid=3) 
+        When I ask for a network graph about stakeholders but there is not enough information 
+        Then I should see the response saying insufficient information for graph 

@@ -13,10 +13,27 @@ Feature: For different users, display list of chats and chat history for each ch
         When I click on past chat 
         Then I should see the chat history 
 
-    Scenario: new user account (uid=3)
+    Scenario: new user account (uid=1)
         When I switch to a new account
         Then I should see no past chats
 
-    Scenario: any user account (uid=3)
+    Scenario: any user account (uid=1)
         When I attempt to access a chat by url that is not mine
         Then I should see an alert stopping me
+
+    Scenario: asking Genie question (correct spelling) (uid=3)
+        When I ask Genie who is Ben Carson
+        Then I should see the question asked disappear
+        And I should see the response containing Ben Carson's information
+
+    Scenario: asking Genie question (incorrect spelling) (uid=3)
+        When I ask Genie Who is donal dtrump
+        Then I should see the response asking which names and it includes Donald Trump
+
+    Scenario: asking Genie question (lowercase no space) (uid=3)
+        When I ask Genie Tell me more about joebiden
+        Then I should see the response asking which names and it includes Joe Biden
+
+    Scenario: SAD PATH: asking Genie question (uid=3)
+        When I ask Genie Tell me more about oka kurniawan
+        Then I should see the response saying it cannot find any information

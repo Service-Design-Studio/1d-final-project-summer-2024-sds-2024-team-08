@@ -2,24 +2,58 @@ require 'net/http' # import to make HTTP requests
 require 'uri'
 require 'json'
 
+# constants here 
+LANGCHAIN_API = "https://python-server-ohgaalojiq-de.a.run.app/"
+
 class ChatsController < ApplicationController
     before_action :set_chat_ids
     before_action :authorize_chat_access, only: [:get_chat_with_id]
 
-    # define constants here 
-    PY_SERVER_URL = "https://python-server-vdvad4wjla-de.a.run.app"
     #shifted USER to application controller
-
+    
     def index # Rails auto look for action_name.html.erb template
+        @chat_id = params[:chat_id] || 0
         @chat_history = []
         @default_landing_page = true
     end
 
     def get_chat_with_id
-        chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
-        @chat_history = get_messages_given_chatid(chat_id)
+        @chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
+        @chat_history = get_messages_given_chatid(@chat_id)
         @default_landing_page = false
         render("index")
+    end 
+
+    def handle_user_msg
+        # handle empty request 
+        if params[:message] == "" 
+            params[:message] = nil
+            get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
+            return 
+        end 
+
+        # message must be a string, post() expects a string
+        message = {'message'=>params[:message], 'chat_id'=>params[:chat_id], 'user_id'=> $USER}.to_json.to_s
+        puts message
+
+        # send form contents to python side 
+        langchain_endpoint = "/langchain/"
+        uri = URI.parse(LANGCHAIN_API + langchain_endpoint)
+        response = Net::HTTP.post(uri, message, {'content-type': 'application/json'})
+
+        if response.is_a?(Net::HTTPSuccess)
+            data = JSON.parse(response.body)
+        else
+            puts "Error: #{response.message}"
+        end
+        p data 
+
+        # package response
+        # data = {"id"=>100, "role"=>"assistant", "content"=> (data == nil ? "" : data["responses"])}
+
+        params[:message] = nil
+        get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
+        return 
     end 
 
     private # methods defined here onwards is private 
@@ -38,33 +72,12 @@ class ChatsController < ApplicationController
     end
 
     def get_chatid_given_userid(user_id)
-        chat_endpoint = "/chats?uid=#{user_id}"
-        uri = URI.parse(PY_SERVER_URL + chat_endpoint)
-        response = Net::HTTP.get_response(uri)
-
-        if response.is_a?(Net::HTTPSuccess)
-            data = JSON.parse(response.body)
-        else
-            puts "Error: #{response.message}"
-            return [] 
-        end
-
-        data["chat_ids"].map {|e| {chat_id: e, chat_name: "chat id: #{e}"}}
+        res = Chat.get_chatid_given_userid(user_id)
+        res[:chat_ids].map {|e| {chat_id: e, chat_name: "chat id: #{e}"}}
     end
 
     def get_messages_given_chatid(chat_id)
-        message_endpoint = "/messages?chat_id=#{chat_id}"
-        uri = URI.parse(PY_SERVER_URL + message_endpoint)
-        response = Net::HTTP.get_response(uri)
-
-        if response.is_a?(Net::HTTPSuccess)
-            data = JSON.parse(response.body)
-            pp data
-        else
-            puts "Error: #{response.message}"
-            return []
-        end
-
-        data["messages"]
+        res = Message.get_messages_given_chatid(chat_id)
+        res.map{|e| {"id"=> e['message_id'], "role"=> e['role'], "content"=> e['content']}}
     end 
 end

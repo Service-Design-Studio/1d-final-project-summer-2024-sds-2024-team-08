@@ -6,7 +6,9 @@
     <%# <link rel="stylesheet" href="styles.css"> %>
     <%= stylesheet_link_tag 'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
+    <%= javascript_include_tag 'custom' %>
     <%= csrf_meta_tags %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="container-fluid h-100">
@@ -55,17 +57,8 @@
                     <%= yield %>
                 </div>
                 <div class="bottom-section w-100 position-absolute d-flex flex-column align-items-center" style="bottom: 20px;">
-                    <div class="actions d-flex justify-content-around w-100 mb-3">
-                        <button class="action-btn btn btn-light">Impact Analysis</button>
-                        <button class="action-btn btn btn-light">Analyze Sentiments</button>
-                        <button class="action-btn btn btn-light">Identify Competitor</button>
-                        <button class="action-btn btn btn-light">Identify Stakeholder</button>
-                        <button class="action-btn btn btn-light">Assess Compliance</button>
-                        <button class="action-btn btn btn-light">Forecast Trend</button>
-                    </div>
-                    <div class="explore w-100 d-flex align-items-center">
-                        <input type="text" class="form-control" placeholder="What would you like to explore now?" id="explore-input">
-                        <button class="explore-btn btn btn-primary ml-2" id="explore-btn">&#9654;</button>
+                    <div class="explore w-100 d-flex flex-column align-items-center">
+                        <%= yield :message_form %>
                     </div>
                 </div>
             </div>
@@ -74,28 +67,30 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
     <script>
-    document.getElementById('menu-toggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('hidden');
-    });
+      document.getElementById("menu-toggle").addEventListener("click", function(e) {
+        e.preventDefault();
+        document.getElementById("wrapper").classList.toggle("toggled");
+      });
     </script>
 
     <% if flash[:alert] %>
         <div class="alert alert-danger alert-dismissible fade show centered-alert" role="alert">
-            <%= flash[:alert] %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+        <%= flash[:alert] %>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
         </div>
     <% end %>  
 
     <% if flash[:notice] %>
         <div class="alert alert-success alert-dismissible fade show centered-alert" role="alert" data-test="flash-notice">
-            <%= flash[:notice] %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+        <%= flash[:notice] %>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
         </div>
-    <% end %>  
+    <% end %>
 </body>
 </html>

@@ -76,3 +76,5 @@ end
 group :production do
     gem 'execjs'
 end
+
+gem "pg", "~> 1.5"

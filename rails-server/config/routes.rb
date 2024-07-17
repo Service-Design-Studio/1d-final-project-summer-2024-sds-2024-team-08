@@ -9,7 +9,10 @@ Rails.application.routes.draw do
   # root "posts#index"
   
     root("chats#index")
+
+    ##### Chat specific requests #####
     get("/c", to: "chats#index")
-    get("c/:chat_id", to: "chats#get_chat_with_id", as: "get_chat_with_id")
+    get("c/:chat_id", to: "chats#get_chat_with_id", as: "get_chat_with_id") # display chat history 
     get('change_user/:user_id', to: 'application#change_user', as: 'change_user')
+    post("c/:chat_id", to: "chats#handle_user_msg", as: "handle_user_msg") # send message 
 end

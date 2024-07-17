@@ -103,6 +103,16 @@ html, body {
   box-sizing: border-box;
 }
 
+.input-group {
+  align-items: center;
+}
+
+.form-control {
+  border: none;
+  box-shadow: none;
+  flex-grow: 1; /* Ensures the input field grows to take up remaining space */
+}
+
 .actions {
   display: flex;
   justify-content: space-around;
@@ -115,6 +125,10 @@ html, body {
   background-color: #e0e0e0;
   border: none;
   cursor: pointer;
+  margin-right: 1vw;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #f8f9fa; /* Light background color */
 }
 
 .explore {
@@ -124,17 +138,19 @@ html, body {
 
 .explore-input {
   display: table-cell;
+  height: 100%;
   width: 96%;
   padding-right: 1vw;
 }
 
-.explore-btn {
+.input-group-append .explore-btn {
   display: table-cell;
   width: 4%;
   padding: 1vh 2vw;
-  background-color: #007bff;
-  color: white;
+  background-color: transparent; /* Transparent background */
+  color:#ffffff;
   border: none;
+  margin-left: 1vw;
   cursor: pointer;
 }
 
@@ -184,4 +200,22 @@ html, body {
 .scrollable-section {
   max-height: 70vh;
   overflow-y: auto;
+}
+
+#sidebar-wrapper {
+  width: 250px;
+  transition: all 0.3s;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: -250px;
+}
+
+#page-content-wrapper {
+  width: 100%;
+  transition: all 0.3s;
+}
+
+#wrapper.toggled #page-content-wrapper {
+  margin-left: 0;
 }

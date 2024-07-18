@@ -18,4 +18,4 @@ EXPOSE 8080
 ENV PYTHONUNBUFFERED=1
 
 # Run app.py when the container launches
-CMD ["gunicorn", "-w", "2", "0.0.0.0:8080", "--chdir", "app", "main"]
+CMD ["uvicorn", "--app-dir", "app", "--host", "0.0.0.0", "--port", "8080", "main:app"]

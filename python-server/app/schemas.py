@@ -45,6 +45,20 @@ class StakeholdersMentioned(BaseModel):
     class Config:
         orm_mode : True
 
+class Media(BaseModel):
+  country_ids: Optional[str]
+  cluster_id: Optional[int]
+  id: Optional[int]
+  published_at: Optional[str]
+  language: Optional[str]
+  stakeholder_ids: Optional[str]
+  type: Optional[str]
+  industry_ids: Optional[str]
+  publisher: Optional[str]
+  content: Optional[str]
+  title: Optional[str]
+  issues: Optional[str]
+  subcountry_ids: Optional[str]
 
 
 # class ItemBase(BaseModel):

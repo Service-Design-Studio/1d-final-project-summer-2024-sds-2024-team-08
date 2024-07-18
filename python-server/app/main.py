@@ -3,8 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List
-import crud, schemas, langc
-from database import stakeholder_engine, user_engine
+from . import crud, schemas, langc
+from .database import stakeholder_engine, user_engine, media_engine
 
 #models.Base.metadata.create_all(bind=stakeholder_engine)
 
@@ -62,9 +62,19 @@ def langchain_endpoint(user_input: schemas.UserInput):
 def media_id_from_stakeholder(stakeholder_id: int):
   with Session(media_engine) as s:
     media_ids = crud.get_media_id_from_stakeholder(s, stakeholder_id=stakeholder_id)
+  if stakeholder_id == 'No results found.':
+    raise HTTPException(status_code=404, detail="No media found")
   return media_ids 
 
+@app.get("/content/", response_model=List[schemas.Media])
+def read_content_from_media_id(media_id: int):
+  with Session(media_engine) as s:
+    content = crud.get_content_from_media_id(s, media_id = media_id)
+  if media_id == 'No results found.':
+    raise HTTPException(status_code=404, detail="No media found")
+  return content
     
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)
+    

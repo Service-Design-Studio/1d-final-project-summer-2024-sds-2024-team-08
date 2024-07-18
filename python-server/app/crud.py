@@ -82,5 +82,6 @@ def get_stakeholders_from_media_id(db: Session, id: int) -> str:
     ]
     
     query = db.query(*columns)
+    
     return query
 

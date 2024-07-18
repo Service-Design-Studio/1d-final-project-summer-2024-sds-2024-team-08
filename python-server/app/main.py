@@ -63,9 +63,11 @@ def test_endpoint(id: int) -> str:
     # return f"Received id: {id}"
     # return f"Received gay id: {id}" 
     with Session(media_engine) as s:
+
         result = crud.get_stakeholders_from_media_id(s, id)
 
     return result
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)

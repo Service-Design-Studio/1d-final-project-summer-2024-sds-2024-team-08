@@ -14,10 +14,10 @@
     <div class="container-fluid h-100">
         <div class="row h-100">
             <!-- Sidebar -->
-            <div id="sidebar" class="bg-light border-right d-flex flex-column justify-content-between p-3 sidebar">
+            <div id="sidebar" class="d-flex flex-column justify-content-between p-3 sidebar">
                 <!-- Change User ID Dropdown -->
                 <div class="dropdown mb-3">
-                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-test="change-user-dropdown">
+                    <button class="dropdown-btn w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-test="change-user-dropdown">
                         Change User ID
                     </button>
                     <div class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
@@ -27,7 +27,10 @@
                     </div>
                 </div>
                 <div class="new-chat mb-3">
-                    <button class="new-chat-btn btn btn-secondary w-100">+ New Chat</button>
+                    <button class="new-chat-btn btn btn-secondary w-100">
+                        <i class="fas fa-plus"></i>
+                        <span>New Chat</span>
+                    </button>
                 </div>
                 <div class="sections flex-grow-1 scrollable-section">
                     <div class="section-title font-weight-bold">Today</div>
@@ -45,7 +48,10 @@
                     </ul>
                 </div>
                 <div class="settings mt-4">
-                    <button class="btn btn-secondary w-100">Settings</button>
+                    <button id="settings-button" class="settings-btn d-flex align-items-center">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </button>
                 </div>
             </div>
              <button id="menu-toggle"class="menu-toggle btn btn-link text-dark p-0">&#9776;</button>

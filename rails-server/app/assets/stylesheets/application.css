@@ -15,12 +15,13 @@ html, body {
 
 .sidebar {
   position: relative;
-  width: 20vw; /* Use vw for a responsive width */
+  width: 17vw; /* Use vw for a responsive width */
   transition: width 0.3s ease;
   flex-direction: column;
   justify-content: space-between;
   padding: 2vh 2vw;
   height: 100vh;
+  background-color: #F0F4F9;
 }
 .sidebar-hidden {
   display: none !important;
@@ -143,6 +144,7 @@ html, body {
 }
 
 .action-btn {
+  display: none;
   padding: 1vh 2vw;
   background-color: #e0e0e0;
   border: none;
@@ -334,6 +336,58 @@ html, body {
   background-position: center;
 }
 
+/* Default scrollbar style */
+.scrollable-section::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.scrollable-section::-webkit-scrollbar-track {
+  background: transparent; /* Background of the scrollbar track */
+}
+
+.scrollable-section::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  transition: 0.3s ease, width 0.3s ease; /* Smooth transition */
+}
+
+.scrollable-section::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color when hovering over the scrollbar thumb */
+}
+
+.scrollable-section.hovered::-webkit-scrollbar {
+  width: 16px; /* Wider width when hovered */
+}
+
+.scrollable-section.hovered::-webkit-scrollbar-thumb {
+  background: #555; /* Darker color when hovered */
+}
+
+.scrollable-section::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.scrollable-section.hovered::-webkit-scrollbar-button {
+  display: block;
+  width: 16px; /* Width of the scrollbar arrows */
+  height: 16px; /* Height of the scrollbar arrows */
+  background-color: #555; /* Color of the scrollbar arrows */
+}
+
+.scrollable-section::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M7 14l5-5 5 5H7z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.scrollable-section:-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M7 10l5 5 5-5H7z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 /* Message content */
 
 .message-content {
@@ -363,3 +417,113 @@ html, body {
   margin-right: 5px; /* Adjust the spacing as needed */
   vertical-align: middle; /* Aligns the icon with the text */
 }
+
+/* Settings button */
+
+.settings-btn {
+  display: flex;
+  align-items: center;
+  margin: 10px 0; /* Adjust margin as needed */
+  border: 1px transparent; /* Border color */
+  background-color: transparent; /* Background color */
+  color: #333; /* Text color */
+  text-decoration: none; /* Remove underline from links */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.settings-btn i {
+  margin-right: 8px; /* Space between icon and text */
+}
+
+.settings-btn:hover {
+  background-color: #e9e9e9; /* Background color on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+}
+
+.settings-btn:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus ring */
+}
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 20px;
+  background-color: #f1f1f1;
+  color: #999;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.new-chat-btn i {
+  margin-right: 8px;
+}
+
+.new-chat-btn:hover {
+  background-color: #e1e1e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.new-chat-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5vh 2vw; /* Responsive padding */
+  border: none;
+  border-radius: 2vh; /* Responsive border radius */
+  background-color: #FFFFFF; /* Light background color */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.dropdown-btn span {
+  color: #ccc; /* Placeholder text color */
+}
+
+.dropdown-btn i {
+  margin-left: 1vw; /* Responsive margin */
+  color: #ccc; /* Icon color */
+}
+
+.dropdown-btn:hover {
+  background-color: #e1e1e1; /* Background color on hover */
+}
+
+.dropdown-btn:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 0 0.3vh rgba(0, 123, 255, 0.25); /* Focus ring */
+}
+
+.dropdown-menu {
+  background-color: #ffffff; /* Background color of the dropdown */
+  border-radius: 1vh; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 1vh 0; /* Padding inside the dropdown */
+}
+
+.dropdown-item {
+  color: #333; /* Text color */
+  padding: 1vh 2vw; /* Responsive padding */
+  text-decoration: none; /* Remove underline from links */
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #e1e1e1; /* Background color on hover */
+  color: #007bff; /* Text color on hover */
+}
+
+

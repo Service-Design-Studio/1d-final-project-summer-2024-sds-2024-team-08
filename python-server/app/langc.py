@@ -230,7 +230,8 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
                 g.add_node(obj, color=obj_color, shape=obj_shape, image=o_pic)
                 g.add_edge(subj,obj,label=pred, color=edge_color, smooth=False)
             
-        g.barnes_hut()
+        # g.barnes_hut(overlap=1)
+        g.hrepulsion(central_gravity=-0.1)
         g.toggle_physics(False)
         g.set_edge_smooth("dynamic")
         network_graph = g.generate_html()

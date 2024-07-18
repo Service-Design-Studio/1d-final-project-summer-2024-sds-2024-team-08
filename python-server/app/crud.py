@@ -83,3 +83,14 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
 
 def get_graph(db: Session, id):
     return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))
+
+def get_stakeholders_from_media_id(db: Session, id: int) -> str:
+    columns = [
+        models.Stakeholders_mentioned.id,
+        models.Stakeholders_mentioned.media_id,
+        models.Stakeholders_mentioned.stakeholder_id,
+    ]
+    
+    query = db.query(*columns)
+    return query
+

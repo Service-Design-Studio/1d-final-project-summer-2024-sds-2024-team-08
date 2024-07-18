@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 import re
-from . import models
+import models
 
 def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
     columns = [
@@ -78,3 +79,6 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
     if not relationships_with_names:
         return 'No results found.'
     return relationships_with_names
+
+def get_graph(db: Session, id):
+    return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))

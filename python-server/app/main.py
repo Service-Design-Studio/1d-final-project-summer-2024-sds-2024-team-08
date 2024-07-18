@@ -58,6 +58,13 @@ def langchain_endpoint(user_input: schemas.UserInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/media_id/",response_model=List[schemas.StakeholdersMentioned])
+def media_id_from_stakeholder(stakeholder_id: int):
+  with Session(media_engine) as s:
+    media_ids = crud.get_media_id_from_stakeholder(s, stakeholder_id=stakeholder_id)
+  return media_ids 
+
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)

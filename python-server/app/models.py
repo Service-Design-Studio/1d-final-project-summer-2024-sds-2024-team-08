@@ -1,7 +1,7 @@
 from sqlalchemy import (
     Column, 
     Text, 
-    Integer, 
+    Integer,     
     DateTime, 
     ForeignKey, 
     BLOB,
@@ -9,7 +9,7 @@ from sqlalchemy import (
 
 from sqlalchemy.orm import relationship, DeclarativeBase
 
-class Base(DeclarativeBase):
+class Base(DeclarativeBase):  #need to setup!!!
     pass
 
 class Stakeholder(Base):

@@ -15,7 +15,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from models import Checkpoint_ORM
 
-class PostgreSQLMemorySaver(BaseCheckpointSaver):
+class PostgreSQLMemorySaver(BaseCheckpointSaver): #insert engine into the class as a constructor, dependency injection
     def __init__(self, engine, *, serde: Optional[SerializerProtocol] = None) -> None:
         super().__init__(serde=serde)
         self.engine = engine

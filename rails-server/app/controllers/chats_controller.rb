@@ -17,6 +17,7 @@ class ChatsController < ApplicationController
         @default_landing_page = true
     end
 
+    # run this when user go to /c/:id 
     def get_chat_with_id
         @chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
         
@@ -26,6 +27,7 @@ class ChatsController < ApplicationController
         render("index")
     end 
 
+    # run this when user send query 
     def handle_user_msg
         # handle empty request 
         if params[:message] == "" 
@@ -41,14 +43,7 @@ class ChatsController < ApplicationController
         # send form contents to python side 
         langchain_endpoint = "/langchain/"
         uri = URI.parse(LANGCHAIN_API + langchain_endpoint)
-        response = Net::HTTP.post(uri, message, {'content-type': 'application/json'})
-
-        if response.is_a?(Net::HTTPSuccess)
-            data = JSON.parse(response.body)
-        else
-            puts "Error: #{response.message}"
-        end
-        p data 
+        Net::HTTP.post(uri, message, {'content-type': 'application/json'})
 
         # reset message to have empty text input 
         params[:message] = nil
@@ -76,8 +71,12 @@ class ChatsController < ApplicationController
         res[:chat_ids].map {|e| {chat_id: e, chat_name: "chat id: #{e}"}}
     end
 
+    # prepares each message for display in erb file, prepare network graph html also 
     def get_messages_given_chatid(chat_id)
         res = Message.get_messages_given_chatid(chat_id)
-        res.map{|e| {"id"=> e['message_id'], "role"=> e['role'], "content"=> e['content']}}
+        res.map{|e| {"id"=> e['message_id'],
+                    "role"=> e['role'],
+                    "content"=> e['content'],
+                    "has_graph"=> (graph_id = e['network_graph_id']).nil? ? nil : NetworkGraph.get_graph_by_id(graph_id) }}
     end 
 end

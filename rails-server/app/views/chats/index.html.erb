@@ -16,10 +16,10 @@
                         <strong><%= msg['role'] == 'user' ? 'You' : 'Genie' %></strong>
 
                         <%# display embed if content starts with http else normal text %>
-                        <% if msg["content"].start_with?("http") %>
-                            <embed type="image/jpg" src="<%= msg["content"].strip %>" width="300" height="200">
-                        <% else %>
+                        <% if msg["has_graph"].nil? %>
                             <p class="mb-0"><%= msg["content"] %></p>
+                        <% else %>
+                            <%= raw msg["has_graph"] %>
                         <% end %>
                     </div>
                 </div>

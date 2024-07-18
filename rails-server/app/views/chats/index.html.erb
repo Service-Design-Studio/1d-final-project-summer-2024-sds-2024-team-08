@@ -10,7 +10,7 @@
     <div class="messages-wrapper w-100">
       <% @chat_history.each do |msg| %>
         <div class="row mb-3">
-          <div class="col-12 d-flex justify-content-start">
+          <div class="col-12 d-flex justify-content-center">
             <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'user' : 'genie' %> p-3 rounded">
               <strong>
                 <% if msg['role'] == 'user' %>

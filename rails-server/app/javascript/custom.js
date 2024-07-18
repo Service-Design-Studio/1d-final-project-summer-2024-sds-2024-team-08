@@ -33,5 +33,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
   if (chatHistory) {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   }
-  
+
+  var menuToggle = document.getElementById('menu-toggle');
+  var sidebar = document.getElementById('sidebar');
+
+  menuToggle.addEventListener('click', function() {
+    if (sidebar.classList.contains('sidebar-hidden')) {
+      sidebar.classList.remove('sidebar-hidden');
+    } else {
+      sidebar.classList.add('sidebar-hidden');
+    }
+  });
+
 });

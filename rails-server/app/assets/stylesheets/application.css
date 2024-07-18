@@ -9,14 +9,33 @@ html, body {
   height: 100vh;
 }
 
+.dropdown {
+  margin-top: 50px; /* Adjust this value to move the buttons down */
+}
+
 .sidebar {
-  display: flex;
+  position: relative;
+  width: 20vw; /* Use vw for a responsive width */
+  transition: width 0.3s ease;
   flex-direction: column;
   justify-content: space-between;
   padding: 2vh 2vw;
-  position: relative;
   height: 100vh;
-  transition: transform 0.3s ease;
+}
+.sidebar-hidden {
+  display: none !important;
+}
+
+
+.menu-toggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  z-index: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .sidebar ul li{
@@ -57,6 +76,7 @@ html, body {
   min-height: 100vh;
   background-color: #ffffff;
   flex-grow: 1;
+  transition: all 0.3s ease;
 }
 
 .center-content {
@@ -66,6 +86,7 @@ html, body {
   align-items: center;
   max-height: 80vh;
   margin-bottom: 5vh;
+  width: 100%; /* Ensure the content takes the full width */
   justify-content: flex-start;
   overflow-y: auto;
 }
@@ -98,9 +119,10 @@ html, body {
   align-items: center;
   position: absolute;
   bottom: 2vh;
-  left: 0;
   padding: 0 2vw;
   box-sizing: border-box;
+  max-width: 80vw; /* Ensure bottom section does not exceed full width using vw */
+  overflow: hidden; /* Prevents horizontal overflow */
 }
 
 .input-group {
@@ -115,7 +137,7 @@ html, body {
 
 .actions {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   width: 100%;
   margin-bottom: 2vh;
 }
@@ -174,7 +196,7 @@ html, body {
 .chat-history {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;
 }

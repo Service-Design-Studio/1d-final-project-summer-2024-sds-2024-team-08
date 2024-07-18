@@ -1,18 +1,14 @@
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List
-from . import (
-    crud, 
-    schemas, 
-    langc)
-from .database import stakeholder_engine
+import crud, schemas, langc
+from database import stakeholder_engine, user_engine
 
 #models.Base.metadata.create_all(bind=stakeholder_engine)
 
 app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
@@ -61,7 +57,7 @@ def langchain_endpoint(user_input: schemas.UserInput):
         return {'responses': output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)

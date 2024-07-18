@@ -2,5 +2,6 @@
 !requirements.txt
 *_test.py
 __pycache__
+.venv
 data/csv
 build_database.py

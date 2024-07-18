@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 
-from .models import Checkpoint_ORM
+from models import Checkpoint_ORM
 
 class PostgreSQLMemorySaver(BaseCheckpointSaver):
     def __init__(self, engine, *, serde: Optional[SerializerProtocol] = None) -> None:
@@ -24,7 +24,6 @@ class PostgreSQLMemorySaver(BaseCheckpointSaver):
         thread_id = config["configurable"]["thread_id"]
 
         query = select(Checkpoint_ORM).where(Checkpoint_ORM.chat_id == thread_id)
-        print(query)
         
         if ts := config["configurable"].get("thread_ts"):
             query = query.where(Checkpoint_ORM.timestamp == ts)

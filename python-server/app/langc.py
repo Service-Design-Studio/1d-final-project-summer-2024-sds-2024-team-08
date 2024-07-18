@@ -1,4 +1,4 @@
-from langchain_core.tools import tool
+from langchain_core.tools import tool, BaseTool
 from langgraph.prebuilt import create_react_agent
 from langchain_google_vertexai import ChatVertexAI
 import requests
@@ -14,7 +14,8 @@ from .database import user_engine, stakeholder_engine
 from . import crud
 from pyvis.network import Network
 import json
-from functools import wraps
+from functools import wraps, partial
+from typing import List
 
 load_dotenv()
 
@@ -128,7 +129,7 @@ def get_relationships_with_names(subject_id:int = None) -> bytes:
         
     return subject_rs + object_rs
 
-def get_photo(name):
+def get_photo(name: str) -> str:
     with Session(stakeholder_engine) as session:
         response = session.scalars(select(Stakeholder).where(Stakeholder.name == name).limit(1)).one_or_none()
         if response is not None:
@@ -143,22 +144,9 @@ def get_photo(name):
             print(f"stakeholder {name} does not exist")
             return None
 
-def query_model(query:str, user_id:int, chat_id:int) -> str:
-    """
-    Call this function from outside the module
-    """
-
-    with Session(user_engine) as s:
-        message = Message()
-        message.chat_id = chat_id
-        message.content = query
-        message.sender_id = user_id
-        message.role = 'user'
-
-        s.add(message)
-        s.commit()
-
-    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
+g_id = {}  # Dictionary to store the generated network graph id a global dictionary
+def generate_tools(chat_id: int) -> List[BaseTool]:
+    """Generate a set of tools that have a chat_id associated with them."""
     
     @tool
     def generate_network(relationships: list[list[str]]) -> dict:
@@ -167,7 +155,7 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
         
         Args:
             relationships (list): A list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
-
+            
         Returns:
             results (str): A JSON object containing the network_graph_id.
         """
@@ -197,6 +185,7 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
         g.toggle_physics(False)
         g.set_edge_smooth("dynamic")
         network_graph = g.generate_html()
+        
         with Session(user_engine) as session:
             graph = Network_Graph()
             graph.content = network_graph
@@ -205,15 +194,35 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
             session.add(graph)
             session.commit()
             generated_id = graph.id
+        g_id[chat_id] = generated_id
+        print(f"generated id: {generated_id}")
+        print(f"g_id: {g_id}")
         
         return {"network_graph_id": generated_id}
-
-    tools = [read_stakeholders, 
-             get_name_matches, 
-             get_relationships_with_names,
-             generate_network,
-             ]
     
+    return [generate_network]
+  
+def query_model(query:str, user_id:int, chat_id:int) -> str:
+    """
+    Call this function from outside the module
+    """
+
+    with Session(user_engine) as s:
+        message = Message()
+        message.chat_id = chat_id
+        message.content = query
+        message.sender_id = user_id
+        message.role = 'user'
+
+        s.add(message)
+        s.commit()
+
+    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
+    
+    ls = [read_stakeholders, get_name_matches, get_relationships_with_names]
+    
+    tools = ls + generate_tools(chat_id=chat_id)
+
     graph = create_react_agent(model, tools=tools, checkpointer=PostgreSQLMemorySaver(engine=user_engine))
     inputs = {"messages": [
         ("user", query)
@@ -225,14 +234,17 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     
     response = graph.invoke(inputs, config=config, stream_mode="updates") #Stream mode set to updates instead of values for less verbosity
     response_str = response[-1]['agent']['messages'][-1].content
-
+            
+    #  insert graph shit into Messages 
     with Session(user_engine) as s:
         message = Message()
         message.chat_id = chat_id
         message.content = response_str
         message.sender_id = 1
         message.role = 'assistant'
-
+        if chat_id in g_id:
+            message.network_graph_id = g_id[chat_id]
+            del g_id[chat_id]        
         s.add(message)
         s.commit()
 
@@ -240,3 +252,4 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
 
 if __name__ == '__main__':
     print(query_model("Help me visualize how Ben Carson is related to other stakeholders", 3, 5))
+    

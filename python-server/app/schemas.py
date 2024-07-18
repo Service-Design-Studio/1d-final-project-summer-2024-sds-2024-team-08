@@ -37,6 +37,16 @@ class AliasesBase(BaseModel):
     other_names: str
 
 
+class StakeholdersMentioned(BaseModel):
+    id: int
+    media_id: int
+    stakeholder_id: int
+
+    class Config:
+        orm_mode : True
+
+
+
 # class ItemBase(BaseModel):
 #     title: str
 #     description: str | None = None

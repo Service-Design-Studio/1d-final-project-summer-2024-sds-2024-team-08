@@ -81,17 +81,16 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
         return 'No results found.'
     return relationships_with_names
 
-def get_graph(db: Session, id):
-    return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))
+  
+def get_media_id_from_stakeholder(db: Session, id: int= None, media_id : int = None, stakeholder_id: int = None):
+  query = db.query(models.StakeholdersMentioned)
+  
+  if stakeholder_id is not None:
+    query = query.filter(models.StakeholdersMentioned.stakeholder_id == stakeholder_id)
 
-def get_stakeholders_from_media_id(db: Session, id: int) -> str:
-    columns = [
-        models.Stakeholders_mentioned.id,
-        models.Stakeholders_mentioned.media_id,
-        models.Stakeholders_mentioned.stakeholder_id,
-    ]
-    
-    query = db.query(*columns)
-    
-    return query
+  if media_id is not None:
+    query = query.filter(models.StakeholderMentioned.media_id == media_id)
+
+  results = query.all()
+  return results  
 

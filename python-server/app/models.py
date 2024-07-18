@@ -126,3 +126,4 @@ class StakeholdersMentioned(Base):
         "id": self.id,
         "media_id": self.media_id,
         "stakeholder_id": self.stakeholder_id})
+    stakeholder_id = Column(Integer)

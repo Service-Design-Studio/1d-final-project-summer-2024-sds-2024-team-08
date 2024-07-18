@@ -114,3 +114,5 @@ if __name__ == '__main__':
     media_id = get_media_id_from_stakeholder(s, stakeholder_id=22183)
   print(media_id)
   
+  return results  
+

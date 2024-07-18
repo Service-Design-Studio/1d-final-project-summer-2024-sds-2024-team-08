@@ -82,11 +82,5 @@ def get_stakeholders_from_media_id(db: Session, id: int) -> str:
     ]
     
     query = db.query(*columns)
-    # query = db.query(models.Stakeholders_mentioned).filter(models.Stakeholders_mentioned.stakeholder_id == id).first()
     return query
-    # return f"Received gay id: {id}"
-    if result:
-        # return "certified Gay"
-        return result.stakeholder_id
-    return f"failed at gay id: {id}"
 

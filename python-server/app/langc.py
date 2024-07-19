@@ -147,6 +147,7 @@ def get_relationships(subject_id:int = None) -> bytes:
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
     '''
+
     subject_id = int(float(subject_id))
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships(session, subject=subject_id)
@@ -248,7 +249,47 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
         return {"message": "Network graph has been created!"}
     
     return [generate_network]
-  
+
+@tool
+def filter_relationships(relationships: list[list[str]], context: str) -> list[list[str]]:
+    """Use this tool to filter out relationships based on the context string, specifically by excluding predicates that are mentioned in the context, accounting for plural forms and different capitalizations including when the context appears as a substring within the predicate. This tool will only be used after the get_relationships tool. 
+    
+        Args:
+            relationships (list): A list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects. subject and object will be numbers and predicate will be a string.
+            context (str): The context given by the user, which can include specific predicates to exclude.
+            
+        Returns:
+            filtered_relationships (list): A list where each element is a list of a relationship, filtered based on the context.. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects. subject and object will be numbers and predicate will be a string.
+        
+        Examples:
+            User input: 'Tell me the relationships of person A. Do not include relationships based on grants or collaborations.'
+            relationships = [['Person A stakeholder_id', 'professor', 'University X stakeholder_id'], ['Person A stakeholder_id', 'grant', 'Person Y stakeholder_id'], ['Person A stakeholder_id', 'collaboration', 'Person Z stakeholder_id'], ['Person A staleholder_id', 'student', 'University Y stakeholder_id']]
+            context = 'grant, collaboration'
+            Filtered relationships = [['Person A stakeholder_id', 'professor', 'University X stakeholder_id'], ['Person A stakeholder_id', 'student', 'University Y stakeholder_id']]
+    """
+    
+    # Normalize the context to lower case and extract predicates to exclude, considering plural forms
+    context = context.lower()
+    # Extract predicates to exclude from the context, considering plural forms
+    predicates_to_exclude = re.findall(r'\b[\w\s]+\b', context)
+    
+    # Extend list with plural forms if not already plural
+    extended_predicates = set()
+    for pred in predicates_to_exclude:
+        extended_predicates.add(pred)
+        if not pred.endswith('s'):
+            extended_predicates.add(pred + 's')
+        else:
+            extended_predicates.add(pred[:-1])
+            
+    # Filter the relationships
+    filtered_relationships = [
+        relationship for relationship in relationships
+        if not any(re.search(re.escape(pred), relationship[1].lower()) for pred in extended_predicates)
+    ]
+    
+    return filtered_relationships
+
 def query_model(query:str, user_id:int, chat_id:int) -> str:
     """
     Call this function from outside the module
@@ -266,7 +307,7 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
 
     model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
     
-    ls = [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names]
+    ls = [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names, filter_relationships]
     
     tools = ls + generate_tools(chat_id=chat_id)
 
@@ -298,5 +339,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Help me visualize how Ben Carson is related to other stakeholders", 3, 5))
+    print(query_model("Generate a graph to show the relationships of Donald Trump. Exclude relationships from grants.", 3, 5))
     

@@ -14,4 +14,4 @@ jobs:
                 PROJECT_ID: ${{secrets.GCP_PY_PROJECT_ID}}
                 APPLICATION_CREDENTIALS: ${{secrets.GCP_SA_KEY}}
               with:
-                args: builds submit --dir python-server
+                args: builds submit --config python-server/cloudbuild.yaml

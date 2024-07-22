@@ -1,0 +1,22 @@
+steps:
+  - id: 'build'
+    name: 'gcr.io/kaniko-project/executor'
+    args: [
+              '--destination=gcr.io/${PROJECT_ID}/${_SERVICE_NAME}',
+              '--cache=true'
+          ]
+  - id: "run deploy"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      [
+        "run", "deploy",
+        "${_SERVICE_NAME}",
+        "--platform", "managed",
+        "--region", "${_REGION}",
+        "--image", "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}"
+      ]
+
+substitutions:
+  _REGION: "asia-east1"
+  _SERVICE_NAME: "python-server"

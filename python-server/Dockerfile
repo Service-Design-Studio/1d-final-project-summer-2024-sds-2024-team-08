@@ -1,15 +1,17 @@
 # Use the official image as a parent image
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10-slim
+FROM python:3.10.14-alpine3.20
 
-# Set the working directory
-WORKDIR /app
+RUN apk update && apk upgrade && apk add libpq-dev build-base geos geos-dev
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+RUN pip install shapely
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y upgrade && apt-get install -y libpq-dev gcc
+RUN pip install fastapi langchain langgraph
+
+COPY requirements.txt requirements.txt
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install -r requirements.txt
+
+COPY . .
 
 # Make port 80 available to the world outside this container
 EXPOSE 8080

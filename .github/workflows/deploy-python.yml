@@ -1,0 +1,17 @@
+name: Deploy Server to Cloud Run from Source
+on: [push]
+
+jobs:
+    deploy:
+        name: Deploy python-server
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/python-server'
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions-hub/gcloud@master
+              env:
+                PROJECT_ID: tscthing
+                APPLICATION_CREDENTIALS: ${{secrets.GCP_SA_KEY}}
+              with:
+                args: builds submit --config python-server/cloudbuild.yaml python-server

@@ -219,7 +219,9 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
             g.show_buttons(filter_=["edges", "physics"])
         
         with Session(stakeholder_engine) as db:
+            lvl = 0
             for rs in relationships:
+                # for rs in rss:
                 subject_id = int(float(rs[0]))
                 subj = crud.get_stakeholder_name(db, subject_id)
                 pred = rs[1]
@@ -227,12 +229,12 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
                 obj = crud.get_stakeholder_name(db, object_id)
                 s_pic = get_photo(subject_id)
                 o_pic = get_photo(object_id)
-                g.add_node(subj, color=subj_color, shape=subj_shape, image=s_pic)
-                g.add_node(obj, color=obj_color, shape=obj_shape, image=o_pic)
+                g.add_node(subj, color=subj_color, shape=subj_shape, image=s_pic, size=40, level=lvl, x=lvl, y=lvl)
+                g.add_node(obj, color=obj_color, shape=obj_shape, image=o_pic, size=20, level=lvl+1, x=(lvl+1)*random.randint(5,10), y=(lvl+1)*random.randint(5,10))
                 g.add_edge(subj,obj,label=pred, color=edge_color, smooth=False)
-            
-        g.hrepulsion(central_gravity=-0.1)
-        g.toggle_physics(False)
+            lvl += 1
+
+        g.repulsion(node_distance=250, spring_length=350)
         g.set_edge_smooth("dynamic")
         network_graph = g.generate_html()
         
@@ -339,5 +341,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Generate a graph to show the relationships of Donald Trump. Exclude relationships from grants.", 3, 5))
+    print(query_model("Generate a graph to show the relationships of Ben Carson.", 3, 5))
     

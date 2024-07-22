@@ -14,8 +14,22 @@ from pyvis.network import Network
 import json
 from functools import wraps, partial
 from typing import List
+import random
+from langchain_core.messages import SystemMessage
+import time
 
 load_dotenv()
+
+def timing_decorator(func):
+    """Decorator that logs the execution time of the function it decorates."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"{func.__name__} executed in {end_time - start_time:.6f} seconds")
+        return result
+    return wrapper
 
 def use_config(**config_):
     def decorator(func):
@@ -38,6 +52,7 @@ with Session(stakeholder_engine) as session:
     aliases_sid_dict = {alias.id: [alias.stakeholder_id, normalize_name(alias.other_names)] for alias in aliases}  # Dictionary of id : [stakeholder_id, normalized name]
 
 @tool
+# @timing_decorator
 def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True) -> bytes:
     """Use this tool to read stakeholders from the database. You can filter by stakeholder_id or name. From the prompt, identify the stakeholder by their name or stakeholder_id. 
     If you are using stakeholder_id, ensure that it is an integer before you input it into the read_stakeholders tool. You can also specify whether to include the summary, headline, and photo.
@@ -59,10 +74,11 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
         stakeholder_id = int(float(stakeholder_id))
     with Session(stakeholder_engine) as session:
         stakeholders = crud.get_stakeholders(session, stakeholder_id, name, summary, headline, photo)
-        
+
     return stakeholders
 
 @tool
+# @timing_decorator
 def get_name_matches(name: str) -> list:
     """Use this tool to get the best matches for a given name. This tool will return a list of up to 5 stakeholder_ids who have names that are the best matches with the given name. 
     If the output only contains one stakeholder_id, then that is the best match. Depending on the context, if the the user wants to know more about the stakeholder, use the tool read_stakeholders tool to get the information about the identified stakeholder.
@@ -99,11 +115,11 @@ def get_name_matches(name: str) -> list:
             if aliases_sid_dict[match[2]][0] not in unique_stakeholders:
                 unique_stakeholders.add(aliases_sid_dict[match[2]][0])
                 result.append(match[0])
-                
         return result
 
 # IN THEORY, the get_names_matches tool will be used to return the stakeholder_id so that it can be run with get_relationships_with_names
 @tool 
+# @timing_decorator
 def get_relationships_with_names(subject_id:int = None) -> bytes:
     '''
     Use this tool to output to the user every relationship the stakeholders have with one another in natural language. This tool should be called when the user wants the relationships of stakeholders in natural language. 
@@ -128,10 +144,11 @@ def get_relationships_with_names(subject_id:int = None) -> bytes:
     
     elif object_rs == 'No results found.':
         return subject_rs
-        
+    
     return subject_rs + object_rs
 
-@tool 
+@tool
+# @timing_decorator
 def get_relationships(subject_id:int = None) -> bytes:
     '''
     Use this tool to get the every relationship the stakeholders have with one another. This tool will be used only if the user wants a network graph. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
@@ -147,7 +164,6 @@ def get_relationships(subject_id:int = None) -> bytes:
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
     '''
-
     subject_id = int(float(subject_id))
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships(session, subject=subject_id)
@@ -171,7 +187,7 @@ def get_relationships(subject_id:int = None) -> bytes:
         extracted_info = crud.extract_after_last_slash(predicate)
         extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
         relationships_with_predicates.append((result.subject, extracted_info, result.object))
-        
+
     return relationships_with_predicates
 
 def get_photo(stakeholder_id: int) -> str:
@@ -195,9 +211,10 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
     """Generate a set of tools that have a chat_id associated with them."""
     
     @tool
+    # @timing_decorator
     def generate_network(relationships: list[list[str]]) -> dict:
         """You need to consider the predicates in each of the relationships and identify the appropriate ones only based on the user input. If the user did not mention any specific context, then you can consider all the relationships. 
-        You can use the tool map_data to generate the network graph. The network graph will be generated and stored in the database. Once the graph has been stored, you will need to return the network_graph_id. This id will be used to retrieve the graph from the database.
+        You can use this tool to generate the network graph. The network graph will be generated and stored in the database. Once the graph has been stored, you will need to return the network_graph_id. This id will be used to retrieve the graph from the database.
         This tool will be called when the user mentions that they want a visualisation or if they want to draw a network graph or simply a graph.
         
         Args:
@@ -247,50 +264,10 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
             session.commit()
             generated_id = graph.id
         g_id[chat_id] = generated_id
-        
+
         return {"message": "Network graph has been created!"}
     
     return [generate_network]
-
-@tool
-def filter_relationships(relationships: list[list[str]], context: str) -> list[list[str]]:
-    """Use this tool to filter out relationships based on the context string, specifically by excluding predicates that are mentioned in the context, accounting for plural forms and different capitalizations including when the context appears as a substring within the predicate. This tool will only be used after the get_relationships tool. 
-    
-        Args:
-            relationships (list): A list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects. subject and object will be numbers and predicate will be a string.
-            context (str): The context given by the user, which can include specific predicates to exclude.
-            
-        Returns:
-            filtered_relationships (list): A list where each element is a list of a relationship, filtered based on the context.. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects. subject and object will be numbers and predicate will be a string.
-        
-        Examples:
-            User input: 'Tell me the relationships of person A. Do not include relationships based on grants or collaborations.'
-            relationships = [['Person A stakeholder_id', 'professor', 'University X stakeholder_id'], ['Person A stakeholder_id', 'grant', 'Person Y stakeholder_id'], ['Person A stakeholder_id', 'collaboration', 'Person Z stakeholder_id'], ['Person A staleholder_id', 'student', 'University Y stakeholder_id']]
-            context = 'grant, collaboration'
-            Filtered relationships = [['Person A stakeholder_id', 'professor', 'University X stakeholder_id'], ['Person A stakeholder_id', 'student', 'University Y stakeholder_id']]
-    """
-    
-    # Normalize the context to lower case and extract predicates to exclude, considering plural forms
-    context = context.lower()
-    # Extract predicates to exclude from the context, considering plural forms
-    predicates_to_exclude = re.findall(r'\b[\w\s]+\b', context)
-    
-    # Extend list with plural forms if not already plural
-    extended_predicates = set()
-    for pred in predicates_to_exclude:
-        extended_predicates.add(pred)
-        if not pred.endswith('s'):
-            extended_predicates.add(pred + 's')
-        else:
-            extended_predicates.add(pred[:-1])
-            
-    # Filter the relationships
-    filtered_relationships = [
-        relationship for relationship in relationships
-        if not any(re.search(re.escape(pred), relationship[1].lower()) for pred in extended_predicates)
-    ]
-    
-    return filtered_relationships
 
 def query_model(query:str, user_id:int, chat_id:int) -> str:
     """
@@ -308,12 +285,33 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
         s.commit()
 
     model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
-    
-    ls = [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names, filter_relationships]
+
+    ls = [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names]
     
     tools = ls + generate_tools(chat_id=chat_id)
-
-    graph = create_react_agent(model, tools=tools, checkpointer=PostgreSQLMemorySaver(engine=user_engine))
+    messages_modifier = """
+    # Instructions for the system
+    ## 1. Overview
+    You are a top-tier algorithm designed for extracting information from our databases to provide users with information about stakeholders if they are present in the database. 
+    You are able to present the response as text and you are able to generate a network graph based on the relationships of the stakeholders if requested to. 
+    You must capture the user's input and provide the appropriate response based on the user's query. 
+    The aim is to provide the user with the most relevant information based on the user's query.
+    ## 2. Stakeholders
+    When a user asks for information about a stakeholder, you must extract the stakeholder's name from the user's query and use it to extract stakeholder information from the database. 
+    You can use these tools to help you identify the appropriate stakeholder: read_stakeholders, get_name_matches.
+    If you require more information from the user, you can ask the user to clarify which stakeholder they are referring to.
+    ## 3. Relationships
+    When a user asks for relationships between stakeholders, you must extract the context from the user's query and use it to filter out or filter in relationships based on the context by evaluating the predicate of each relationship.
+    You can use these tools to help you identify the appropriate relationships: get_relationships, get_relationships_with_names.
+    If you deem that the relationships are not relevant to the context from the user's query, you will remove those relationships as well.
+    ## 4. Network Graph
+    When a user asks for a network graph, you must generate a network graph based on the relationships of the stakeholders that you have identified.
+    You can use these tools to help you generate the network graph: generate_network.
+    Once you have generated the network graph, you will store the graph in the database and return 'The network graph has been created!' to the user.
+    ## 5. Strict Compliance
+    Adhere to the rules strictly and ensure that you are providing the most relevant information to the user based on the user's query. Non-compiance will result in termination.
+    """
+    graph = create_react_agent(model, tools=tools, messages_modifier=SystemMessage(content=messages_modifier), checkpointer=PostgreSQLMemorySaver(engine=user_engine))
     inputs = {"messages": [
         ("user", query)
         ]}
@@ -341,5 +339,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Generate a graph to show the relationships of Ben Carson.", 3, 5))
+    print(query_model("Generate a network graph to show every relationship that has Joe Biden as the subject.", 3, 5))
     

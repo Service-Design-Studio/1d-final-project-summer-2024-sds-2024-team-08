@@ -4,7 +4,7 @@ on: [push]
 jobs:
     deploy:
         name: Deploy python-server
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/python-server' || github.ref == 'refs/heads/gh-actions'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/python-server'
         runs-on: ubuntu-latest
 
         steps:

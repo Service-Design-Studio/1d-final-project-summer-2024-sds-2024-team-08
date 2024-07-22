@@ -339,5 +339,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Generate a network graph to show every relationship that has Joe Biden as the subject.", 3, 5))
+    print(query_model("Generate a network graph to show only the contributors to Joe Biden's presidential campaign", 3, 6))
     

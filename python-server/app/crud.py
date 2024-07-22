@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 import re
-import models
-
+from . import models
+from .database import stakeholder_engine, user_engine, media_engine
 def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
     columns = [
         models.Stakeholder.stakeholder_id,
@@ -94,3 +94,6 @@ def get_media_id_from_stakeholder(db: Session, id: int= None, media_id : int = N
   results = query.all()
   return results  
 
+
+
+    

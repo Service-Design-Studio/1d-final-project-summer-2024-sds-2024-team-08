@@ -19,6 +19,8 @@ rails-server/coverage
 ######## Ignore python stuff ########
 .venv*
 .vscode
+.env
+requirements.txt
 .pytest_cache
 python-server/__pycache__
 python-server/app/.env

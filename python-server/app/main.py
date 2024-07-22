@@ -3,13 +3,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List
-import crud, schemas, langc
-from database import stakeholder_engine, user_engine, media_engine
-# from . import (
-#     crud, 
-#     schemas, 
-#     langc)
-# from .database import stakeholder_engine, media_engine
+# import app.crud as crud
+# import app.schemas as schemas
+# import app.langc as langc
+# import crud, schemas, langc
+# from database import stakeholder_engine, user_engine, media_engine
+from . import crud, schemas, langc
+from .database import stakeholder_engine, media_engine
 
 #models.Base.metadata.create_all(bind=stakeholder_engine)
 

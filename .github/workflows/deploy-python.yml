@@ -11,7 +11,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions-hub/gcloud@master
               env:
-                PROJECT_ID: ${{secrets.GCP_PY_PROJECT_ID}}
+                PROJECT_ID: python-server
                 APPLICATION_CREDENTIALS: ${{secrets.GCP_SA_KEY}}
               with:
                 args: builds submit --config python-server/cloudbuild.yaml python-server

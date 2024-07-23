@@ -8,13 +8,18 @@
 <% else %>
   <div class="container chat-history d-flex justify-content-center" id="chat-history">
     <div class="messages-wrapper w-100">
-        <%# Render each message box %>
-        <% @chat_history.each do |msg| %>
-            <div class="row mb-3">
-                <div class="col-12 d-flex justify-content-start">
-                    <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'bg-primary text-white' : 'bg-light' %> p-3 rounded">
-                        <strong><%= msg['role'] == 'user' ? 'You' : 'Genie' %></strong>
-
+       <% @chat_history.each do |msg| %>
+        <div class="row mb-3">
+          <div class="col-12 d-flex justify-content-start">
+            <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'user' : 'genie' %> p-3 rounded">
+              <strong>
+                <% if msg['role'] == 'user' %>
+                  <i class="fas fa-user"></i>
+                <% else %>
+                  <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
+                <% end %>
+                <%= msg['role'] == 'user' ? 'You' : 'Genie' %>
+              </strong>
                         <%# display embed if content starts with http else normal text %>
                         <% if msg["has_graph"].nil? %>
                             <p class="mb-0"><%= msg["content"] %></p>
@@ -31,7 +36,7 @@
 
 
 <% content_for :message_form do %>
-    <div class="actions d-flex justify-content-start w-100 mb-3">
+    <div class="actions d-flex justify-content-start w-100 mb-3" id="action-buttons">
       <button class="action-btn btn btn-light">
         <i class="fas fa-file-alt"></i>
       </button>
@@ -51,19 +56,24 @@
         <i class="fas fa-chart-line"></i>
       </button>
     </div>
-    <%= form_with url: handle_user_msg_path(@chat_id), method: :post, class: 'w-100 d-flex' do |form| %>
+    <%= form_with url: handle_user_msg_path(@chat_id), method: :post, class: 'w-100 d-flex', id: 'message-form' do |form| %>
         <div class="input-group flex-grow-1" style="border-radius: 25px; overflow: hidden; border: 1px solid #e0e0e0;">
         <div class="input-group-prepend">
           <span class="input-group-text bg-white border-0">
             <img src="<%= asset_path('genie_logo.svg') %>" alt="Genie Logo" style="width: 24px; height: 24px;">
           </span>
         </div>
-        <%= text_field_tag(:message, nil, placeholder: "Ask me anything :)", class: 'form-control border-0') %>
+        <%= text_field_tag(:message, nil, placeholder: "Ask me anything :)", class: 'form-control border-0', id: 'message-input') %>
         <div class="input-group-append">
-          <%= button_tag(type: 'submit', class: 'explore-btn btn btn-primary') do %>
+          <%= button_tag(type: 'submit', class: 'explore-btn btn btn-primary', id: 'submit-btn') do %>
             <img src="<%= asset_path('paper-plane-top.svg') %>" alt="Send" style="width: 24px; height: 24px;">
           <% end %>
         </div>
+      </div>
+      <div id="loading-animation" class="loading-animation d-none">
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
       </div>
     <% end %>
 <% end %>

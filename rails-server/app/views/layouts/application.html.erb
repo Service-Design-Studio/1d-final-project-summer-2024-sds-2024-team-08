@@ -15,12 +15,9 @@
         <div class="row h-100">
             <!-- Sidebar -->
             <div id="sidebar" class="col-3 col-lg-2 bg-light border-right d-flex flex-column justify-content-between p-3 sidebar">
-                <div class="menu-section">
-                    <button id="menu-toggle"class="menu-toggle btn btn-link text-dark p-0">&#9776;</button>
-                </div>
                 <!-- Change User ID Dropdown -->
                 <div class="dropdown mb-3">
-                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-test="change-user-dropdown">
+                    <button class="dropdown-btn w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-test="change-user-dropdown">
                         Change User ID
                     </button>
                     <div class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
@@ -30,7 +27,10 @@
                     </div>
                 </div>
                 <div class="new-chat mb-3">
-                    <button class="new-chat-btn btn btn-secondary w-100">+ New Chat</button>
+                    <button class="new-chat-btn btn btn-secondary w-100">
+                        <i class="fas fa-plus"></i>
+                        <span>New Chat</span>
+                    </button>
                 </div>
                 <div class="sections flex-grow-1 scrollable-section">
                     <div class="section-title font-weight-bold">Today</div>
@@ -48,7 +48,10 @@
                     </ul>
                 </div>
                 <div class="settings mt-4">
-                    <button class="btn btn-secondary w-100">Settings</button>
+                    <button id="settings-button" class="settings-btn d-flex align-items-center">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </button>
                 </div>
             </div>
             <!-- Main Content -->
@@ -56,8 +59,8 @@
                 <div class="center-content text-center">
                     <%= yield %>
                 </div>
-                <div class="bottom-section w-100 position-absolute d-flex flex-column align-items-center" style="bottom: 20px;">
-                    <div class="explore w-100 d-flex flex-column align-items-center">
+                <div class="bottom-section">
+                    <div class="explore d-flex flex-column align-items-center">
                         <%= yield :message_form %>
                     </div>
                 </div>
@@ -67,13 +70,6 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-    <script>
-      document.getElementById("menu-toggle").addEventListener("click", function(e) {
-        e.preventDefault();
-        document.getElementById("wrapper").classList.toggle("toggled");
-      });
-    </script>
 
     <% if flash[:alert] %>
         <div class="alert alert-danger alert-dismissible fade show centered-alert" role="alert">

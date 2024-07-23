@@ -10,13 +10,14 @@ html, body {
 }
 
 .sidebar {
-  display: flex;
+  position: relative;
+  width: 17vw; /* Use vw for a responsive width */
+  transition: width 0.3s ease;
   flex-direction: column;
   justify-content: space-between;
   padding: 2vh 2vw;
-  position: relative;
   height: 100vh;
-  transition: transform 0.3s ease;
+  background-color: #F0F4F9;
 }
 
 .sidebar ul li{
@@ -50,6 +51,7 @@ html, body {
 
 .main-content {
   display: flex;
+  width:auto;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
@@ -57,6 +59,7 @@ html, body {
   min-height: 100vh;
   background-color: #ffffff;
   flex-grow: 1;
+  transition: all 0.3s ease;
 }
 
 .center-content {
@@ -170,22 +173,18 @@ html, body {
   text-overflow: ellipsis;
 }
 
-.message-content {
-  text-align: left; 
-  word-wrap: break-word; 
-  min-width: 50vw; 
-  max-width: 50vw;
-}
-
 .chat-history {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .messages-wrapper {
   width: 100%;
   max-width: 80vw;
+  height: 100%;
 }
 
 .chat-history p {
@@ -218,4 +217,127 @@ html, body {
 
 #wrapper.toggled #page-content-wrapper {
   margin-left: 0;
+}
+
+.loading-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-animation .ball {
+  width: 20px;
+  height: 20px;
+  margin: 0 5px;
+  border-radius: 50%;
+  background: #007bff;
+  animation: bounce 0.4s infinite alternate;
+}
+
+.loading-animation .ball:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.loading-animation .ball:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-15px);
+  }
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+/* Default scrollbar style */
+.chat-history::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.chat-history::-webkit-scrollbar-track {
+  background: transparent; /* Background of the scrollbar track */
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  transition: 0.3s ease, width 0.3s ease; /* Smooth transition */
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color when hovering over the scrollbar thumb */
+}
+
+/* Scrollbar style when hovered */
+.chat-history.hovered::-webkit-scrollbar {
+  width: 16px; /* Wider width when hovered */
+}
+
+.chat-history.hovered::-webkit-scrollbar-thumb {
+  background: #555; /* Darker color when hovered */
+}
+
+.chat-history::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.chat-history.hovered::-webkit-scrollbar-button {
+  display: block;
+  width: 16px; /* Width of the scrollbar arrows */
+  height: 16px; /* Height of the scrollbar arrows */
+  background-color: #555; /* Color of the scrollbar arrows */
+}
+
+.chat-history::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M7 14l5-5 5 5H7z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.chat-history::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M7 10l5 5 5-5H7z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Message content */
+
+.message-content {
+  text-align: left; 
+  word-wrap: break-word; 
+  min-width: 50vw; 
+  max-width: 50vw;
+}
+
+.message-content.user {
+  background-color: #007bff; /* Background color for user messages */
+  color: white; /* Text color for user messages */
+}
+
+.message-content.genie {
+  background-color:  #f7f7f7; /* No background color for Genie messages */
+  color: inherit; /* Inherit text color */
+}
+
+.message-content strong i {
+  margin-right: 5px; /* Adjust the spacing as needed */
+}
+
+.genie-icon {
+  width: 1em; /* Set width to match the font size */
+  height: 1em; /* Set height to match the font size */
+  margin-right: 5px; /* Adjust the spacing as needed */
+  vertical-align: middle; /* Aligns the icon with the text */
 }

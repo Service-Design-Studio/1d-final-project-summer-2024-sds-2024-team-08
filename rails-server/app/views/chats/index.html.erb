@@ -10,19 +10,18 @@
     <div class="messages-wrapper w-100">
        <% @chat_history.each do |msg| %>
         <div class="row mb-3">
-          <div class="col-12 d-flex justify-content-start">
+          <div class="col-12 d-flex justify-content-end">
             <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'user' : 'genie' %> p-3 rounded">
-              <strong>
-                <% if msg['role'] == 'user' %>
-                  <i class="fas fa-user"></i>
-                <% else %>
-                  <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
-                <% end %>
-                <%= msg['role'] == 'user' ? 'You' : 'Genie' %>
-              </strong>
                         <%# display embed if content starts with http else normal text %>
                         <% if msg["has_graph"].nil? %>
+                         <% unless msg['role'] == 'user' %>
+                            <div class="d-flex align-items-start">
+                            <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
+                            <p class="mb-0 ml-2"><%= msg["content"] %></p>
+                            </div>
+                          <% else %>
                             <p class="mb-0"><%= msg["content"] %></p>
+                          <% end %>
                         <% else %>
                             <%= raw msg["has_graph"] %>
                         <% end %>

@@ -317,18 +317,20 @@ html, body {
 .message-content {
   text-align: left; 
   word-wrap: break-word; 
-  min-width: 50vw; 
-  max-width: 50vw;
 }
 
 .message-content.user {
-  background-color: #007bff; /* Background color for user messages */
-  color: white; /* Text color for user messages */
+  background-color: #f7f7f7;
+  color: black;
+  text-align: right;
+  max-width: 35vw;
 }
 
 .message-content.genie {
-  background-color:  #f7f7f7; /* No background color for Genie messages */
-  color: inherit; /* Inherit text color */
+  min-width: 50vw;
+  max-width: 50vw;
+  background-color: transparent;
+  color: black;
 }
 
 .message-content strong i {
@@ -336,12 +338,13 @@ html, body {
 }
 
 .genie-icon {
-  width: 1em; /* Set width to match the font size */
-  height: 1em; /* Set height to match the font size */
-  margin-right: 5px; /* Adjust the spacing as needed */
-  vertical-align: middle; /* Aligns the icon with the text */
+  width: 24px; /* Adjust icon size as needed */
+  height: 24px; /* Adjust icon size as needed */
 }
 
+.ml-2 {
+  margin-left: 0.5rem; /* Adjust spacing as needed */
+}
 /* Settings button */
 
 .settings-btn {

@@ -15,6 +15,7 @@ class ChatsController < ApplicationController
         @chat_id = params[:chat_id] || 0
         @chat_history = []
         @default_landing_page = true
+
     end
 
     # run this when user go to /c/:id 
@@ -51,6 +52,15 @@ class ChatsController < ApplicationController
         return 
     end 
 
+    # for /g/:graph_id endpoint 
+    def get_graph_with_id
+        graph_id = params[:graph_id]
+
+        # pull graph html from db 
+        @graph_content = NetworkGraph.get_graph_by_id(graph_id)
+        render("graph", layout: false) # dont use application.html.erb as template 
+    end
+
     private # methods defined here onwards is private 
 
     def set_chat_ids
@@ -77,6 +87,6 @@ class ChatsController < ApplicationController
         res.map{|e| {"id"=> e['message_id'],
                     "role"=> e['role'],
                     "content"=> e['content'],
-                    "has_graph"=> (graph_id = e['network_graph_id']).nil? ? nil : NetworkGraph.get_graph_by_id(graph_id) }}
+                    "graph_id"=> e['network_graph_id']}}
     end 
 end

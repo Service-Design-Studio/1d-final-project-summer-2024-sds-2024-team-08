@@ -13,17 +13,17 @@
           <div class="col-12 d-flex justify-content-end">
             <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'user' : 'genie' %> p-3 rounded">
                         <%# display embed if content starts with http else normal text %>
-                        <% if msg["has_graph"].nil? %>
-                         <% unless msg['role'] == 'user' %>
-                            <div class="d-flex align-items-start">
-                            <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
-                            <p class="mb-0 ml-2"><%= msg["content"] %></p>
-                            </div>
-                          <% else %>
-                            <p class="mb-0"><%= msg["content"] %></p>
-                          <% end %>
+                        <% if msg["graph_id"].nil? %>
+                            <% unless msg['role'] == 'user' %>
+                                <div class="d-flex align-items-start">
+                                <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
+                                <p class="mb-0 ml-2"><%= msg["content"] %></p>
+                                </div>
+                            <% else %>
+                                <p class="mb-0"><%= msg["content"] %></p>
+                            <% end %>
                         <% else %>
-                            <%= raw msg["has_graph"] %>
+                            <iframe src="/g/<%= msg['graph_id']%>" width="100%" height="1000" frameborder="0" allowfullscreen></iframe>
                         <% end %>
                     </div>
                 </div>

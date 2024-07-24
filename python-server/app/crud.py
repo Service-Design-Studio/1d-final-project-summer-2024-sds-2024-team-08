@@ -158,7 +158,7 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
     print(f"Nodes:{graph_documents[0].nodes}")
     print(f"Relationships:{graph_documents[0].relationships}")
 
-if __name__ == "__main__":
-  stakeholder_id = 592
-  with Session(media_engine) as s:
-    derive_rs_from_media(s,stakeholder_id=592)
+# if __name__ == "__main__":
+#   stakeholder_id = 592
+#   with Session(media_engine) as s:
+#     derive_rs_from_media(s,stakeholder_id=592)

@@ -164,7 +164,7 @@ def get_relationships(subject_id:int = None) -> bytes:
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
     '''
-    print("Gettig relationships")
+    # print("Getting relationships")
     subject_id = int(float(subject_id))
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships(session, subject=subject_id)
@@ -224,8 +224,8 @@ def generate_tools(chat_id: int) -> List[BaseTool]:
         Returns:
             results (str): A JSON object containing the message 'network graph has been created.'
         """
-        print("generating network")
-        print(relationships)
+        # print("generating network")
+        # print(relationships)
         subj_color="#77E4C8"
         obj_color="#3DC2EC"
         edge_color="#96C9F4"
@@ -341,5 +341,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Generate a network graph to show only the relationships between Joe Biden has with his immediate family members. On the same network graph, help me visualize any relationships that his family members might have with other stakeholders.", 3, 6))
+    print(query_model("Generate a network graph to show the relationships Joe Biden has. Exclude all the relationships that includes stakeholders giving Joe Biden grants.", 3, 10))
     

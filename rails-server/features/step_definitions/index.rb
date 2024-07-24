@@ -97,8 +97,8 @@ Then(/I should see the response saying it cannot find any information/) do
 end
 
 # network graph stuff 
-sacrificial_chat = "chat-20"
-When(/I ask for a network graph about stakeholders/) do 
+sacrificial_chat = "chat-21"
+When(/^I ask for a network graph about stakeholders$/) do 
     click_link(sacrificial_chat)
     fill_in 'message', with: 'show me a graph of ben carson relationships'
     find('button[name="button"]').click
@@ -111,12 +111,12 @@ Then(/I should see a network graph/) do
     last_div = chat_history.all('div').last
 
     expect(last_div).not_to be_nil
-    expect(last_div).to have_selector('canvas')
+    expect(last_div).to have_selector('iframe')
 end
 
-When(/ I ask for a network graph about stakeholders but there is not enough information/) do 
+When(/^I ask for a network graph about stakeholders but there is not enough information$/) do 
     click_link(sacrificial_chat)
-    fill_in 'message', with: 'show me a graph of bannon tan relationships'
+    fill_in 'message', with: 'show me a graph of loheesong relationships'
     find('button[name="button"]').click
 end
 
@@ -127,5 +127,5 @@ Then(/I should see the response saying insufficient information for graph/) do
     last_div = chat_history.all('div').last
 
     expect(last_div).not_to be_nil
-    expect(last_div).not_to have_selector('canvas')
+    expect(last_div).not_to have_selector('iframe')
 end

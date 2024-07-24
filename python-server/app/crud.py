@@ -13,7 +13,7 @@ from langchain_core.prompts import(
 
 import GraphRScustom
 from GraphRScustom import LLMGraphTransformer
-
+from pyvis.network import Network
 
 import os
 import requests
@@ -33,6 +33,7 @@ from sqlalchemy import select
 import re
 import models
 from database import stakeholder_engine, user_engine, media_engine
+import random
 
 def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
     columns = [
@@ -169,8 +170,38 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
     
   return m_ls
 
+def generate_network(relationships: list[list[str]]) -> dict:
+
+  print("generating network")
+  print(relationships)
+  subj_color="#77E4C8"
+  obj_color="#3DC2EC"
+  edge_color="#96C9F4"
+  subj_shape="circle"
+  obj_shape="square"
+  buttons = False
+  g = Network(height="1024px", width="100%",font_color="black")
+
+  lvl = 0
+  for rs in relationships:
+    subj = rs[0]
+    pred = rs[1]
+    obj = rs[2]
+    g.add_node(subj, color=subj_color, shape=subj_shape, size=40, level=lvl, x=lvl, y=lvl)
+    g.add_node(obj, color=obj_color, shape=obj_shape, size=20, level=lvl+1, x=(lvl+1)*random.randint(5,10), y=(lvl+1)*random.randint(5,10))
+    g.add_edge(subj,obj,label=pred, color=edge_color, smooth=False)
+  lvl += 1
+
+  g.repulsion(node_distance=250, spring_length=350)
+  g.set_edge_smooth("dynamic")
+  g.show("graph.html")
+
+  return {"message": "Network graph has been created!"}
+
+
 
 if __name__ == "__main__":
   stakeholder_id = 592
   with Session(media_engine) as s:
     ls = derive_rs_from_media(s,stakeholder_id=592)
+    generate_network(ls)

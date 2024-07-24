@@ -164,7 +164,7 @@ def get_relationships(subject_id:int = None) -> bytes:
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
     '''
-    print("Gettig relationships")
+    print("Getting relationships")
     subject_id = int(float(subject_id))
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships(session, subject=subject_id)

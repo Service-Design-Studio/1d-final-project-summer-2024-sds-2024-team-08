@@ -5,3 +5,4 @@ __pycache__
 .venv
 data/csv
 build_database.py
+seed_user_db.py

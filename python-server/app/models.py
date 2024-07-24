@@ -120,3 +120,10 @@ class StakeholdersMentioned(Base):
     id = Column(Integer, primary_key=True, index=True)
     media_id = Column(Integer)
     stakeholder_id = Column(Integer)
+    
+    def __repr__(self):
+      return str({
+        "id": self.id,
+        "media_id": self.media_id,
+        "stakeholder_id": self.stakeholder_id})
+    stakeholder_id = Column(Integer)

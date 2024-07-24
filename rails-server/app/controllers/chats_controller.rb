@@ -32,9 +32,9 @@ class ChatsController < ApplicationController
     def handle_user_msg
         # handle empty request 
         if params[:message] == "" 
-            params[:message] = nil
-            get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-            return 
+            # params[:message] = nil
+            # get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
+            # return 
         end 
 
         # message must be a string, post() expects a string

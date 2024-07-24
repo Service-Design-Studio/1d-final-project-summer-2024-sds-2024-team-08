@@ -1,6 +1,6 @@
 class Chat < ApplicationRecord
     def self.get_all
-        all
+        # all
     end 
 
     # returns array of chats associated with user, empty array if no chats 

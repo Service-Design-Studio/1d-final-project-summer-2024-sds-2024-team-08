@@ -1,7 +1,7 @@
 from sqlalchemy import (
     Column, 
     Text, 
-    Integer, 
+    Integer,     
     DateTime, 
     ForeignKey, 
     BLOB,
@@ -9,14 +9,14 @@ from sqlalchemy import (
 
 from sqlalchemy.orm import relationship, DeclarativeBase
 
-class Base(DeclarativeBase):
+class Base(DeclarativeBase):  #need to setup!!!
     pass
 
 class Stakeholder(Base):
     __tablename__ = 'stakeholders'
 
-    stakeholder_id = Column(Integer, primary_key=True, index=True)
-    name = Column(Text)
+    stakeholder_id = Column(Integer, primary_key=True, index=True)#at least one thing needs to ebbe a primary key
+    name = Column(Text) #i should expect text from a column
     headline = Column(Text)
     summary = Column(Text)
     photo = Column(Text)

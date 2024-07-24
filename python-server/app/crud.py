@@ -11,6 +11,10 @@ from langchain_core.prompts import(
     MessagesPlaceholder
 )
 
+import GraphRScustom
+from GraphRScustom import LLMGraphTransformer
+
+
 import os
 import requests
 import urllib
@@ -50,7 +54,7 @@ def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, 
         columns.remove(models.Stakeholder.photo)
     
     query = db.query(*columns)
-    
+    #stakeholder_id is matched to sql table header
     if stakeholder_id is not None:
         query = query.filter(models.Stakeholder.stakeholder_id == stakeholder_id)
     
@@ -93,6 +97,7 @@ def extract_after_last_slash(text: str) -> str:
     return None
 
 def get_relationships_with_names(db: Session, subject: int = None, predicate: str = None, object: int = None):
+
     relationships = get_relationships(db, subject, predicate, object)
     relationships_with_names = []
     for result in relationships:
@@ -145,20 +150,27 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   
   #get media ids from stakeholder ids
   results = get_media_id_from_stakeholder(db, stakeholder_id=stakeholder_id)
-  media_ids = [result.media_id for result in results]
-
+  media_ids = [result.media_id for result in results] #list of media ids
   for id in media_ids:
     #get content
-    results = get_content_from_media_id(db, media_id = id)
-    text = [result.content for result in results]
+    results = get_content_from_media_id(db, media_id = id) #returns list of json dicts
+    text = [result.content for result in results] #list of text content
   
-    documents = [Document(page_content=' '.join(text))]
-    # print(documents)
-    graph_documents = llm_transformer.convert_to_graph_documents(documents)
-    print(f"Nodes:{graph_documents[0].nodes}")
-    print(f"Relationships:{graph_documents[0].relationships}")
+  documents = [Document(page_content=' '.join(text))]
+  # print(documents)
+  graph_documents = llm_transformer.convert_to_graph_documents(documents)
+    # print(f"Nodes:{graph_documents[0].nodes}")
+    # print(f"Relationships:{graph_documents[0].relationships}")
+  rs = graph_documents[0].relationships
+  # print(rs)
+  m_ls = []
+  for i in rs:
+    m_ls.append([i.source.id, i.type, i.target.id])
+    
+  return m_ls
 
-# if __name__ == "__main__":
-#   stakeholder_id = 592
-#   with Session(media_engine) as s:
-#     derive_rs_from_media(s,stakeholder_id=592)
+
+if __name__ == "__main__":
+  stakeholder_id = 592
+  with Session(media_engine) as s:
+    ls = derive_rs_from_media(s,stakeholder_id=592)

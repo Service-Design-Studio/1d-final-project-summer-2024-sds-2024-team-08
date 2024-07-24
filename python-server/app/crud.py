@@ -169,9 +169,6 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
     
   return m_ls
 
-def gay():
-  ls = ["gay"]
-  return print(ls)
 
 if __name__ == "__main__":
   stakeholder_id = 592

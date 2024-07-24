@@ -21,6 +21,7 @@ rails-server/coverage
 .vscode
 .env
 requirements.txt
+testing files
 .pytest_cache
 python-server/__pycache__
 python-server/app/.env

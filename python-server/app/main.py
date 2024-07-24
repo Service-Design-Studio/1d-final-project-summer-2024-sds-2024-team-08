@@ -77,4 +77,7 @@ def read_content_from_media_id(media_id: int):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)
+    with Session(media_engine) as s:
+      read_content_from_media_id(media_id)
+    print(content)
     

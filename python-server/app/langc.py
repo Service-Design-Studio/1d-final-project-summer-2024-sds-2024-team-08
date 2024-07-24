@@ -4,12 +4,12 @@ from langchain_google_vertexai import ChatVertexAI
 import rapidfuzz
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from .PostgreSQLMemorySaver import PostgreSQLMemorySaver
+from PostgreSQLMemorySaver import PostgreSQLMemorySaver
 import re
 from dotenv import load_dotenv
-from .models import Alias, Message, Stakeholder, Network_Graph
-from .database import user_engine, stakeholder_engine, media_engine
-from . import crud
+from models import Alias, Message, Stakeholder, Network_Graph
+from database import user_engine, stakeholder_engine, media_engine
+import crud
 from pyvis.network import Network
 import json
 from functools import wraps, partial

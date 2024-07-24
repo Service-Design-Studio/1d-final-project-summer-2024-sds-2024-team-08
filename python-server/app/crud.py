@@ -1,3 +1,29 @@
+from langchain_core.tools import tool
+from langgraph.prebuilt import create_react_agent
+from langchain_google_vertexai import ChatVertexAI
+from langgraph.checkpoint import MemorySaver
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import(
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder
+)
+
+import os
+import requests
+import urllib
+os.environ["GOOGLE_API_KEY"] = "AIzaSyCtKcsZVbfUtX-QMM8qkO_L9kaH-yq7hbU"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './google-creds.json'
+os.environ["GOOGLE_CLOUD_PROJECT_ID"] = "gemini-test-426508"
+os.environ["OPENAI_API_KEY"]="sk-proj-qxoKlAc0Jg415kEc6EQoT3BlbkFJKkSBa1fEvBV5vkbC6aiS"
+from langchain_experimental.graph_transformers import LLMGraphTransformer
+from langchain_openai import ChatOpenAI
+from langchain_core.documents import Document
+
+
+
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 import re
@@ -85,17 +111,14 @@ def get_graph(db: Session, id):
     return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))
   
 def get_media_id_from_stakeholder(db: Session, id: int= None, media_id : int = None, stakeholder_id: int = None):
-  query = db.query(models.StakeholdersMentioned)
-  
-  if stakeholder_id is not None:
-    query = query.filter(models.StakeholdersMentioned.stakeholder_id == stakeholder_id)
+    query = db.query(models.StakeholdersMentioned)
 
-  if media_id is not None:
-    query = query.filter(models.StakeholderMentioned.media_id == media_id)
+    if stakeholder_id is not None:
+      query = query.filter(models.StakeholdersMentioned.stakeholder_id == stakeholder_id)
 
-  results = query.all()
-  # media_ids = [result[0] for result in results]
-  return results
+    results = query.all()
+    # media_ids = [result.media_id for result in results]
+    return results 
 
 def get_content_from_media_id(db: Session, media_id: int=None, content: str = None):   
   query = db.query(models.Media)
@@ -103,16 +126,39 @@ def get_content_from_media_id(db: Session, media_id: int=None, content: str = No
   if media_id is not None:
     query = query.filter(models.Media.id == media_id)
 
-  if content is not None:
-    query = query.filter(models.Media.content == content)
-
   results = query.all()
+
   return results
 
-if __name__ == '__main__':
-  with Session(media_engine) as s:  
-    media_id = get_media_id_from_stakeholder(s, stakeholder_id=22183)
-  print(media_id)
-  
-  return results  
+# if __name__ == '__main__':
+#   with Session(media_engine) as s:  
+#     media_id = get_media_id_from_stakeholder(s, stakeholder_id=22183)
+#   print(media_id)
+ 
 
+def derive_rs_from_media(db:Session, stakeholder_id: int= None):
+  # from langchain_google_genai import ChatGoogleGenerativeAI
+  llm = ChatVertexAI(model="gemini-1.5-flash") 
+
+  # llm = ChatGoogleGenerativeAI(temperature=0, model="gemini-pro")
+  llm_transformer = LLMGraphTransformer(llm=llm)
+  
+  #get media ids from stakeholder ids
+  results = get_media_id_from_stakeholder(db, stakeholder_id=stakeholder_id)
+  media_ids = [result.media_id for result in results]
+
+  for id in media_ids:
+    #get content
+    results = get_content_from_media_id(db, media_id = id)
+    text = [result.content for result in results]
+  
+    documents = [Document(page_content=' '.join(text))]
+    # print(documents)
+    graph_documents = llm_transformer.convert_to_graph_documents(documents)
+    print(f"Nodes:{graph_documents[0].nodes}")
+    print(f"Relationships:{graph_documents[0].relationships}")
+
+if __name__ == "__main__":
+  stakeholder_id = 592
+  with Session(media_engine) as s:
+    derive_rs_from_media(s,stakeholder_id=592)

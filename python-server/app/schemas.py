@@ -45,6 +45,7 @@ class StakeholdersMentioned(BaseModel):
     class Config:
         orm_mode : True
 
+
 class Media(BaseModel):
   country_ids: Optional[str]
   cluster_id: Optional[int]

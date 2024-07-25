@@ -8,12 +8,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }, 1500); 
     
       const form = document.getElementById('message-form');
-      const actionButtons = document.getElementById('action-buttons');
       if (form) {
         const loadingAnimation = document.getElementById('loading-animation');
         const inputField = document.getElementById('message-input');
-        const formElements = form.querySelectorAll('.input-group, .actions');
-        const allElements = [...formElements, actionButtons];
+        const formElements = form.querySelectorAll('.input-group');
+        const allElements = [...formElements];
 
         form.addEventListener('submit', function(event) {
           if (inputField.value.trim() === '') {
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
       }
 
-      const chatHistory = document.getElementById('chat-history');
+      const chatHistory = document.getElementById('center-content');
       if (chatHistory) {
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }

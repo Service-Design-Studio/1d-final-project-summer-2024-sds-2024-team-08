@@ -386,6 +386,7 @@ html, body {
   color: #999;
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 1vh;
 }
 
 .new-chat-btn i {
@@ -415,7 +416,8 @@ html, body {
   cursor: pointer; /* Pointer cursor */
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  margin-top: 3vh;
+  margin-top: 4vh;
+  margin-bottom: 1vh;
 }
 
 .dropdown-btn span {

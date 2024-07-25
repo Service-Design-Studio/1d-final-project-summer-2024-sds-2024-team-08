@@ -71,6 +71,10 @@ html, body {
   margin-bottom: 5vh;
   justify-content: flex-start;
   overflow-y: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 .welcome-message {
@@ -177,8 +181,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  overflow-y: auto;
-  overflow-x: hidden;
+  max-width: 50vw;
 }
 
 .messages-wrapper {

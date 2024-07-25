@@ -136,12 +136,6 @@ def get_content_from_media_id(db: Session, media_id: int=None, content: str = No
 
   return results
 
-# if __name__ == '__main__':
-#   with Session(media_engine) as s:  
-#     media_id = get_media_id_from_stakeholder(s, stakeholder_id=22183)
-#   print(media_id)
- 
-
 def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   # from langchain_google_genai import ChatGoogleGenerativeAI
   llm = ChatVertexAI(model="gemini-1.5-flash") 
@@ -158,16 +152,17 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
     text = [result.content for result in results] #list of article content
   
   documents = [Document(page_content=' '.join(text))]
-  # print(documents)
+  # print(documents) ## for all content in medias 
   graph_documents = llm_transformer.convert_to_graph_documents(documents)
     # print(f"Nodes:{graph_documents[0].nodes}")
     # print(f"Relationships:{graph_documents[0].relationships}")
   rs = graph_documents[0].relationships
   # print(rs)
-  m_ls = []
+  media_rs = []
   for i in rs:
-    m_ls.append([i.source.id, i.type, i.target.id]) # Output: [[subject:str,object:str, predicate:str]]
-  return m_ls
+    media_rs.append([i.source.id, i.type, i.target.id]) # Output: [[subject:str,object:str, predicate:str]]
+  
+  return media_rs
 
 def generate_network(relationships: list[list[str]]) -> dict:
 
@@ -197,8 +192,8 @@ def generate_network(relationships: list[list[str]]) -> dict:
 
   return {"message": "Network graph has been created!"}
 
-# if __name__ == "__main__":
-#   stakeholder_id = 592
-#   with Session(media_engine) as s:
-#     ls = derive_rs_from_media(s,stakeholder_id=592)
-#     generate_network(ls)
+if __name__ == "__main__":
+  stakeholder_id = 592
+  with Session(media_engine) as s:
+    ls = derive_rs_from_media(s,stakeholder_id=592)
+    print(ls)

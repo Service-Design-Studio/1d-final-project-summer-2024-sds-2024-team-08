@@ -12,12 +12,17 @@ html, body {
 .sidebar {
   position: relative;
   width: 17vw; /* Use vw for a responsive width */
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
   flex-direction: column;
   justify-content: space-between;
   padding: 2vh 2vw;
   height: 100vh;
   background-color: #F0F4F9;
+}
+
+.collapsed-sidebar {
+  display: none;
+  transition: all 0.3s ease;
 }
 
 .sidebar ul li{
@@ -27,7 +32,6 @@ html, body {
 .sidebar ul li a {
   display: flex;
   align-items: center;
-  padding: 1vh 0;
   border-radius: 0.5vh;
   text-decoration: none;
   color: #333;
@@ -42,13 +46,6 @@ html, body {
   font-weight: 700;
 }
 
-.menu-section {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding-bottom: 1vh;
-}
-
 .main-content {
   display: flex;
   width:auto;
@@ -59,7 +56,6 @@ html, body {
   min-height: 100vh;
   background-color: #ffffff;
   flex-grow: 1;
-  transition: all 0.3s ease;
 }
 
 .center-content {
@@ -150,6 +146,7 @@ html, body {
   padding-right: 1vw;
 }
 
+
 .input-group-append .explore-btn {
   display: table-cell;
   width: 4%;
@@ -157,7 +154,7 @@ html, body {
   background-color: transparent; /* Transparent background */
   color:#ffffff;
   border: none;
-  margin-left: 1vw;
+  margin-left: 2vw;
   cursor: pointer;
 }
 
@@ -383,7 +380,6 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  margin: 10px 0;
   border: none;
   border-radius: 20px;
   background-color: #f1f1f1;
@@ -419,6 +415,7 @@ html, body {
   cursor: pointer; /* Pointer cursor */
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  margin-top: 3vh;
 }
 
 .dropdown-btn span {
@@ -471,4 +468,14 @@ iframe {
 
 .iframe-loaded {
   border-bottom: 2px solid #D3D3D3; /* Color for the bottom border when loaded */
+}
+
+.hamburger-menu {
+  position: absolute;
+  top: 1vh;
+  left: 0.8vw;
+  z-index: 1000;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
 }

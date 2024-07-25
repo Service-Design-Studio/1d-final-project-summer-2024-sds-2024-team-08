@@ -56,4 +56,20 @@ document.addEventListener("DOMContentLoaded", (event) => {
         bottomSection.style.maxWidth = "75vw";
       }
     });
+
+    // send post request to 
+    document.getElementById("submit-btn").addEventListener('click', () => { 
+        
+    })
 });
+
+function post_request() {
+    let submit_btn = document.getElementById("submit-btn")
+
+    // get contents of the form 
+
+    // can detect button is clicked
+
+    // can send post to rails backend 
+
+}

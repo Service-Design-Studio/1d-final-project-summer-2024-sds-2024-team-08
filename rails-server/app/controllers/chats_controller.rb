@@ -61,6 +61,12 @@ class ChatsController < ApplicationController
         render("graph", layout: false) # dont use application.html.erb as template 
     end
 
+    # api end point here 
+    
+
+
+
+    
     private # methods defined here onwards is private 
 
     def set_chat_ids

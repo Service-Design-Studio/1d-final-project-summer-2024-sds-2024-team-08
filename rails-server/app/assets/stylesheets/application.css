@@ -456,3 +456,12 @@ html, body {
   background-color: #e1e1e1; /* Background color on hover */
   color: #007bff; /* Text color on hover */
 }
+
+/* Graph */
+iframe {
+  width: 100%;
+  height: 60vh;
+  border: none;
+  border-bottom: 2px solid #D3D3D3;
+  overflow: hidden;
+}

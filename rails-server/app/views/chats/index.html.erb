@@ -1,5 +1,5 @@
-<% if @default_landing_page %>
-  <div class="welcome-message text-center d-flex flex-column align-items-center justify-content-center">
+<% if @default_landing_page || @chat_history.blank? %>
+  <div class="welcome-message text-center d-flex flex-column align-middle justify-content-center">
     <div class="genie-logo mb-3">
       <img src="<%= asset_path('genie_logo.svg') %>" alt="Genie Logo" class="resized-logo">
     </div>

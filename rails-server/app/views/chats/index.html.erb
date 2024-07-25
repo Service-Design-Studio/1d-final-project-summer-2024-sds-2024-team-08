@@ -35,7 +35,7 @@
 
 
 <% content_for :message_form do %>
-    <div class="actions d-flex justify-content-start w-100 mb-3" id="action-buttons">
+    <%# <div class="actions d-flex justify-content-start w-100 mb-3" id="action-buttons">
       <button class="action-btn btn btn-light">
         <i class="fas fa-file-alt"></i>
       </button>
@@ -54,7 +54,7 @@
       <button class="action-btn btn btn-light">
         <i class="fas fa-chart-line"></i>
       </button>
-    </div>
+    </div> %>
     <%= form_with url: handle_user_msg_path(@chat_id), method: :post, class: 'w-100 d-flex', id: 'message-form' do |form| %>
         <div class="input-group flex-grow-1" style="border-radius: 25px; overflow: hidden; border: 1px solid #e0e0e0;">
         <div class="input-group-prepend">

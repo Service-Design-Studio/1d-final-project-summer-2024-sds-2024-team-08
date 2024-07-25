@@ -29,4 +29,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
       if (chatHistory) {
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
+
+      document.querySelectorAll('iframe').forEach(function(iframe) {
+        iframe.addEventListener('load', function() {
+            iframe.classList.add('iframe-loaded');
+        });
+      });
 });

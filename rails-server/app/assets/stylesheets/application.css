@@ -67,8 +67,8 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-height: 80vh;
-  margin-bottom: 5vh;
+  max-height: 85vh;
+  /* margin-bottom: 5vh; */
   justify-content: flex-start;
   overflow-y: auto;
   display: block;
@@ -465,6 +465,10 @@ iframe {
   width: 100%;
   height: 60vh;
   border: none;
-  border-bottom: 2px solid #D3D3D3;
+  border-bottom: 2px solid transparent;
   overflow: hidden;
+}
+
+.iframe-loaded {
+  border-bottom: 2px solid #D3D3D3; /* Color for the bottom border when loaded */
 }

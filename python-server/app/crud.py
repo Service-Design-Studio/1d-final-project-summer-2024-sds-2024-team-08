@@ -155,7 +155,7 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   for id in media_ids:
     #get content
     results = get_content_from_media_id(db, media_id = id) #returns list of json dicts
-    text = [result.content for result in results] #list of text content
+    text = [result.content for result in results] #list of article content
   
   documents = [Document(page_content=' '.join(text))]
   # print(documents)
@@ -166,8 +166,7 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   # print(rs)
   m_ls = []
   for i in rs:
-    m_ls.append([i.source.id, i.type, i.target.id])
-    
+    m_ls.append([i.source.id, i.type, i.target.id]) # Output: [[subject:str,object:str, predicate:str]]
   return m_ls
 
 def generate_network(relationships: list[list[str]]) -> dict:
@@ -198,10 +197,8 @@ def generate_network(relationships: list[list[str]]) -> dict:
 
   return {"message": "Network graph has been created!"}
 
-
-
-if __name__ == "__main__":
-  stakeholder_id = 592
-  with Session(media_engine) as s:
-    ls = derive_rs_from_media(s,stakeholder_id=592)
-    generate_network(ls)
+# if __name__ == "__main__":
+#   stakeholder_id = 592
+#   with Session(media_engine) as s:
+#     ls = derive_rs_from_media(s,stakeholder_id=592)
+#     generate_network(ls)

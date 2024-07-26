@@ -4,7 +4,7 @@ from langgraph.checkpoint.base import (
     CheckpointMetadata, 
     SerializerProtocol)
 
-from typing import Optional, Dict, Iterator, Any
+from typing import Optional, Dict, Iterator, Any, List, Tuple
 
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint import Checkpoint
@@ -104,3 +104,23 @@ class PostgreSQLMemorySaver(BaseCheckpointSaver):
                 "thread_ts": ts,
             }
         }
+        
+    def put_writes(
+        self,
+        config: RunnableConfig,
+        writes: List[Tuple[str, Any]],
+        task_id: str,
+    ) -> None:
+        """Store intermediate writes linked to a checkpoint.
+
+        Args:
+            config (RunnableConfig): Configuration of the related checkpoint.
+            writes (List[Tuple[str, Any]]): List of writes to store.
+            task_id (str): Identifier for the task creating the writes.
+
+        Raises:
+            NotImplementedError: Implement this method in your custom checkpoint saver.
+        """
+        # raise NotImplementedError(
+        #     "This method was added in langgraph 0.1.7. Please update your checkpoint saver to implement it."
+        # )

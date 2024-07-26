@@ -176,3 +176,4 @@ if __name__ == "__main__":
   stakeholder_id = 592
   with Session(media_engine) as s:
     ls = derive_rs_from_media(s,stakeholder_id=592)
+    print(ls)

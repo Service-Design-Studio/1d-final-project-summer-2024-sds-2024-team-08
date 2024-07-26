@@ -145,7 +145,9 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   
   #get media ids from stakeholder ids
   results = get_media_id_from_stakeholder(db, stakeholder_id=stakeholder_id)
-  media_ids = [result.media_id for result in results] #list of media ids
+  #list of media ids
+  media_ids = [result.media_id for result in results] 
+  
   for id in media_ids:
     #get content
     results = get_content_from_media_id(db, media_id = id) #returns list of json dicts
@@ -156,13 +158,31 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   graph_documents = llm_transformer.convert_to_graph_documents(documents)
     # print(f"Nodes:{graph_documents[0].nodes}")
     # print(f"Relationships:{graph_documents[0].relationships}")
+  
+  nodes = graph_documents[0].nodes
   rs = graph_documents[0].relationships
   # print(rs)
+
+  nodes_id = {}
   media_rs = []
-  for i in rs:
-    media_rs.append([i.source.id, i.type, i.target.id]) # Output: [[subject:str,object:str, predicate:str]]
-  
-  return media_rs
+  node_id_map = {}
+  node_counter = 0
+
+  # Assign ids to nodes and map them to names
+  for node in nodes:
+    node_counter += 1
+    node_id_map[node.id] = node_counter
+    nodes_id[node_counter] = node.id
+
+  # Relationships with ids
+  for relation in rs:
+    source_id = node_id_map[relation.source.id]
+    target_id = node_id_map[relation.target.id]
+    media_rs.append([source_id, relation.type, target_id])
+
+  # Output: {nodes: {id:name}, edges:[id,str,id]}
+
+  return {'nodes': nodes_id, 'edges': media_rs}
 
 def generate_network(relationships: list[list[str]]) -> dict:
 

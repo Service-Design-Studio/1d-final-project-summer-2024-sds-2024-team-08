@@ -164,14 +164,18 @@ def get_relationships(subject_id:int = None) -> bytes:
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
     '''
-    print("Getting relationships")
+    # print("Getting relationships")
     subject_id = int(float(subject_id))
+    relationships_graph = {
+        "edges": [],
+        "nodes": {}
+    }
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships(session, subject=subject_id)
         object_rs = crud.get_relationships(session, object=subject_id)
     
     if subject_rs == None and object_rs == None:
-        return []
+        return relationships_graph 
     
     elif subject_rs == None:
         relationships = object_rs
@@ -182,14 +186,18 @@ def get_relationships(subject_id:int = None) -> bytes:
     else:    
         relationships = subject_rs + object_rs
     
-    relationships_with_predicates = []
     for result in relationships:
         predicate = result.predicate
         extracted_info = crud.extract_after_last_slash(predicate)
         extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
-        relationships_with_predicates.append((result.subject, extracted_info, result.object))
+        relationships_graph["edges"].append((result.subject, extracted_info, result.object))
+        with Session(stakeholder_engine) as session:
+            if result.subject not in relationships_graph["nodes"]:
+                relationships_graph["nodes"][result.subject] = crud.get_stakeholder_name(session, result.subject)
+            if result.object not in relationships_graph["nodes"]:
+                relationships_graph["nodes"][result.object] = crud.get_stakeholder_name(session, result.object)
 
-    return relationships_with_predicates
+    return relationships_graph
 
 def get_photo(stakeholder_id: int) -> str:
     stakeholder_id = int(stakeholder_id)

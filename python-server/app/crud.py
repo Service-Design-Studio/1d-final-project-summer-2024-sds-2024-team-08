@@ -21,19 +21,16 @@ import urllib
 os.environ["GOOGLE_API_KEY"] = "AIzaSyCtKcsZVbfUtX-QMM8qkO_L9kaH-yq7hbU"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './google-creds.json'
 os.environ["GOOGLE_CLOUD_PROJECT_ID"] = "gemini-test-426508"
-os.environ["OPENAI_API_KEY"]="sk-proj-qxoKlAc0Jg415kEc6EQoT3BlbkFJKkSBa1fEvBV5vkbC6aiS"
 from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_openai import ChatOpenAI
 from langchain_core.documents import Document
-
-
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 import re
 import models
 from database import stakeholder_engine, user_engine, media_engine
-import random
+
 
 def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
     columns = [
@@ -156,8 +153,6 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   documents = [Document(page_content=' '.join(text))]
   # print(documents) ## for all content in medias 
   graph_documents = llm_transformer.convert_to_graph_documents(documents)
-    # print(f"Nodes:{graph_documents[0].nodes}")
-    # print(f"Relationships:{graph_documents[0].relationships}")
   
   nodes = graph_documents[0].nodes
   rs = graph_documents[0].relationships
@@ -181,36 +176,7 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
     media_rs.append([source_id, relation.type, target_id])
 
   # Output: {nodes: {id:name}, edges:[id,str,id]}
-
   return {'nodes': nodes_id, 'edges': media_rs}
-
-def generate_network(relationships: list[list[str]]) -> dict:
-
-  print("generating network")
-  print(relationships)
-  subj_color="#77E4C8"
-  obj_color="#3DC2EC"
-  edge_color="#96C9F4"
-  subj_shape="circle"
-  obj_shape="square"
-  buttons = False
-  g = Network(height="1024px", width="100%",font_color="black")
-
-  lvl = 0
-  for rs in relationships:
-    subj = rs[0]
-    pred = rs[1]
-    obj = rs[2]
-    g.add_node(subj, color=subj_color, shape=subj_shape, size=40, level=lvl, x=lvl, y=lvl)
-    g.add_node(obj, color=obj_color, shape=obj_shape, size=20, level=lvl+1, x=(lvl+1)*random.randint(5,10), y=(lvl+1)*random.randint(5,10))
-    g.add_edge(subj,obj,label=pred, color=edge_color, smooth=False)
-  lvl += 1
-
-  g.repulsion(node_distance=250, spring_length=350)
-  g.set_edge_smooth("dynamic")
-  g.show("graph.html")
-
-  return {"message": "Network graph has been created!"}
 
 if __name__ == "__main__":
   stakeholder_id = 592

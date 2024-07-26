@@ -28,15 +28,8 @@ class ChatsController < ApplicationController
         render("index")
     end 
 
-    # run this when user send query 
+    # run this when user send query, empty request handled on frontend 
     def handle_user_msg
-        # handle empty request 
-        if params[:message] == "" 
-            params[:message] = nil
-            get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-            return 
-        end 
-
         # message must be a string, post() expects a string
         message = {'message'=>params[:message], 'chat_id'=>params[:chat_id], 'user_id'=> $USER}.to_json.to_s
         puts message
@@ -44,12 +37,25 @@ class ChatsController < ApplicationController
         # send form contents to python side 
         langchain_endpoint = "/langchain/"
         uri = URI.parse(LANGCHAIN_API + langchain_endpoint)
-        Net::HTTP.post(uri, message, {'content-type': 'application/json'})
+        response = Net::HTTP.post(uri, message, {'content-type': 'application/json'})
 
+        parsed_response = JSON.parse(response.body)["responses"] rescue ""
+
+        if response.is_a?(Net::HTTPSuccess)
+            # Process the successful response
+            puts parsed_response
+        else
+            # Handle the error response
+            puts "Error: #{response.message}"
+        end
+        
         # reset message to have empty text input 
         params[:message] = nil
-        get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-        return 
+        render(json: { 
+            success: true, 
+            reply: parsed_response, 
+            redirect_to: get_chat_with_id_path(params[:chat_id]) 
+        })
     end 
 
     # for /g/:graph_id endpoint 
@@ -61,12 +67,6 @@ class ChatsController < ApplicationController
         render("graph", layout: false) # dont use application.html.erb as template 
     end
 
-    # api end point here 
-    
-
-
-
-    
     private # methods defined here onwards is private 
 
     def set_chat_ids

@@ -161,11 +161,13 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   graph_documents = llm_transformer.convert_to_graph_documents(documents)
     # print(f"Nodes:{graph_documents[0].nodes}")
     # print(f"Relationships:{graph_documents[0].relationships}")
+  # nodes = graph_documents[0].nodes
   rs = graph_documents[0].relationships
   # print(rs)
   m_ls = []
   for i in rs:
     m_ls.append([i.source.id, i.type, i.target.id])
+    
     
   return m_ls
 

@@ -350,4 +350,3 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
 
 if __name__ == '__main__':
     print(query_model("Generate a network graph to show only the relationships between Joe Biden has with his immediate family members. On the same network graph, help me visualize any relationships that his family members might have with other stakeholders.", 3, 6))
-    

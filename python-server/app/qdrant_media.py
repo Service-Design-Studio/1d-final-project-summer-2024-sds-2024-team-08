@@ -4,16 +4,12 @@ import ast  # To safely evaluate strings that represent lists
 import psycopg2 
 from sentence_transformers import SentenceTransformer
 from database import stakeholder_engine, user_engine, media_engine
-from crud import get_media_id_from_stakeholder
 
 # Vectorize user quer
 def vectorize_query(query):
     encoder = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
     query_vector = encoder.encode([query], convert_to_numpy=True, normalize_embeddings=True)
     return query_vector[0].tolist()  # Convert to list
-
-query = "Show me the network of Joe Biden"
-query_vector = vectorize_query(query)
 
 # Configure the Qdrant client
 def search_in_qdrant(query_vector):  
@@ -29,7 +25,14 @@ def search_in_qdrant(query_vector):
   )
   return search_result
 
-top_media = search_in_qdrant(query_vector)
+# top_media = search_in_qdrant(query_vector)
+# for result in top_media:
+#   print(result.payload)
 
-for result in top_media:
-  print(result.payload)
+if __name__ == "__main__":
+  query = "Generate a network graph to show only the relationships between Joe Biden has with his immediate family members. On the same network graph, help me visualize any relationships that his family members might have with other stakeholders."
+  query_vector = vectorize_query(query)
+  top_media = search_in_qdrant(query_vector)
+  media_ids = [point.id for point in top_media]
+  print(media_ids)
+

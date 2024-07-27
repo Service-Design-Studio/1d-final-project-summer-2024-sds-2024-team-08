@@ -30,6 +30,7 @@ from sqlalchemy import select
 import re
 import models
 from database import stakeholder_engine, user_engine, media_engine
+from qdrant_media import search_in_qdrant, vectorize_query
 
 
 def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True):
@@ -133,7 +134,7 @@ def get_content_from_media_id(db: Session, media_id: int=None, content: str = No
 
   return results
 
-def derive_rs_from_media(db:Session, stakeholder_id: int= None):
+def derive_rs_from_media(db:Session, stakeholder_id: int= None, query: str=None):
   # from langchain_google_genai import ChatGoogleGenerativeAI
   llm = ChatVertexAI(model="gemini-1.5-flash") 
 
@@ -143,7 +144,9 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
   #get media ids from stakeholder ids
   results = get_media_id_from_stakeholder(db, stakeholder_id=stakeholder_id)
   #list of media ids
-  media_ids = [result.media_id for result in results] 
+  media_ids = [result.media_id for result in results]
+  # query_vector = vectorize_query(query)
+  # top_media = search_in_qdrant(query_vector)
   
   for id in media_ids:
     #get content
@@ -170,16 +173,28 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
     nodes_id[node_counter] = node.id
 
   # Relationships with ids
-  for relation in rs:
-    source_id = node_id_map[relation.source.id]
-    target_id = node_id_map[relation.target.id]
-    media_rs.append([source_id, relation.type, target_id])
+    for relation in rs:
+        source_id = node_id_map.get(relation.source.id)
+        target_id = node_id_map.get(relation.target.id)
+
+        if source_id is None:
+            print(f"KeyError: '{relation.source.id}' not found in node_id_map")
+        if target_id is None:
+            print(f"KeyError: '{relation.target.id}' not found in node_id_map")
+
+        if source_id is not None and target_id is not None:
+            media_rs.append([source_id, relation.type, target_id])
+        else:
+            # Handle the case where either source_id or target_id is None
+            continue
 
   # Output: {nodes: {id:name}, edges:[id,str,id]}
-  return {'nodes': nodes_id, 'edges': media_rs}
+  # return {'nodes': nodes_id, 'edges': media_rs}
+  return media_ids
 
 if __name__ == "__main__":
-  stakeholder_id = 592
+  stakeholder_id = 28235
+  query = "Generate a network graph to show only the relationships between Joe Biden has with his immediate family members. On the same network graph, help me visualize any relationships that his family members might have with other stakeholders."
   with Session(media_engine) as s:
-    ls = derive_rs_from_media(s,stakeholder_id=592)
+    ls = derive_rs_from_media(s,stakeholder_id=28235, query=query)
     print(ls)

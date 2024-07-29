@@ -115,7 +115,7 @@ def create_agent(llm):
             return result.assign(map = loaded | mapping_prompt | llm | parse_list) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | combine_lists #| generate_graph
+    return RunnableLambda(format_input) | combine_lists | generate_graph
 
 
 if __name__ == "__main__":

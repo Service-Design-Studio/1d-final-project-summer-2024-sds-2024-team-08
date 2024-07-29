@@ -3,7 +3,8 @@ steps:
     name: 'gcr.io/kaniko-project/executor'
     args: [
               '--destination=gcr.io/${PROJECT_ID}/${_SERVICE_NAME}',
-              '--cache=true'
+              '--cache=true',
+              '--cache-ttl=48h'
           ]
   - id: "run deploy"
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk"

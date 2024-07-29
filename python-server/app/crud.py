@@ -82,3 +82,19 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
 
 def get_graph(db: Session, id):
     return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))
+
+def get_photo(db: Session, stakeholder_id: int) -> str:
+    stakeholder_id = int(stakeholder_id)
+
+    response = db.scalars(select(models.Stakeholder).where(models.Stakeholder.stakeholder_id == stakeholder_id).limit(1)).one_or_none()
+    if response is not None:
+        ref_pic = response.photo
+        if ref_pic:
+            pic_url = ref_pic.split("||")[0].strip()  # Split by "||" and take the first URL
+            return pic_url
+        else:
+            print(f"No photo field for get_photo({stakeholder_id}): {response}")
+            return None
+    else:
+        print(f"stakeholder {stakeholder_id} does not exist")
+        return None

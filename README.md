@@ -33,8 +33,8 @@ This project was done in collaboration with The Stakeholder Company (TSC). Using
 <img src="https://cdn.prod.website-files.com/642e4d2d40f4d8ae99d811e1/642e51bd6932b7e24ff238a0_TSC%20logo.svg" loading="lazy" alt="TSC Ai" class="logo">
 
 ## Features 
-* Store different chat for different users 
-* Have chat history for each chat 
+* Store different chat with chat history for different users 
+* Query database on stakeholder information with fuzzy matching (for names)
 * Draw network graphs that connect different stakeholders 
 * Draw insights from media and piece together connections 
 
@@ -42,10 +42,25 @@ This project was done in collaboration with The Stakeholder Company (TSC). Using
 We made the interface similar to the familiar ChatGPT that everyone knows as familiar designs are more likely to be easily understood and navigated by the user. Since we are making something similar to a chatbot, we want the users to quickly understand that. 
 
 ## Problem Statement 
-
+How can we streamline information collection and report generation to reduce the time and effort required by the users?
 
 ## Project Architecture 
-Insert architecture diagram here eg (rails - python - gemini)
+![architecture diagram](assets/architecture.png)
+The overall architectureof the project. 
+
+![user db ER diagram](assets/users%20ERD.png)
+
+ER diagram for Users DB. 
+
+![Stakeholder db ER diagram](assets/stakeholders%20ERD.png)
+
+ER diagram for Stakeholders DB. 
+
+![media db ER diagram](assets/media%20ERD.png)
+
+ER diagram for Media DB. 
+
+### Technologies Used
 
 ![Ruby](https://img.shields.io/badge/Ruby-CC342D.svg?logo=ruby&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-14354C.svg?logo=python&logoColor=white)
@@ -65,13 +80,42 @@ Due to the heavy emphasis on AI, we choose to use LangChain and LangGraph to sim
 
 Rails is opinionated software. It makes the assumption that there is a "best" way to do things, and it's designed to encourage that way - and in some cases to discourage alternatives.
 
+## How the AI works 
+Based on the overall architecture diagram above, the AI processing consists of Researcher (Agent), Router, Call Tools and Graph Master. 
+Agent is a Runnable that can Calls Tools 
+Upon receiving the user's input at the `/langchain/` endpoint, there are 2 possible user flows that can happen. In both cases, we are taking in a natural language prompt and outputing some message for the user. The exact user flows are described below. 
+
+### Non Graph Flow 
+Example prompt: 
+
+> Tell me more about Ben Carson 
+
+1. User Query received at `/langchain/` endpoint. 
+2. Extract arguments + tools to use 
+3. Go to Router, then Call Tools. 
+4. Execute tool function, which outputs a Tool Message 
+5. Goes back to Researcher. 
+6. Repeat Steps 3 - 5 until the Agent 
+
+### Graph Flow 
+Example prompt
+
+> Help me generate a graph on the relationships of Joe Biden.
+
+
+
+### Checkpoints 
+[Checkpoints](https://langchain-ai.github.io/langgraph/reference/checkpoints/) is the LangChain way of giving your agent  "memory" by persisting its state. With this, the agent is able to use previous messages context to craft the next response. 
+
 # Demo 
 Insert youtube demo here 
 
 # Getting Started 
 This project requires both Ruby, with Ruby on Rails and Python to work. 
 
-Clone the repo and open 2 separate terminal windows, one for the Rails server and one for the Python server. 
+Clone the repo and open 2 separate terminal windows, one for the Rails server and one for the Python server. ```cd``` into the respective folders. 
+
+## Rails Server 
 
 Install all dependencies for Rails. Please change the path according to where you cloned the repo. 
 ```sh
@@ -83,7 +127,9 @@ Start Rails server
 rails s 
 ```
 
-(Optional) If develop Rails locally with Postgres database in cloud, download cloud SQL proxy to allow Rails to connect to the cloud db. Follow this guide [here](https://cloud.google.com/sql/docs/mysql/sql-proxy). Run the cloud sql proxy in another terminal at the same time as ```rails s```
+(Optional) If you are developing Rails locally with Postgres database in cloud, download cloud SQL proxy to allow Rails to connect to the cloud db. Follow this guide [here](https://cloud.google.com/sql/docs/mysql/sql-proxy). Run the cloud sql proxy in another terminal at the same time as ```rails s```
+
+## Python Server 
 
 It would be advisable to use a [virtual environment](https://docs.python.org/3/library/venv.html) for the packages required in the Python server to prevent messing up system packages and versions. 
 
@@ -100,33 +146,72 @@ Activate the venv, command depends on OS.
 
 Install all dependencies for Python server
 ```sh
-python3 -m venv .venv  
+pip install -r requirements.txt
 ```
 
-Start Python server 
-
-how??
+Start Python server. `uvicorn` is part of the dependencies installed when running the above comnand.  
+```sh
+uvicorn —app-dir app —host 0.0.0.0 —port 8080 main:app
+```
 
 ### Postgres Database 
 We are using a Postgres database for both development and production. The production version is set up on Google Cloud, see below for more details. 
 
-HOW TO SET UP??? 
+To create a new database in Google Cloud:
+1. Log in
+2. Navigate to "SQL" from the navigation menu
+3. Click on "CREATE INSTANCE"
+4. Click on "Choose PostegreSQL"
+5. Choose Enterprise. Set to "Deployment". Give your instance a name and a password. Set Region to "asia-east1 (Taiwan)" because we found it to be cheaper. Leave it as "Single Zone". Change Machine Configuration to "2 vCPU, 16GB". Storage to "HDD" and "10GB". Click on "CREATE INSTANCE"
+6. In the instance, navigate to "Databases" and click on "Create Database". Enter the database name and click "CREATE"
+7. Go to the "Users" tab and click on "ADD USER ACCOUNT". Make sure that "Built-in authentication" is checked. Enter the User name and Password. Click "Add"
+
+Now your PostgreSQL has been created within Google Cloud and is ready to receive data!
 
 # Deployment 
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?logo=google-cloud&logoColor=white)
 ![postgres](https://img.shields.io/badge/postgres-316192.svg?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
 
+We are using these Google Cloud services. 
+* Cloud Build 
+* Cloud Run 
+* Vertex AI 
+* Artifact Registry 
+* Cloud SQL 
+* Cloud Function (turn on and off the db)
+* Cloud Scheduler (calls cloud function)
+
+Follow the steps below to deploy both servers.
+
+## Rails Server
+To deploy, run this command in `rails-server/`. The build script is detailed in `rails-server/cloudbuild.yaml`. 
+
+```sh 
+gcloud builds submit 
+```
+
+## Python Server 
+To deploy, run this command in `python-server/`. The build script is detailed in `python-server/cloudbuild.yaml`. 
+
+```sh 
+gcloud builds submit 
+```
+
+## Auto Deployment with Github Actions 
+
+The auto deploy build steps are described in `.github/workflows/deploy-rails.yml` for Rails server and `.github/workflows/deploy-python.yml` for Python server. 
 
 # Testing 
 ![Cucumber](https://img.shields.io/badge/Cucumber-43B02A?style=for-the-badge&logo=cucumber&logoColor=white)
 
+Written in Cucumber and automated with Capbybara. Cucumber is a tool for running automated tests written in plain language. Capybara helps you test web applications by simulating how a real user would interact with your app.
+
 ## Rails Server 
-Run the tests
+Run the tests with this command. 
 
 ```sh
 bundle exec cucumber 
 ```
 
-## Python Server 
-
+This command will run the file `rails-server/features/index.feature` and `rails-server/features/step_definitions/index.rb`. The Python server endpoint is not mocked as we are doing acceptance testing and that requires the AI output to be correct. 

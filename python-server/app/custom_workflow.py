@@ -1,5 +1,5 @@
 from typing import Annotated, Literal, TypedDict, Sequence, Optional
-from langgraph.graph.message import add_messages
+from langgraph.graph.message import MessagesState
 from langgraph.graph import END, StateGraph, START
 from langgraph.prebuilt import ToolNode
 from langchain_core.messages import (
@@ -7,13 +7,14 @@ from langchain_core.messages import (
     ToolMessage,
     AIMessage
 )
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import RunnablePassthrough, RunnableConfig
 from langgraph.checkpoint import BaseCheckpointSaver
 from dotenv import load_dotenv
 import operator
 from langgraph.graph.message import add_messages
 
+import grapher_agent, researcher_agent
+from tools import get_tools, get_all_tools
     
 load_dotenv()
 
@@ -29,62 +30,71 @@ load_dotenv()
 #         "messages": [result],
 #         "sender": name,
 #     }
+class AgentState(MessagesState, TypedDict):
+    rs_db: list
+    media: list
+    sender: str
 
-def agent_node(state, agent, name):
-    def parse_response(output):
-        if not isinstance(output, ToolMessage):
-            output = AIMessage(**output.dict(exclude={"type", "name"}), name=name)
+def agent_node(agent = None, name = "Not set"):
+    def parse_response(output: AIMessage):
         return {
-            "messages": output['messages'] [output],
-            "sender": name,
+            "messages": AIMessage(output.dict(exclude={"type", "name"}), name=name),
+            "sender": name
         }
+        
+    return agent | parse_response
+
+def exit_node(state):
+    return { "messages": [ToolMessage("Redirecting to exit..."),
+                          AIMessage(state['messages'][-1]['content'])] }
+
+def tool_graph_adaptor(state):
+    args = state['messages'][-1].additional_kwargs
+    rs_db = args["rs_db"]
+    media = args["media"]
     
-    return state | RunnablePassthrough.assign(**(agent | parse_response))
+    return { "messages": ToolMessage("Redirecting to graph..."),
+             "rs_db" : rs_db,
+             "media" : media }
 
-def create_workflow(model, tool_node, checkpointer: Optional[BaseCheckpointSaver] = None):
-    class AgentState(TypedDict):
-        data: list
-        messages: Annotated[Sequence[BaseMessage], add_messages]
-        sender: str
+def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
 
 
-    def router(state) -> Literal["call_tool", "end", "continue"]:
-        # This is the router
-        messages = state["messages"]
-        last_message = messages[-1]
-        sender = state["sender"]
+    tool_node = ToolNode(get_tools())
 
-        if last_message.tool_calls:
+    researcher_name = "Researcher"
+    grapher_name = "Grapher"
 
-            return "call_tool"
-        return "continue"
+    researcher_node = agent_node(researcher_agent.create_agent(model, get_all_tools()), researcher_name)
+    grapher_node = agent_node(grapher_agent.create_agent(model), grapher_name)
+
+    def router(state):
+        lastMessage = state['messages'][-1]
+        if calls := lastMessage.get('tool_calls'):
+            if 'call_graph' in calls:
+                return 'call_graph'
+            elif 'send_final_message' in calls:
+                return "send_final_message"
     
     workflow = StateGraph(AgentState)
-    workflow.add_node("Researcher", )
-    workflow.add_node("Graph_Master", graph_master_node)
+    workflow.add_node(researcher_name, researcher_node)
+    workflow.add_node(grapher_name, grapher_node)
     workflow.add_node("call_tool", tool_node)
+    workflow.add_node("send_final_message", exit_node)
+    workflow.add_node("tool_graph_adaptor", tool_graph_adaptor)
     
     workflow.add_conditional_edges(
-        "Researcher",
+        researcher_name,
         router,
-        {"continue": "Graph_Master", "call_tool": "call_tool", "end": END}
+        { "call_tool": "call_tool", 
+         "call_graph": "tool_graph_adaptor", 
+         "send_final_message": "send_final_message" }
     )
     
-    workflow.add_conditional_edges(
-        "Graph_Master",
-        router,
-        {"continue": END, "call_tool": "call_tool", "end": END}
-    )
-    
-    workflow.add_conditional_edges(
-        "call_tool",
-        lambda x: x["sender"],
-        {
-            "Researcher": "Researcher",
-            "Graph_Master": "Graph_Master"
-        }
-    )
-    
+    workflow.add_edge("tool_graph_adaptor", grapher_name)
+    workflow.add_edge("call_tool", "Researcher")
     workflow.add_edge(START, "Researcher")
-    return workflow.compile(checkpointer=checkpointer)
+    workflow.add_edge("send_final_message", END)
+    workflow.add_edge("Graph_Master", END)
 
+    return workflow.compile(checkpointer=checkpointer)

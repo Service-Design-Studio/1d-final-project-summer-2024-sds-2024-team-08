@@ -1,5 +1,6 @@
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 from langchain_core.prompts import PromptTemplate
+from langchain_core.messages import AIMessage
 from sqlalchemy.orm import Session
 from database import stakeholder_engine, user_engine
 from pyvis.network import Network
@@ -68,7 +69,7 @@ def generate_graph(inp):
     g.set_edge_smooth("dynamic")
     network_graph = g.generate_html()
 
-    return network_graph
+    return {"messages": network_graph}
 
 mapping_prompt = PromptTemplate.from_template(
     """
@@ -108,15 +109,17 @@ def parse_list(s:str):
 def create_agent(llm):
     def format_input(inp):
         result = RunnablePassthrough()
-        if 'rs_db' in inp and 'media' in inp:
+        if inp.get('rs_db') and inp.get('media') in inp:
             loaded = lambda d: {
                 'A': str(d['rs_db']['nodes'].values()),
                 'B': str(d['media']['nodes'].values())}
             return result.assign(map = loaded | mapping_prompt | llm | parse_list) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | combine_lists | generate_graph
+    return RunnableLambda(format_input) | combine_lists | generate_graph | AIMessage
 
+def create_node(llm, name):
+    return create_agent(llm)
 
 if __name__ == "__main__":
     def llm(inp):

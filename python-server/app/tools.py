@@ -191,15 +191,12 @@ def get_photo(stakeholder_id: int) -> str:
             return None
         
 @tool
-def call_graph(data: dict):
+def call_graph():
     """
-    Call this tool to activate the graphing agent.
+    Call this tool to activate the graphing agent only once you have obtained enough information.
 
     Args:
-        data (dict): A dictionary with the following format:
-        {
-            
-        }
+        No args
         
     Returns:
         relationships_with_predicates (list[list[int, str, int]]): A list of subjects, predicates and objects. 
@@ -207,4 +204,25 @@ def call_graph(data: dict):
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
     """
-    pass
+    # Note: Need to manually point this in the router
+    return "calling the graphing agent..."
+
+@tool
+def send_final_message(message):
+    """
+    Call this tool to send your final message to the user.
+
+    Args:
+        message (str): The message you wish to send to the user.
+        
+    Returns:
+        Will not return anything to you
+    """
+    # Note: Need to manually point this in the router
+    return message
+
+def get_tools():
+    return [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names]
+
+def get_all_tools():
+    return get_tools() + [call_graph, send_final_message]

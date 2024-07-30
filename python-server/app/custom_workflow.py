@@ -18,37 +18,15 @@ from tools import get_tools, get_all_tools
     
 load_dotenv()
 
-# Helper function to create a node for a given agent
-# def agent_node(state, agent, name):
-#     result = agent.invoke(state, config=config)
-    
-#     if isinstance(result, ToolMessage):
-#         pass
-#     else:
-#         result = AIMessage(**result.dict(exclude={"type", "name"}), name=name)
-#     return {
-#         "messages": [result],
-#         "sender": name,
-#     }
 class AgentState(MessagesState, TypedDict):
     rs_db: list
     media: list
     sender: str
 
-# def exit_node(state):
-#     last_message : AIMessage = state['messages'][-1]
-#     return { "messages": [ToolMessage(content="Redirecting to exit..."),
-#                           AIMessage(last_message['content'])] }
-
 def tool_graph_adaptor(state):
-    last_message : AIMessage = state['messages'][-1]
+    last_message = state['messages'][-1]
 
-    rs_db = state["rs_db"]
-    media = state["media"]
-
-    return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.id),
-             "rs_db" : rs_db,
-             "media" : media }
+    return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.id) }
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     tool_node = ToolNode(get_tools())

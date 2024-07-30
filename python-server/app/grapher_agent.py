@@ -106,8 +106,8 @@ mapping_prompt = PromptTemplate.from_template(
 def parse_list(s:str):
     return [sub.strip().strip('"') for sub in s.removeprefix("[").removesuffix("]").split(',')]
 
-def save_graph(s):
-    return "Saved!"
+def save_graph(s, config=None):
+    return "Saved: " + str(config["configurable"]["thread_id"])
 
 def parse_output(s, name):
     return {"messages": AIMessage(s, name=name)}
@@ -152,5 +152,8 @@ if __name__ == "__main__":
                 [1, 'D', 3]
             ]
          }
-    }))
+    },
+    config={"configurable": {
+        "thread_id": 10
+    }}))
 

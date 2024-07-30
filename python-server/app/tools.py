@@ -207,20 +207,6 @@ def call_graph() -> None:
     # Note: Need to manually point this in the router
     return "calling the graphing agent..."
 
-@tool
-def send_final_message(message: str) -> None:
-    """
-    Call this tool to send your final message to the user.
-
-    Args:
-        message (str): The message you wish to send to the user.
-        
-    Returns:
-        Will not return anything to you
-    """
-    # Note: Need to manually point this in the router
-    return message
-
 def get_tools():
     return [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names]
 

@@ -4,6 +4,9 @@ def print_checkpoint(obj):
 
 def print_message(msg):
     max_chars = 60
+    if not isinstance(msg, dict):
+        msg = msg.dict()
+        
     msg_kwargs = msg["kwargs"]
     tool_ls = msg_kwargs.get("tool_calls")
     typ = msg_kwargs["type"]

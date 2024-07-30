@@ -191,7 +191,7 @@ def get_photo(stakeholder_id: int) -> str:
             return None
         
 @tool
-def call_graph():
+def call_graph() -> None:
     """
     Call this tool to activate the graphing agent only once you have obtained enough information.
 
@@ -208,7 +208,7 @@ def call_graph():
     return "calling the graphing agent..."
 
 @tool
-def send_final_message(message):
+def send_final_message(message: str) -> None:
     """
     Call this tool to send your final message to the user.
 
@@ -225,4 +225,4 @@ def get_tools():
     return [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names]
 
 def get_all_tools():
-    return get_tools() + [call_graph, send_final_message]
+    return get_tools() + [call_graph]

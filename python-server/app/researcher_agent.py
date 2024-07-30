@@ -11,7 +11,10 @@ def create_agent(llm, tools):
                     You are a helpful AI assistant, collaborating with other assistants.
                     Use the provided tools to progress towards answering the question.
 
-                    You have access to the following tools: {tool_names}."""
+                    You have access to the following tools: {tool_names}.
+                    
+                    You should call multiple tools at the same time where possible to reduce latency.
+                    """
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -23,7 +26,7 @@ def create_agent(llm, tools):
 def create_node(llm, tools, name = "Not set"):
     def parse_response(output: AIMessage):
         return {
-            "messages": AIMessage(output.dict(exclude={"type", "name"}), name=name),
+            "messages": AIMessage(**output.dict(exclude={"type", "name"}), name=name),
             "sender": name
         }
         

@@ -14,7 +14,6 @@ html, body {
   width: 17vw; /* Use vw for a responsive width */
   transition: all 0.3s ease;
   flex-direction: column;
-  justify-content: space-between;
   padding: 2vh 2vw;
   height: 100vh;
   background-color: #F0F4F9;
@@ -32,14 +31,18 @@ html, body {
 .sidebar ul li a {
   display: flex;
   align-items: center;
-  border-radius: 0.5vh;
   text-decoration: none;
   color: #333;
   font-weight: 400;
-  padding: 1vh 0 1vh 3vw; /* Add left padding to offset text */
+  padding: 1.9vh 0 1.9vh 3vw; /* Add left padding to offset text */
 }
 
-.sidebar ul li a:hover,
+.sidebar ul li a:hover{
+  background-color: #e9e9e9;
+  color: #333;
+  font-weight: 700;
+}
+
 .sidebar ul li a.active {
   background-color: #e0e0e0;
   color: #333;
@@ -198,7 +201,8 @@ html, body {
 }
 
 .scrollable-section {
-  max-height: 70vh;
+  margin-top: 2vh;
+  max-height: 80vh;
   overflow-y: auto;
 }
 
@@ -380,6 +384,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 2vh;
   padding: 10px 20px;
   border: none;
   border-radius: 20px;

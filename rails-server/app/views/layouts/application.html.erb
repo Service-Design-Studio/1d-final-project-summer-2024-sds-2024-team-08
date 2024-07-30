@@ -17,7 +17,7 @@
             <button class="hamburger-menu" id="hamburger-menu">
                 <i class="fa fa-bars" aria-hidden="true"></i>
             </button>
-            <div id="sidebar" class="col-3 col-lg-2 bg-light border-right d-flex flex-column justify-content-between p-3 sidebar">
+            <div id="sidebar" class="col-3 col-lg-2 bg-light border-right d-flex flex-column p-3 sidebar">
                 <!-- Change User ID Dropdown -->
                 <div class="dropdown">
                     <button class="dropdown-btn w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-test="change-user-dropdown">
@@ -39,7 +39,7 @@
                     <div class="section-title font-weight-bold">Today</div>
                     <ul class="list-unstyled" id="past-chats">
                         <% @list_of_chat_ids.each do |chat| %>
-                            <li class="mt-2">
+                            <li class="mt-0">
                                 <%= link_to chat[:chat_name], get_chat_with_id_path(chat[:chat_id]), 
                                 class: ('text-primary ellipsis ' + (chat[:chat_id] == params[:chat_id].to_i ? 'active' : '')), id: "chat-#{chat[:chat_id]}" %>
                             </li>
@@ -49,12 +49,6 @@
                     <ul class="list-unstyled">
                         <!-- CHATS GO HERE-->
                     </ul>
-                </div>
-                <div class="settings mt-4">
-                    <button id="settings-button" class="settings-btn d-flex align-items-center">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </button>
                 </div>
             </div>
             <!-- Main Content -->

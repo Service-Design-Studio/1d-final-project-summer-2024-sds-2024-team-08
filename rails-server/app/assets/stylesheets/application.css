@@ -264,59 +264,40 @@ html, body {
 }
 
 /* Default scrollbar style */
-.chat-history::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+::-webkit-scrollbar {
+  width: 6px; /* Thin scrollbar when not hovered */
+  height: 6px; /* Thin scrollbar when not hovered */
+  transition: width 0.3s, height 0.3s; /* Smooth transition */
 }
 
-.chat-history::-webkit-scrollbar-track {
-  background: transparent; /* Background of the scrollbar track */
+::-webkit-scrollbar-thumb {
+  background: #888; /* Scrollbar thumb color */
+  border-radius: 10px; /* Rounded corners */
 }
 
-.chat-history::-webkit-scrollbar-thumb {
-  background: #888; /* Color of the scrollbar thumb */
-  border-radius: 4px; /* Rounded corners */
-  transition: 0.3s ease, width 0.3s ease; /* Smooth transition */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb color when hovered */
 }
 
-.chat-history::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Color when hovering over the scrollbar thumb */
+::-webkit-scrollbar-track {
+  background: transparent; /* Scrollbar track color */
+  border-radius: 10px; /* Rounded corners */
+  position: relative; /* Ensure track is positioned relative */
 }
 
-/* Scrollbar style when hovered */
-.chat-history.hovered::-webkit-scrollbar {
-  width: 16px; /* Wider width when hovered */
+/* Increase scrollbar size and add buttons on hover */
+::-webkit-scrollbar-track:hover {
+  background: #f1f1f1; /* Scrollbar track color */
 }
 
-.chat-history.hovered::-webkit-scrollbar-thumb {
-  background: #555; /* Darker color when hovered */
+::-webkit-scrollbar-thumb:vertical {
+  min-height: 30px; /* Minimum thumb height for vertical scrollbar */
 }
 
-.chat-history::-webkit-scrollbar-button {
-  width: 0;
-  height: 0;
-  display: none;
+::-webkit-scrollbar-thumb:horizontal {
+  min-width: 30px; /* Minimum thumb width for horizontal scrollbar */
 }
 
-.chat-history.hovered::-webkit-scrollbar-button {
-  display: block;
-  width: 16px; /* Width of the scrollbar arrows */
-  height: 16px; /* Height of the scrollbar arrows */
-  background-color: #555; /* Color of the scrollbar arrows */
-}
-
-.chat-history::-webkit-scrollbar-button:single-button:vertical:decrement {
-  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M7 14l5-5 5 5H7z"/%3E%3C/svg%3E');
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.chat-history::-webkit-scrollbar-button:single-button:vertical:increment {
-  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M7 10l5 5 5-5H7z"/%3E%3C/svg%3E');
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-/* Message content */
 
 .message-content {
   text-align: left; 
@@ -342,8 +323,13 @@ html, body {
 }
 
 .genie-icon {
-  width: 24px; /* Adjust icon size as needed */
-  height: 24px; /* Adjust icon size as needed */
+  width: 3vh; /* Adjust icon size as needed */
+  height: 3vh; /* Adjust icon size as needed */
+}
+
+.paper-plane-icon {
+  width: 3vh; /* Adjust icon size as needed */
+  height: 3vh; /* Adjust icon size as needed */
 }
 
 .ml-2 {

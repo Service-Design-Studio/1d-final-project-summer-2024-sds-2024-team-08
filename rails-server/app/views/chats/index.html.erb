@@ -40,13 +40,13 @@
         <div class="input-group flex-grow-1" style="border-radius: 25px; overflow: hidden; border: 1px solid #e0e0e0;">
         <div class="input-group-prepend">
           <span class="input-group-text bg-white border-0">
-            <img src="<%= asset_path('genie_logo.svg') %>" alt="Genie Logo" style="width: 24px; height: 24px;">
+            <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
           </span>
         </div>
         <%= text_field_tag(:message, nil, placeholder: "Ask me anything :)", class: 'form-control border-0', id: 'message-input') %>
         <div class="input-group-append">
           <%= button_tag(type: 'submit', class: 'explore-btn btn btn-primary', id: 'submit-btn') do %>
-            <img src="<%= asset_path('paper-plane-top.svg') %>" alt="Send" style="width: 24px; height: 24px;">
+            <%= image_tag('paper-plane-top.svg', alt: 'Send', class: 'paper-plane-icon') %>
           <% end %>
         </div>
       </div>

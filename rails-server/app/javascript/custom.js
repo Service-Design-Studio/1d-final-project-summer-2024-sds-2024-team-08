@@ -13,49 +13,56 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const inputField = document.getElementById("message-input");
     const formElements = form.querySelectorAll(".input-group");
     const allElements = [...formElements];
-    const messagesDiv = document.getElementById("chat-history-child")
+    const messagesDiv = document.getElementById("chat-history-child");
 
     form.addEventListener("submit", function (event) {
-        if (inputField.value.trim() === "") {
-            event.preventDefault(); // Prevent form submission if input is empty
-        } else {
-            // add user msg 
-            add_msg_to_div(messagesDiv, inputField.value, true)
+      if (inputField.value.trim() === "") {
+        event.preventDefault(); // Prevent form submission if input is empty
+      } else {
+        // add user msg
+        add_msg_to_div(messagesDiv, inputField.value, true);
 
-            allElements.forEach((element) => element.classList.add("hidden"));
-            loadingAnimation.classList.remove("d-none");
+        allElements.forEach((element) => element.classList.add("hidden"));
+        loadingAnimation.classList.remove("d-none");
 
-            event.preventDefault()
+        event.preventDefault();
 
-            // do POST here 
-            const formData = new FormData(form);
+        // do POST here
+        const formData = new FormData(form);
 
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                res = data.reply
-                console.log('Success:', res);
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-CSRF-Token": document
+              .querySelector('meta[name="csrf-token"]')
+              .getAttribute("content"),
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            res = data.reply;
+            graph_id_res = data.graph_id;
+            console.log("Success:", res);
 
-                // dynamically add to DOM 
-                add_msg_to_div(messagesDiv, res)
-            }).catch(error => {
-                console.error('Error:', error);
-            }).finally(() => {
-                // Hide loading animation
-                loadingAnimation.classList.add('d-none');
-                // show message input 
-                allElements.forEach((element) => element.classList.remove("hidden"));
+            // dynamically add to DOM
+            add_msg_to_div(messagesDiv, res);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          })
+          .finally(() => {
+            // Hide loading animation
+            loadingAnimation.classList.add("d-none");
+            // show message input
+            allElements.forEach((element) =>
+              element.classList.remove("hidden")
+            );
 
-                // reset form input 
-                form.reset()
-            })
-        }
+            // reset form input
+            form.reset();
+          });
+      }
     });
   }
 
@@ -94,27 +101,55 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 
 function add_msg_to_div(targetDiv, res, is_user = false) {
-    let html_content = `
+  let html_content;
+  const chat_id = getChatIdFromPath();
+  const chatHistory = document.getElementById("center-content");
+
+  if (res.includes("The network graph has been created!")) {
+    // Create an iframe to display the latest graph for the specific chat ID
+    html_content = `
         <div class="row mb-3">
             <div class="col-12 d-flex justify-content-end">
-                <div id="message-content-1291" class="message-content ${is_user? 'user' : 'genie'} p-3 rounded">
+                <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} p-3 rounded">
+                    <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    `;
+  } else {
+    html_content = `
+        <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-end">
+                <div id="message-content-1291" class="message-content ${
+                  is_user ? "user" : "genie"
+                } p-3 rounded">
                 <div class="d-flex align-items-start">
                     ${
-                        !is_user? 
-                            `
-                            <img alt="Genie Logo" class="genie-icon" src="/assets/genie_logo-b131754a9a7c6feda0e0ff88c222e64bb4f2f68ff97e1c884a5c6513e1c8561a.svg"></img>
+                      !is_user
+                        ? `
+                            <img alt="Genie Logo" class="genie-icon" src="/assets/genie_logo.svg"></img>
                             <p class="mb-0 ml-2">${res}</p>
-                            ` 
-                        : 
-                            `<p class="mb-0">${res}</p>`
+                            `
+                        : `<p class="mb-0">${res}</p>`
                     }
                 </div>
                 </div>
             </div>
         </div>
-    `
+    `;
+  }
+  if (!targetDiv) return;
+  console.log("beforeinsert");
+  targetDiv.insertAdjacentHTML("beforeend", html_content);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
 
-    if (!targetDiv) return 
-    console.log("beforeinsert");
-    targetDiv.insertAdjacentHTML("beforeend", html_content)
+function getChatIdFromPath() {
+  const path = window.location.pathname;
+  const parts = path.split("/");
+  const chatIndex = parts.indexOf("c");
+  if (chatIndex !== -1 && parts.length > chatIndex + 1) {
+    return parts[chatIndex + 1];
+  }
+  return null;
 }

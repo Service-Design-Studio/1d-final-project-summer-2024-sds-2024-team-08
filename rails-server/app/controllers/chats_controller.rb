@@ -67,6 +67,12 @@ class ChatsController < ApplicationController
         render("graph", layout: false) # dont use application.html.erb as template 
     end
 
+    def get_latest_graph_by_chat_id
+        chat_id = params[:chat_id]
+        @graph_content = NetworkGraph.get_latest_graph_by_chat_id(chat_id)
+        render("graph", layout: false) # dont use application.html.erb as template 
+    end
+
     private # methods defined here onwards is private 
 
     def set_chat_ids
@@ -94,5 +100,5 @@ class ChatsController < ApplicationController
                     "role"=> e['role'],
                     "content"=> e['content'],
                     "graph_id"=> e['network_graph_id']}}
-    end 
+    end
 end

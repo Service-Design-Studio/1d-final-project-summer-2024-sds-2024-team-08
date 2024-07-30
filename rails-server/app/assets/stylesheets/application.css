@@ -105,7 +105,6 @@ html, body {
   align-items: center;
   position: absolute;
   bottom: 2vh;
-  left: 0;
   padding: 0 2vw;
   box-sizing: border-box;
 }
@@ -470,12 +469,8 @@ iframe {
   width: 100%;
   height: 60vh;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2px solid #D3D3D3;
   overflow: hidden;
-}
-
-.iframe-loaded {
-  border-bottom: 2px solid #D3D3D3; /* Color for the bottom border when loaded */
 }
 
 .hamburger-menu {

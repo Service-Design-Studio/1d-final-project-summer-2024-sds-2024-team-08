@@ -17,6 +17,7 @@ Rails.application.routes.draw do
 
     # util endpoint for graph 
     get("/g/:graph_id", to: "chats#get_graph_with_id", as: "get_graph_with_id")
+    get("/g/latest/:chat_id", to: "chats#get_latest_graph_by_chat_id", as: "get_latest_graph_by_chat_id")
 
     post("c/:chat_id", to: "chats#handle_user_msg", as: "handle_user_msg") # send message 
 end

@@ -106,26 +106,32 @@ mapping_prompt = PromptTemplate.from_template(
 def parse_list(s:str):
     return [sub.strip().strip('"') for sub in s.removeprefix("[").removesuffix("]").split(',')]
 
+def save_graph(s):
+    return "Saved!"
+
+def parse_output(s, name):
+    return {"messages": AIMessage(s, name=name)}
+
 def create_agent(llm):
     def format_input(inp):
         result = RunnablePassthrough()
-        if inp.get('rs_db') and inp.get('media') in inp:
+        if inp.get('rs_db') and inp.get('media'):
             loaded = lambda d: {
                 'A': str(d['rs_db']['nodes'].values()),
                 'B': str(d['media']['nodes'].values())}
             return result.assign(map = loaded | mapping_prompt | llm | parse_list) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | combine_lists | generate_graph | AIMessage
+    return RunnableLambda(format_input) | combine_lists | generate_graph | save_graph
 
 def create_node(llm, name):
-    return create_agent(llm)
+    return create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
 
 if __name__ == "__main__":
     def llm(inp):
         return '["", "Steve", "Bob"]'
     
-    print(create_agent(llm).invoke(
+    print(create_node(llm, "Grapher").invoke(
         {'rs_db': {
             'nodes': {
                     1: "Steve",

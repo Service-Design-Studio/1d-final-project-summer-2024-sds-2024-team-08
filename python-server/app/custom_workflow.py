@@ -35,66 +35,75 @@ class AgentState(MessagesState, TypedDict):
     media: list
     sender: str
 
-def agent_node(agent = None, name = "Not set"):
-    def parse_response(output: AIMessage):
-        return {
-            "messages": AIMessage(output.dict(exclude={"type", "name"}), name=name),
-            "sender": name
-        }
-        
-    return agent | parse_response
-
-def exit_node(state):
-    return { "messages": [ToolMessage("Redirecting to exit..."),
-                          AIMessage(state['messages'][-1]['content'])] }
+# def exit_node(state):
+#     last_message : AIMessage = state['messages'][-1]
+#     return { "messages": [ToolMessage(content="Redirecting to exit..."),
+#                           AIMessage(last_message['content'])] }
 
 def tool_graph_adaptor(state):
-    args = state['messages'][-1].additional_kwargs
-    rs_db = args["rs_db"]
-    media = args["media"]
-    
-    return { "messages": ToolMessage("Redirecting to graph..."),
+    last_message : AIMessage = state['messages'][-1]
+
+    rs_db = state["rs_db"]
+    media = state["media"]
+
+    return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.id),
              "rs_db" : rs_db,
              "media" : media }
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
-
-
     tool_node = ToolNode(get_tools())
 
     researcher_name = "Researcher"
     grapher_name = "Grapher"
 
-    researcher_node = agent_node(researcher_agent.create_agent(model, get_all_tools()), researcher_name)
-    grapher_node = agent_node(grapher_agent.create_agent(model), grapher_name)
+    researcher_node = researcher_agent.create_node(model, get_all_tools(), researcher_name)
+    grapher_node = grapher_agent.create_node(model, grapher_name)
 
     def router(state):
         lastMessage = state['messages'][-1]
-        if calls := lastMessage.get('tool_calls'):
-            if 'call_graph' in calls:
+        if calls := lastMessage.tool_calls:
+            if calls[0]['name'] == 'call_graph':
                 return 'call_graph'
-            elif 'send_final_message' in calls:
-                return "send_final_message"
+            else:
+                return 'call_tool'
+        else:
+            return 'end'
     
     workflow = StateGraph(AgentState)
     workflow.add_node(researcher_name, researcher_node)
     workflow.add_node(grapher_name, grapher_node)
-    workflow.add_node("call_tool", tool_node)
-    workflow.add_node("send_final_message", exit_node)
+    workflow.add_node("tool_node", tool_node)
     workflow.add_node("tool_graph_adaptor", tool_graph_adaptor)
     
     workflow.add_conditional_edges(
         researcher_name,
         router,
-        { "call_tool": "call_tool", 
-         "call_graph": "tool_graph_adaptor", 
-         "send_final_message": "send_final_message" }
+        { "call_tool": "tool_node", 
+         "call_graph": "tool_graph_adaptor",
+         "end": END }
     )
-    
     workflow.add_edge("tool_graph_adaptor", grapher_name)
-    workflow.add_edge("call_tool", "Researcher")
-    workflow.add_edge(START, "Researcher")
-    workflow.add_edge("send_final_message", END)
-    workflow.add_edge("Graph_Master", END)
+    workflow.add_edge("tool_node", researcher_name)
+    workflow.add_edge(START, researcher_name)
+    workflow.add_edge(grapher_name, END)
 
     return workflow.compile(checkpointer=checkpointer)
+
+if __name__ == "__main__":
+    from langchain_google_vertexai import ChatVertexAI
+    from langgraph.checkpoint.memory import MemorySaver
+
+    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
+
+    checkpointer = MemorySaver()
+    config = {"configurable": {"thread_id": 1}}
+    app = create_workflow(model, checkpointer=checkpointer)
+    
+    print(app.get_graph().draw_mermaid())
+    
+    app.invoke({"messages": [("user", "Generate a network graph for the relationships of Ben Carson. Include people from the media database too.")]}, config)
+    
+    cp = checkpointer.get(config)
+
+    for message in cp["channel_values"]["messages"]:
+        message.pretty_print()

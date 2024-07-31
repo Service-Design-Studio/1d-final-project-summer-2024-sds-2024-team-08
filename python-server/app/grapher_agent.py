@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from database import stakeholder_engine, user_engine
 from pyvis.network import Network
 from functools import partial
+from models import Network_Graph
 from random import randint
 import crud
 
@@ -48,7 +49,10 @@ def generate_graph(inp):
         node = partial(g.add_node, name)
         if img:
             node = partial(node, shape="image", image=img)
-        if len(list(filter(lambda e: name in [e['sub'], e['obj']], inp['edges']))) > 2:
+        num_connections = len(list(filter(lambda e: name in [e['sub'], e['obj']], inp['edges'])))
+        if num_connections == 0:
+            continue
+        elif num_connections > 2:
             node = partial(node, 
                            color = subj_color, 
                            size = 40,
@@ -60,7 +64,7 @@ def generate_graph(inp):
                            size = 20,
                            x = randint(5,10),
                            y = randint(5,10))
-        node()
+        node() # Add the node by completing the partial fn
 
     for edge in inp['edges']:
         g.add_edge(edge['sub'], edge['obj'], label=edge['pred'], color=edge_color, smooth=False)
@@ -69,14 +73,15 @@ def generate_graph(inp):
     g.set_edge_smooth("dynamic")
     network_graph = g.generate_html()
 
-    return {"messages": network_graph}
+    return network_graph
 
 mapping_prompt = PromptTemplate.from_template(
     """
     # Instructions
     You are a highly specialised tool trained in text processing.
     You will be given a Python dictionary containing two lists A and B, each containing a list of names.
-    For each name in B, find the closest name that matches in A.
+    For each name in B, find the closest name that matches in A. 
+    Be careful not to combine names that might not refer to the same person, such as "Bob" and "Bob Jr."
     If you find a suitable match, yield that match. Otherwise, yield an empty string.
 
     # Output
@@ -103,14 +108,71 @@ mapping_prompt = PromptTemplate.from_template(
     {B}
     """)
 
-def parse_list(s:str):
-    return [sub.strip().strip('"') for sub in s.removeprefix("[").removesuffix("]").split(',')]
+filter_prompt = PromptTemplate.from_template(
+    """
+    # Instructions
+    You are a highly specialised tool trained in text processing.
+    Your goal is to select only relationships relevant to a given prompt by indicating its number.
 
-def save_graph(s, config=None):
-    return "Saved: " + str(config["configurable"]["thread_id"])
+    ## Inputs
+    Relationships: A numbered list of relationships of the form subject -- predicate --> object. These form a network graph.
+    Prompt: A string containing the context to match against.
 
-def parse_output(s, name):
-    return {"messages": AIMessage(s, name=name)}
+    ## Output
+    A list of numbers that map to the relationship list.
+    All numbers in this list should exist in the relationship list.
+    No number should appear more than once.    
+
+    # Example
+    ## Prompt
+    Who are Bob's family members?
+
+    ## Relationships
+    1. Bob Jr. -- Son --> Bob.
+    2. Charlie -- Employee --> Foo Inc.
+    3. Bob -- Coworker --> John
+    4. Bob -- Husband --> Alice
+    5. Bob -- Employee --> Foo Inc.
+    6. Alice -- Sister --> Charlie
+
+    ## Your response
+    [1, 4]
+
+    # Your input
+    ## Prompt
+    {prompt}
+
+    ##Relationships
+    {relationships}
+    """
+)
+
+def parse_list(s:AIMessage):
+    return [sub.strip().strip('"') for sub in s.content.removeprefix("[").removesuffix("]").split(',')]
+
+def save_graph(graph_str, config=None):
+    with Session(user_engine) as session:
+        graph = Network_Graph()
+        graph.content = graph_str
+        graph.chat_id = config["configurable"]["thread_id"]
+        
+        session.add(graph)
+        session.commit()
+        generated_id = graph.id
+
+    return {"saved_graph_id": generated_id}
+
+def filter_graph(d, llm=None):
+    initial_msg = d['messages'][0].content
+    graph = d['combined_list']
+    img = graph['imgs']
+    edges = [f'{sub} -- {pred} --> {obj}' for sub, pred, obj in graph['edges']]
+
+    return filter_prompt.partial(prompt=initial_msg, relationships=edges) | llm | RunnableLambda(parse_list) | (lambda l : (e for i, e in enumerate(edges) if i in l)) | (lambda edges: {"edges": edges, "imgs": img})
+
+
+def parse_output(inp, name):
+    return {"messages": AIMessage("Graph generated!", name=name), **inp}
 
 def create_agent(llm):
     def format_input(inp):
@@ -122,17 +184,22 @@ def create_agent(llm):
             return result.assign(map = loaded | mapping_prompt | llm | parse_list) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | combine_lists | generate_graph | save_graph
+    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_graph).bind(llm=llm) | generate_graph | save_graph
 
 def create_node(llm, name):
     return create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
 
 if __name__ == "__main__":
+    from langchain_core.messages import HumanMessage
     def llm(inp):
-        return '["", "Steve", "Bob"]'
+        return AIMessage('["", "Steve", "Bob"]')
     
     print(create_node(llm, "Grapher").invoke(
-        {'rs_db': {
+        {
+        'messages': [
+            HumanMessage("Who are Obama's family?")
+        ],
+         'rs_db': {
             'nodes': {
                     1: "Steve",
                     2: "John",

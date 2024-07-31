@@ -1,17 +1,12 @@
-from typing import Annotated, Literal, TypedDict, Sequence, Optional
+from typing import TypedDict, Optional
 from langgraph.graph.message import MessagesState
 from langgraph.graph import END, StateGraph, START
 from langgraph.prebuilt import ToolNode
 from langchain_core.messages import (
-    BaseMessage,
     ToolMessage,
-    AIMessage
 )
-from langchain_core.runnables import RunnablePassthrough, RunnableConfig
 from langgraph.checkpoint import BaseCheckpointSaver
 from dotenv import load_dotenv
-import operator
-from langgraph.graph.message import add_messages
 
 import grapher_agent, researcher_agent
 from tools import get_tools, get_all_tools
@@ -22,6 +17,7 @@ class AgentState(MessagesState, TypedDict):
     rs_db: list
     media: list
     sender: str
+    saved_graph_id: Optional[int]
 
 def tool_graph_adaptor(state):
     last_message = state['messages'][-1]
@@ -67,6 +63,7 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
 
     return workflow.compile(checkpointer=checkpointer)
 
+
 if __name__ == "__main__":
     from langchain_google_vertexai import ChatVertexAI
     from langgraph.checkpoint.memory import MemorySaver
@@ -74,14 +71,18 @@ if __name__ == "__main__":
     model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
 
     checkpointer = MemorySaver()
-    config = {"configurable": {"thread_id": 1}}
     app = create_workflow(model, checkpointer=checkpointer)
     
-    print(app.get_graph().draw_mermaid())
+    #print(app.get_graph().draw_mermaid())
     
-    app.invoke({"messages": [("user", "Generate a network graph for the relationships of Ben Carson. Include people from the media database too.")]}, config)
+    input = {"messages": [("user", "Generate a network graph for the relationships of Ben Carson. Include people from the media database too.")]}
+    config = {"configurable": {"thread_id": 20}}
     
-    cp = checkpointer.get(config)
-
-    for message in cp["channel_values"]["messages"]:
-        message.pretty_print()
+    app.stream_channels = "messages"
+    for chunk in app.stream(input, config, stream_mode="updates"):
+        for node, values in chunk.items():
+            if isinstance(values, list):
+                for v in values:
+                    v.pretty_print()
+            else:
+                values.pretty_print()

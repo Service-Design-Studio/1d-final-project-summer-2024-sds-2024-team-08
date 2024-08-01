@@ -121,6 +121,7 @@ filter_prompt = ChatPromptTemplate.from_messages(
     # Instructions
     You are a highly specialised tool trained in text processing.
     Your goal is to select only relationships relevant to a given prompt by indicating its number.
+    It is crucial that you only select relevant relationships.
 
     ## Inputs
     Relationships: A numbered list of relationships of the form subject -- predicate --> object. These form a network graph.

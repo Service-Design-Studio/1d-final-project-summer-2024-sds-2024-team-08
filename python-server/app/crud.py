@@ -58,6 +58,12 @@ def get_stakeholder_name(db: Session, stakeholder_id: int) -> str:
     result = db.query(models.Stakeholder.name).filter(models.Stakeholder.stakeholder_id == stakeholder_id).first()
     return result[0] if result else None
 
+def get_stakeholder_names(db: Session, stakeholder_ids: list[int]) -> dict[int, str]:
+    # Retrieve all required stakeholder names in a single query
+    result = db.query(models.Stakeholder.stakeholder_id, models.Stakeholder.name)\
+               .filter(models.Stakeholder.stakeholder_id.in_(stakeholder_ids)).all()
+    return {stakeholder_id: name for stakeholder_id, name in result}
+
 def extract_after_last_slash(text: str) -> str:
     import re
     match = re.search(r'[^/]+$', text)
@@ -65,20 +71,26 @@ def extract_after_last_slash(text: str) -> str:
         return match.group(0)
     return None
 
+
 def get_relationships_with_names(db: Session, subject: int = None, predicate: str = None, object: int = None):
-    relationships = get_relationships(db, subject, predicate, object)
+    subject_rs = get_relationships(db, subject=subject)
+    object_rs = get_relationships(db, object=subject)
+    relationships = subject_rs + object_rs
+    stakeholder_ids = {result.subject for result in relationships} | {result.object for result in relationships}
+    stakeholder_names = get_stakeholder_names(db, list(stakeholder_ids))
+
     relationships_with_names = []
     for result in relationships:
-        subject_name = get_stakeholder_name(db, result.subject)
-        object_name = get_stakeholder_name(db, result.object)
+        subject_name = stakeholder_names.get(result.subject, "Unknown")
+        object_name = stakeholder_names.get(result.object, "Unknown")
         predicate = result.predicate
         extracted_info = extract_after_last_slash(predicate)
+        # Remove non-alphanumeric characters
         extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
         relationships_with_names.append((subject_name, extracted_info, object_name))
-    
-    if not relationships_with_names:
-        return 'No results found.'
+
     return relationships_with_names
+
 
 def get_graph(db: Session, id):
     return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))

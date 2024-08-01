@@ -24,6 +24,9 @@ python-server/__pycache__
 python-server/app/.env
 __pycache__
 
+# Ignore sentence_transformers stuff
+myenv
+
 # Ignore everything in the data folder
 python-server/data/*
 

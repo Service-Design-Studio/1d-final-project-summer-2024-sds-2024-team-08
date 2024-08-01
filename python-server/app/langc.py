@@ -119,8 +119,7 @@ def get_name_matches(name: str) -> list:
 
 # IN THEORY, the get_names_matches tool will be used to return the stakeholder_id so that it can be run with get_relationships_with_names
 @tool 
-# @timing_decorator
-def get_relationships_with_names(subject_id:int = None) -> bytes:
+def get_relationships_with_names(db: Session, subject: int = None, predicate: str = None, object: int = None):
     '''
     Use this tool to output to the user every relationship the stakeholders have with one another in natural language. This tool should be called when the user wants the relationships of stakeholders in natural language. 
     This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
@@ -132,24 +131,27 @@ def get_relationships_with_names(subject_id:int = None) -> bytes:
     Returns:
         list: A list of subjects, predicates and objects
     '''
-    subject_id = int(float(subject_id))
-    with Session(stakeholder_engine) as session:
-        subject_rs = crud.get_relationships_with_names(session, subject=subject_id)
-        object_rs = crud.get_relationships_with_names(session, object=subject_id)
-    if subject_rs == 'No results found.' and object_rs == 'No results found.':
-        return []
     
-    elif subject_rs == 'No results found.':
-        return object_rs
-    
-    elif object_rs == 'No results found.':
-        return subject_rs
-    
-    return subject_rs + object_rs
+    subject_rs = crud.get_relationships(db, subject=subject)
+    object_rs = crud.get_relationships(db, object=subject)
+    relationships = subject_rs + object_rs
+    stakeholder_ids = {result.subject for result in relationships} | {result.object for result in relationships}
+    stakeholder_names = crud.get_stakeholder_names(db, list(stakeholder_ids))
+
+    relationships_with_names = []
+    for result in relationships:
+        subject_name = stakeholder_names.get(result.subject, "Unknown")
+        object_name = stakeholder_names.get(result.object, "Unknown")
+        predicate = result.predicate
+        extracted_info = crud.extract_after_last_slash(predicate)
+        # Remove non-alphanumeric characters
+        extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
+        relationships_with_names.append((subject_name, extracted_info, object_name))
+
+    return relationships_with_names
 
 @tool
-# @timing_decorator
-def get_relationships(subject_id:int = None) -> bytes:
+def get_relationships(subject_id: int = None) -> dict:
     '''
     Use this tool to get the every relationship the stakeholders have with one another. This tool will be used only if the user wants a network graph. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
     After you have the relationships, you can use the tool generate_network to generate a network graph. The network graph will be generated and stored in the database. Once the graph has been stored, you will need to return the network_graph_id. This id will be used to retrieve the graph from the database.
@@ -163,40 +165,42 @@ def get_relationships(subject_id:int = None) -> bytes:
             The subject is the stakeholder_id of the subject and it is an integer. 
             The predicate is the relationship between the subject and the object. The predicate is a string. 
             The object is the stakeholder_id of the object and it is an integer.
+    
+    Returns:
+        dict: A dictionary with "edges" and "nodes". Where "edges" is a list of tuples with the format (subject, predicate, object) and "nodes" is a dictionary with the format {stakeholder_id: stakeholder_name}.
     '''
-    # print("Getting relationships")
     subject_id = int(float(subject_id))
     relationships_graph = {
         "edges": [],
         "nodes": {}
     }
+    
     with Session(stakeholder_engine) as session:
-        subject_rs = crud.get_relationships(session, subject=subject_id)
-        object_rs = crud.get_relationships(session, object=subject_id)
+        relationships = crud.get_relationships(session, subject=subject_id)
+        if not relationships:
+            relationships = crud.get_relationships(session, object=subject_id)
+        else:
+            object_rs = crud.get_relationships(session, object=subject_id)
+            if object_rs:
+                relationships += object_rs
     
-    if subject_rs == None and object_rs == None:
-        return relationships_graph 
+    if not relationships:
+        return relationships_graph
     
-    elif subject_rs == None:
-        relationships = object_rs
-    
-    elif object_rs == None:
-        relationships = subject_rs
-    
-    else:    
-        relationships = subject_rs + object_rs
+    # Collect unique stakeholder IDs
+    unique_ids = set()
     
     for result in relationships:
-        predicate = result.predicate
-        extracted_info = crud.extract_after_last_slash(predicate)
-        extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
-        relationships_graph["edges"].append((result.subject, extracted_info, result.object))
-        with Session(stakeholder_engine) as session:
-            if result.subject not in relationships_graph["nodes"]:
-                relationships_graph["nodes"][result.subject] = crud.get_stakeholder_name(session, result.subject)
-            if result.object not in relationships_graph["nodes"]:
-                relationships_graph["nodes"][result.object] = crud.get_stakeholder_name(session, result.object)
-
+        predicate = re.sub(r'[^a-zA-Z0-9\' ]', '', crud.extract_after_last_slash(result.predicate))
+        relationships_graph["edges"].append((result.subject, predicate, result.object))
+        unique_ids.update([result.subject, result.object])
+    
+    # Retrieve all stakeholder names in a single query
+    with Session(stakeholder_engine) as session:
+        stakeholder_names = crud.get_stakeholder_names(session, list(unique_ids))
+    
+    relationships_graph["nodes"] = stakeholder_names
+    
     return relationships_graph
 
 def get_photo(stakeholder_id: int) -> str:
@@ -349,5 +353,10 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Tell me about who Ben Carson is", 3, 10))
-    # print(get_relationships(1))
+    # print(query_model("Tell me the relationships of Ben Carson", 3, 10))
+    with Session(stakeholder_engine) as session:
+        # print(get_relationships_with_names2(session, subject=28235))
+        print(len(get_relationships_with_names(session, subject=28235)))
+        x = get_relationships(28235)
+        print(len(x["edges"]))
+        # print(get_relationships(session, subject=28235))

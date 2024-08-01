@@ -13,7 +13,9 @@ def create_agent(llm, tools):
 
                     You have access to the following tools: {tool_names}.
                     
-                    You should call multiple tools at the same time where possible to reduce latency.
+                    Important:
+                    - Always use parallel tool calling!
+                    - Never use tools multiple times with the same arguments.
                     """
                 ),
                 MessagesPlaceholder(variable_name="messages"),

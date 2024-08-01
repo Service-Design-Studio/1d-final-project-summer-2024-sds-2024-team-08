@@ -71,20 +71,6 @@ def extract_after_last_slash(text: str) -> str:
         return match.group(0)
     return None
 
-# def get_relationships_with_names(db: Session, subject: int = None, predicate: str = None, object: int = None):
-#     relationships = get_relationships(db, subject, predicate, object)
-#     relationships_with_names = []
-#     for result in relationships:
-#         subject_name = get_stakeholder_name(db, result.subject)
-#         object_name = get_stakeholder_name(db, result.object)
-#         predicate = result.predicate
-#         extracted_info = extract_after_last_slash(predicate)
-#         extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
-#         relationships_with_names.append((subject_name, extracted_info, object_name))
-    
-#     if not relationships_with_names:
-#         return 'No results found.'
-#     return relationships_with_names
 
 def get_relationships_with_names(db: Session, subject: int = None, predicate: str = None, object: int = None):
     subject_rs = get_relationships(db, subject=subject)

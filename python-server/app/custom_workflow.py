@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Annotated
 from langgraph.graph.message import MessagesState
 from langgraph.graph import END, StateGraph, START
 from langchain_core.messages import (
@@ -13,13 +13,22 @@ from tools import get_tool_node, get_all_tools
     
 load_dotenv()
 
+def update_graph_structured(old: dict, new:dict) -> dict:
+    print("Appending: " + new)
+    old['edges'] += new['edges']
+    old['nodes'].update(new['nodes'])
+
+    return old
+    
 class AgentState(MessagesState, TypedDict):
-    relationships: list
+    rs_db: Annotated[dict, update_graph_structured]
+    media: dict
     sender: str
     saved_graph_id: Optional[int]
 
 def tool_graph_adaptor(state):
     last_message : AIMessage = state['messages'][-1]
+    
     return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.tool_calls[0]["id"]) }
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
@@ -55,7 +64,9 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
          "end": END }
     )
     workflow.add_edge("tool_graph_adaptor", grapher_name)
+
     workflow.add_edge("tool_node", researcher_name)
+
     workflow.add_edge(START, researcher_name)
     workflow.add_edge(grapher_name, END)
 
@@ -74,10 +85,10 @@ if __name__ == "__main__":
     #print(app.get_graph().draw_mermaid())
     print("Compiled graph")
     
-    input = {"messages": [("user", "Who are Joe Biden's largest supporters? Draw me a graph. Include people from the media database too.")]}
+    input = {"messages": [("user", "Draw me a graph showing the relationship between Joe Biden and Donald Trump.")]}
     config = {"configurable": {"thread_id": 20}}
     
-    app.stream_channels = "messages"
+    app.stream_channels = "rs_db"
     for chunk in app.stream(input, config, stream_mode="updates"):
         for node, values in chunk.items():
             if isinstance(values, list):

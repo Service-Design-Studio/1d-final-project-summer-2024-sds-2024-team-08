@@ -4,9 +4,11 @@ from models import Stakeholder, Alias
 from database import stakeholder_engine
 from functools import wraps, partial
 from langchain_core.tools import tool
+from langchain_core.runnables import RunnablePassthrough
 from qdrant_media import derive_rs_from_media
 from langchain_google_vertexai import ChatVertexAI
 from langgraph.prebuilt import ToolNode
+from langchain_core.messages import ToolMessage
 import rapidfuzz
 import crud
 import re
@@ -147,12 +149,17 @@ def get_relationships(subject_id:int = None) -> bytes:
     '''
     # print("Getting relationships")
     subject_id = int(float(subject_id))
+    relationships_graph = {
+        "type": "rs_db",
+        "edges": [],
+        "nodes": {}
+    }
     with Session(stakeholder_engine) as session:
         subject_rs = crud.get_relationships(session, subject=subject_id)
         object_rs = crud.get_relationships(session, object=subject_id)
     
     if subject_rs == None and object_rs == None:
-        return []
+        return relationships_graph 
     
     elif subject_rs == None:
         relationships = object_rs
@@ -163,14 +170,17 @@ def get_relationships(subject_id:int = None) -> bytes:
     else:    
         relationships = subject_rs + object_rs
     
-    relationships_with_predicates = []
     for result in relationships:
         predicate = result.predicate
         extracted_info = crud.extract_after_last_slash(predicate)
         extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
-        relationships_with_predicates.append((result.subject, extracted_info, result.object))
-
-    return relationships_with_predicates
+        relationships_graph["edges"].append((result.subject, extracted_info, result.object))
+        with Session(stakeholder_engine) as session:
+            if result.subject not in relationships_graph["nodes"]:
+                relationships_graph["nodes"][result.subject] = crud.get_stakeholder_name(session, result.subject)
+            if result.object not in relationships_graph["nodes"]:
+                relationships_graph["nodes"][result.object] = crud.get_stakeholder_name(session, result.object)
+    return relationships_graph
 
 def get_photo(stakeholder_id: int) -> str:
     stakeholder_id = int(stakeholder_id)
@@ -232,4 +242,14 @@ def get_all_tools(model):
     return get_tools(model) + [call_graph]
 
 def get_tool_node(model):
-    return ToolNode(get_tools(model))
+    def mutate_state(results : dict):
+        result = results.copy() # Probably a better/more idiomatic way of doing this in parallel but meh
+        for toolmsg in results['messages']:
+            content = toolmsg.content
+            print(content)
+            if isinstance(content, dict) and 'type' in content:
+                print("AAAA")
+                result[content['type']] = content
+        return result
+
+    return ToolNode(get_tools(model)) | mutate_state

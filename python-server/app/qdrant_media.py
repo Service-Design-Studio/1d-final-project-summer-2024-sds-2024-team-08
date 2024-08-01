@@ -61,7 +61,7 @@ def derive_rs_from_media(model, stakeholder_id, query: str=None):
           # Either source_id or target_id does not appear in the nodes
           continue
       
-  return {'nodes': {i: name for name, i in nodes_map.items()}, 'edges': media_rs}
+  return {'nodes': {i: name for name, i in nodes_map.items()}, 'edges': media_rs, 'type': 'media'}
   # return filtered_media_ids
 
 if __name__ == "__main__":

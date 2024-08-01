@@ -98,3 +98,11 @@ def get_photo(db: Session, stakeholder_id: int) -> str:
     else:
         print(f"stakeholder {stakeholder_id} does not exist")
         return None
+
+def get_media_ids_for_stakeholder(db:Session, stakeholder_id):
+    stmt = select(models.StakeholdersMentioned.media_id).where(models.StakeholdersMentioned.stakeholder_id == stakeholder_id)
+    return db.scalars(stmt).all()
+
+def get_content_from_media_ids(db: Session, media_ids: list):   
+  stmt = select(models.Media.content).where(models.Media.id.in_(media_ids))
+  return db.scalars(stmt).all()

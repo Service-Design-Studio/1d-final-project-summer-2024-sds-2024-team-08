@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from os import getenv
 from dotenv import load_dotenv
+from qdrant_client import QdrantClient
 
 load_dotenv()
 
@@ -21,6 +22,19 @@ db_params_stakeholders = {
     'port': getenv("STAKEHOLDERS_DB_PORT")
 }
 
+db_params_media = {
+    'dbname': 'media',
+    'user': getenv('MEDIA_DB_USERNAME'),
+    'password': getenv("MEDIA_DB_PASSWORD"),
+    'host': getenv("MEDIA_DB_HOST"),
+    'port': getenv("MEDIA_DB_PORT")
+}
+
+qdrant_client = QdrantClient(
+    url=getenv('QDRANT_HOST'), 
+    api_key=getenv('QDRANT_PASS'),
+)
+
 # Database connection URL
 def get_db_url(params):
     str = (f"postgresql+psycopg2://"+\
@@ -34,3 +48,4 @@ def get_db_url(params):
 # Create a SQLAlchemy engine
 user_engine = create_engine(get_db_url(db_params_users))
 stakeholder_engine = create_engine(get_db_url(db_params_stakeholders))
+media_engine = create_engine(get_db_url(db_params_media))

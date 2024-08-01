@@ -2,8 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from models import Stakeholder, Alias
 from database import stakeholder_engine
-from functools import wraps
+from functools import wraps, partial
 from langchain_core.tools import tool
+from qdrant_media import derive_rs_from_media
+from langchain_google_vertexai import ChatVertexAI
+from langgraph.prebuilt import ToolNode
 import rapidfuzz
 import crud
 import re
@@ -22,7 +25,6 @@ def timing_decorator(func):
 
 
 @tool
-# @timing_decorator
 def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: bool = True, headline: bool = True, photo: bool = True) -> bytes:
     """Use this tool to read stakeholders from the database. You can filter by stakeholder_id or name. From the prompt, identify the stakeholder by their name or stakeholder_id. 
     If you are using stakeholder_id, ensure that it is an integer before you input it into the read_stakeholders tool. You can also specify whether to include the summary, headline, and photo.
@@ -48,7 +50,6 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
     return stakeholders
 
 @tool
-# @timing_decorator
 def get_name_matches(name: str) -> list:
     """Use this tool to get the best matches for a given name. This tool will return a list of up to 5 stakeholder_ids who have names that are the best matches with the given name. 
     If the output only contains one stakeholder_id, then that is the best match. Depending on the context, if the the user wants to know more about the stakeholder, use the tool read_stakeholders tool to get the information about the identified stakeholder.
@@ -100,9 +101,7 @@ def get_name_matches(name: str) -> list:
                 result.append(match[0])
         return result
 
-# IN THEORY, the get_names_matches tool will be used to return the stakeholder_id so that it can be run with get_relationships_with_names
-@tool 
-# @timing_decorator
+@tool
 def get_relationships_with_names(subject_id:int = None) -> bytes:
     '''
     Use this tool to output to the user every relationship the stakeholders have with one another in natural language. This tool should be called when the user wants the relationships of stakeholders in natural language. 
@@ -131,7 +130,6 @@ def get_relationships_with_names(subject_id:int = None) -> bytes:
     return subject_rs + object_rs
 
 @tool
-# @timing_decorator
 def get_relationships(subject_id:int = None) -> bytes:
     '''
     Use this tool to get the every relationship the stakeholders have with one another. This tool will be used only if the user wants a network graph. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
@@ -207,8 +205,31 @@ def call_graph() -> None:
     # Note: Need to manually point this in the router
     return "calling the graphing agent..."
 
-def get_tools():
-    return [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names]
+def get_relationships_from_media_build(model):
+    @tool
+    def get_relationships_from_media(stakeholder_id: int, query: str) -> dict:
+        """
+        Call this tool to extract relationships from existing media.
+        Given a specified stakeholder_id, this tool will extract media sources involving the stakeholder.
+        These media sources will be ordered by their similarity to a given query, and only relationships from the closest matches will be returned.
+        This information can be used to augment information from get_relationships_with_names if it has insufficient information.
+        
+        Args:
+            stakeholder_id (int): The id of the stakeholder you wish to search for.
+            query (str): A word, short phrase or sentence that filters the type of media that this tool will search for.
+        
+        Returns:
+            A dictionary representation of a graph. Edges are defined in (subject, predicate, object) order.
+        """
+        return derive_rs_from_media(model, stakeholder_id, query)
+    
+    return get_relationships_from_media
 
-def get_all_tools():
-    return get_tools() + [call_graph]
+def get_tools(model):
+    return [read_stakeholders, get_name_matches, get_relationships, get_relationships_with_names, get_relationships_from_media_build(model)]
+
+def get_all_tools(model):
+    return get_tools(model) + [call_graph]
+
+def get_tool_node(model):
+    return ToolNode(get_tools(model))

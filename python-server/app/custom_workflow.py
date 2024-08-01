@@ -1,7 +1,6 @@
 from typing import TypedDict, Optional
 from langgraph.graph.message import MessagesState
 from langgraph.graph import END, StateGraph, START
-from langgraph.prebuilt import ToolNode
 from langchain_core.messages import (
     ToolMessage,
 )
@@ -9,7 +8,7 @@ from langgraph.checkpoint import BaseCheckpointSaver
 from dotenv import load_dotenv
 
 import grapher_agent, researcher_agent
-from tools import get_tools, get_all_tools
+from tools import get_tool_node, get_all_tools
     
 load_dotenv()
 
@@ -25,12 +24,12 @@ def tool_graph_adaptor(state):
     return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.id) }
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
-    tool_node = ToolNode(get_tools())
+    tool_node = get_tool_node(model)
 
     researcher_name = "Researcher"
     grapher_name = "Grapher"
 
-    researcher_node = researcher_agent.create_node(model, get_all_tools(), researcher_name)
+    researcher_node = researcher_agent.create_node(model, get_all_tools(model), researcher_name)
     grapher_node = grapher_agent.create_node(model, grapher_name)
 
     def router(state):
@@ -74,8 +73,9 @@ if __name__ == "__main__":
     app = create_workflow(model, checkpointer=checkpointer)
     
     #print(app.get_graph().draw_mermaid())
+    print("Compiled graph")
     
-    input = {"messages": [("user", "Generate a network graph for the relationships of Ben Carson. Include people from the media database too.")]}
+    input = {"messages": [("user", "Who are Joe Biden's largest supporters? Draw me a graph. Include people from the media database too.")]}
     config = {"configurable": {"thread_id": 20}}
     
     app.stream_channels = "messages"

@@ -172,7 +172,7 @@ def filter_graph(d, llm=None):
 
 
 def parse_output(inp, name):
-    return {"messages": AIMessage("Graph generated!", name=name), **inp}
+    return {"messages": AIMessage(f"Graph generated: {inp['saved_graph_id']}", name=name), **inp}
 
 def create_agent(llm):
     def format_input(inp):

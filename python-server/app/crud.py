@@ -112,6 +112,9 @@ def get_relationships_with_names(db: Session, subject: int = None, predicate: st
         return 'No results found.'
     return relationships_with_names
 
+
+
+
 def get_graph(db: Session, id):
     return db.scalar(select(models.Network_Graph.content).where(models.Network_Graph.id == id).limit(1))
   
@@ -174,6 +177,12 @@ def derive_rs_from_media(db:Session, stakeholder_id: int= None):
 
 if __name__ == "__main__":
   stakeholder_id = 592
-  with Session(media_engine) as s:
-    ls = derive_rs_from_media(s,stakeholder_id=592)
-    print(ls)
+  with Session(stakeholder_engine) as s:
+    # ls = derive_rs_from_media(s,stakeholder_id=592)
+    # print(ls)
+    a = get_relationships_with_names(s, subject=28235)
+    print(len(a))
+    print(a)
+    
+    # print(get_relationships_with_names2(s, subject=592))
+    

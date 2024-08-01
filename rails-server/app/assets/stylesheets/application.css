@@ -71,8 +71,6 @@ html, body {
   justify-content: center;
   overflow-y: auto;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
   width: 100%;
 }
 
@@ -99,13 +97,12 @@ html, body {
 
 
 .bottom-section {
-  width: 100%;
+  width: 50vw;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: absolute;
+  position: fixed;
   bottom: 2vh;
-  padding: 0 2vw;
   box-sizing: border-box;
 }
 
@@ -153,11 +150,10 @@ html, body {
 .input-group-append .explore-btn {
   display: table-cell;
   width: 4%;
-  padding: 1vh 2vw;
+  padding: 1vh 1vw;
   background-color: transparent; /* Transparent background */
   color:#ffffff;
   border: none;
-  margin-left: 2vw;
   cursor: pointer;
 }
 
@@ -234,8 +230,8 @@ html, body {
 }
 
 .loading-animation .ball {
-  width: 20px;
-  height: 20px;
+  width: 2.5vh;
+  height: 2.5vh;
   margin: 0 5px;
   border-radius: 50%;
   background: #007bff;
@@ -255,7 +251,7 @@ html, body {
     transform: translateY(0);
   }
   to {
-    transform: translateY(-15px);
+    transform: translateY(-1.3vh);
   }
 }
 
@@ -265,8 +261,8 @@ html, body {
 
 /* Default scrollbar style */
 ::-webkit-scrollbar {
-  width: 6px; /* Thin scrollbar when not hovered */
-  height: 6px; /* Thin scrollbar when not hovered */
+  width: 0.4vw; /* Thin scrollbar when not hovered */
+  height: 0.5vh; /* Thin scrollbar when not hovered */
   transition: width 0.3s, height 0.3s; /* Smooth transition */
 }
 
@@ -309,6 +305,7 @@ html, body {
   color: black;
   text-align: right;
   max-width: 35vw;
+  padding:1vw;
 }
 
 .message-content.genie {
@@ -316,6 +313,7 @@ html, body {
   max-width: 50vw;
   background-color: transparent;
   color: black;
+  padding: 1vw 1vw 1vw 0;
 }
 
 .message-content strong i {
@@ -325,6 +323,7 @@ html, body {
 .genie-icon {
   width: 3vh; /* Adjust icon size as needed */
   height: 3vh; /* Adjust icon size as needed */
+  flex-shrink: 0;
 }
 
 .paper-plane-icon {
@@ -452,6 +451,16 @@ html, body {
 
 /* Graph */
 iframe {
+  margin-left:1vw;
+  width: 100%;
+  height: 60vh;
+  border: none;
+  border-bottom: 2px transparent;
+  overflow: hidden;
+}
+
+iframe.loaded {
+  margin-left:1vw;
   width: 100%;
   height: 60vh;
   border: none;
@@ -472,4 +481,10 @@ iframe {
 .resized-logo {
   width: 35vw;
   height: 35vh; /* Maintains aspect ratio */
+}
+
+.input-group {
+  border-radius: 25px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
 }

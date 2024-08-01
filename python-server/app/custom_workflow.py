@@ -9,19 +9,21 @@ from langgraph.checkpoint import BaseCheckpointSaver
 from dotenv import load_dotenv
 
 import grapher_agent, researcher_agent
-from tools import get_tool_node, get_all_tools
+from tools import get_tool_node, get_all_tools, build_mutable_tool_nodes
     
 load_dotenv()
 
 def update_graph_structured(old: dict, new:dict) -> dict:
-    print("Appending: " + new)
-    old['edges'] += new['edges']
-    old['nodes'].update(new['nodes'])
+    nodes = old.get('nodes', {}).copy()
+    nodes.update(new.get('nodes', {}))
 
-    return old
+    return {
+        'edges': (old.get('edges', [])) + (new.get('edges', [])),
+        'nodes': nodes
+    }
     
 class AgentState(MessagesState, TypedDict):
-    rs_db: Annotated[dict, update_graph_structured]
+    rs_db: Annotated[dict, update_graph_structured] = dict()
     media: dict
     sender: str
     saved_graph_id: Optional[int]
@@ -33,6 +35,7 @@ def tool_graph_adaptor(state):
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     tool_node = get_tool_node(model)
+    mutable_tool_node = build_mutable_tool_nodes(model)
 
     researcher_name = "Researcher"
     grapher_name = "Grapher"
@@ -43,10 +46,14 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     def router(state):
         lastMessage = state['messages'][-1]
         if calls := lastMessage.tool_calls:
-            if calls[0]['name'] == 'call_graph':
-                return 'call_graph'
-            else:
-                return 'call_tool'
+            for call in calls:
+                match call['name']:
+                    case 'call_graph':
+                        yield 'call_graph'
+                    case 'get_relationships' | 'get_relationships_from_media': #Probably shouldn't hardcode
+                        yield 'mut_tool_node'
+                    case _:
+                        yield 'call_tool'
         else:
             return 'end'
     
@@ -55,17 +62,20 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     workflow.add_node(grapher_name, grapher_node)
     workflow.add_node("tool_node", tool_node)
     workflow.add_node("tool_graph_adaptor", tool_graph_adaptor)
+    workflow.add_node("mut_tool_node", mutable_tool_node)
     
     workflow.add_conditional_edges(
         researcher_name,
         router,
         { "call_tool": "tool_node", 
          "call_graph": "tool_graph_adaptor",
+         "mut_tool_node": "mut_tool_node",
          "end": END }
     )
-    workflow.add_edge("tool_graph_adaptor", grapher_name)
 
+    workflow.add_edge("tool_graph_adaptor", grapher_name)
     workflow.add_edge("tool_node", researcher_name)
+    workflow.add_edge("mut_tool_node", researcher_name)
 
     workflow.add_edge(START, researcher_name)
     workflow.add_edge(grapher_name, END)
@@ -88,7 +98,7 @@ if __name__ == "__main__":
     input = {"messages": [("user", "Draw me a graph showing the relationship between Joe Biden and Donald Trump.")]}
     config = {"configurable": {"thread_id": 20}}
     
-    app.stream_channels = "rs_db"
+    app.stream_channels = "messages" #"rs_db"
     for chunk in app.stream(input, config, stream_mode="updates"):
         for node, values in chunk.items():
             if isinstance(values, list):

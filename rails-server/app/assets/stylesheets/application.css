@@ -323,6 +323,7 @@ html, body {
 .genie-icon {
   width: 3vh; /* Adjust icon size as needed */
   height: 3vh; /* Adjust icon size as needed */
+  flex-shrink: 0;
 }
 
 .paper-plane-icon {

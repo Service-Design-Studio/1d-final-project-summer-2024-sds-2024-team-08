@@ -124,7 +124,7 @@ function add_msg_to_div(targetDiv, res, is_user = false) {
             ${
               !is_user
                 ? `
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="3vh" height="3vh">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" class ="genie-icon">
                         <g clip-path="url(#clip0_5716_30627)">
                             <path d="M80 152C119.488 152 151.5 119.988 151.5 80.5C151.5 41.0116 119.488 9 80 9C40.5116 9 8.5 41.0116 8.5 80.5C8.5 119.988 40.5116 152 80 152Z" fill="#E5F8FF"></path>
                             <mask id="mask0_5716_30627" style="mask-type: alpha;" maskUnits="userSpaceOnUse" x="8" y="9" width="144" height="143">

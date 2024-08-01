@@ -8,27 +8,25 @@
 <% else %>
   <div class="container chat-history d-flex justify-content-center" id="chat-history">
     <div class="messages-wrapper w-100" id="chat-history-child">
-       <% @chat_history.each do |msg| %>
+      <% @chat_history.each do |msg| %>
         <div class="row mb-3">
-          <div class="col-12 d-flex justify-content-end">
-            <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'user' : 'genie' %> p-3 rounded">
-                        <%# display embed if content starts with http else normal text %>
-                        <% if msg["graph_id"].nil? %>
-                            <% unless msg['role'] == 'user' %>
-                                <div class="d-flex align-items-start">
-                                <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
-                                <p class="mb-0 ml-2"><%= msg["content"] %></p>
-                                </div>
-                            <% else %>
-                                <p class="mb-0"><%= msg["content"] %></p>
-                            <% end %>
-                        <% else %>
-                            <iframe src="/g/<%= msg['graph_id']%>" scrolling="no" allowfullscreen></iframe>
-                        <% end %>
-                    </div>
-                </div>
+          <div class="d-flex <%= msg['role'] == 'user' ? 'justify-content-end' : 'justify-content-start' %> w-100">
+            <div id="message-content-<%= msg['id'] %>" class="message-content <%= msg['role'] == 'user' ? 'user' : 'genie' %> rounded d-flex align-items-start">
+              <%# display embed if content starts with http else normal text %>
+              <% if msg["graph_id"].nil? %>
+                <% unless msg['role'] == 'user' %>
+                    <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>
+                    <p class="mb-0 ml-2"><%= msg["content"] %></p>
+                <% else %>
+                  <p class="mb-0"><%= msg["content"] %></p>
+                <% end %>
+              <% else %>
+                <iframe src="/g/<%= msg['graph_id']%>" scrolling="no" allowfullscreen></iframe>
+              <% end %>
             </div>
-        <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>
@@ -37,7 +35,7 @@
 <% content_for :message_form do %>
     <%# NOTE: change local to false to support submitting form with AJAX to update page dynamically without reload %>
     <%= form_with url: handle_user_msg_path(@chat_id), method: :post, class: 'w-100 d-flex', id: 'message-form', local: false do |form| %>
-        <div class="input-group flex-grow-1" style="border-radius: 25px; overflow: hidden; border: 1px solid #e0e0e0;">
+        <div class="input-group flex-grow-1">
         <div class="input-group-prepend">
           <span class="input-group-text bg-white border-0">
             <%= image_tag('genie_logo.svg', alt: 'Genie Logo', class: 'genie-icon') %>

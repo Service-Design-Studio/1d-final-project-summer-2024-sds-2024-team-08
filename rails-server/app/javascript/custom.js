@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   document.querySelectorAll("iframe").forEach(function (iframe) {
     iframe.addEventListener("load", function () {
-      iframe.classList.add("iframe-loaded");
+      iframe.classList.add('loaded');
     });
   });
 
@@ -109,9 +109,9 @@ function add_msg_to_div(targetDiv, res, is_user = false) {
     // Create an iframe to display the latest graph for the specific chat ID
     html_content = `
         <div class="row mb-3">
-            <div class="col-12 d-flex justify-content-end">
-                <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} p-3 rounded">
-                    <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen></iframe>
+            <div class="d-flex justify-content-end w-100">
+                <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} rounded">
+                    <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen class="loaded"></iframe>
                 </div>
             </div>
         </div>
@@ -119,23 +119,19 @@ function add_msg_to_div(targetDiv, res, is_user = false) {
   } else {
     html_content = `
         <div class="row mb-3">
-            <div class="col-12 d-flex justify-content-end">
-                <div id="message-content-1291" class="message-content ${
-                  is_user ? "user" : "genie"
-                } p-3 rounded">
-                <div class="d-flex align-items-start">
-                    ${
-                      !is_user
-                        ? `
-                            <img alt="Genie Logo" class="genie-icon" src="/assets/genie_logo.svg"></img>
-                            <p class="mb-0 ml-2">${res}</p>
-                            `
-                        : `<p class="mb-0">${res}</p>`
-                    }
-                </div>
-                </div>
-            </div>
+        <div class="d-flex ${is_user ? "justify-content-end" : "justify-content-start"} w-100">
+          <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} rounded d-flex align-items-start ${is_user ? "p-3" : ""}">
+            ${
+              !is_user
+                ? `
+                    <img alt="Genie Logo" class="genie-icon" src="/assets/genie_logo.svg"></img>
+                    <p class="mb-0 ml-2">${res}</p>
+                  `
+                : `<p class="mb-0">${res}</p>`
+            }
+          </div>
         </div>
+      </div>
     `;
   }
   if (!targetDiv) return;

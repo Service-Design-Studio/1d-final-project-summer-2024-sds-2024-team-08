@@ -75,7 +75,7 @@ end
 #Lowercase nospace
 When(/I ask Genie Tell me more about joebiden/) do
     click_link("chat-8")
-    fill_in 'message', with: 'Tell me more about hoe biden'
+    fill_in 'message', with: 'Tell me more about joebiden'
     find('button[name="button"]').click
 end
 

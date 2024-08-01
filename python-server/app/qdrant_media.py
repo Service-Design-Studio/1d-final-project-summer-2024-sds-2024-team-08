@@ -66,6 +66,6 @@ def derive_rs_from_media(model, stakeholder_id, query: str=None):
 
 if __name__ == "__main__":
   model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
-  query = "Generate a network graph to show only the relationships between Joe Biden has with his immediate family members. On the same network graph, help me visualize any relationships that his family members might have with other stakeholders."
+  query = "Joe Biden supporters"
   ls = derive_rs_from_media(model, stakeholder_id=28235, query=query)
   print(ls)

@@ -3,6 +3,7 @@ from langgraph.graph.message import MessagesState
 from langgraph.graph import END, StateGraph, START
 from langchain_core.messages import (
     ToolMessage,
+    AIMessage
 )
 from langgraph.checkpoint import BaseCheckpointSaver
 from dotenv import load_dotenv
@@ -13,15 +14,13 @@ from tools import get_tool_node, get_all_tools
 load_dotenv()
 
 class AgentState(MessagesState, TypedDict):
-    rs_db: list
-    media: list
+    relationships: list
     sender: str
     saved_graph_id: Optional[int]
 
 def tool_graph_adaptor(state):
-    last_message = state['messages'][-1]
-
-    return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.id) }
+    last_message : AIMessage = state['messages'][-1]
+    return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.tool_calls[0]["id"]) }
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     tool_node = get_tool_node(model)
@@ -67,7 +66,7 @@ if __name__ == "__main__":
     from langchain_google_vertexai import ChatVertexAI
     from langgraph.checkpoint.memory import MemorySaver
 
-    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
+    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3)
 
     checkpointer = MemorySaver()
     app = create_workflow(model, checkpointer=checkpointer)

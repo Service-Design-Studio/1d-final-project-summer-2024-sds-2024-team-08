@@ -1,6 +1,7 @@
 from typing import TypedDict, Optional, Annotated
 from langgraph.graph.message import MessagesState
 from langgraph.graph import END, StateGraph, START
+from langgraph.constants import Send
 from langchain_core.messages import (
     ToolMessage,
     AIMessage
@@ -9,22 +10,13 @@ from langgraph.checkpoint import BaseCheckpointSaver
 from dotenv import load_dotenv
 
 import grapher_agent, researcher_agent
-from tools import get_tool_node, get_all_tools, build_mutable_tool_nodes
+from tools import get_tool_node, get_all_tools, build_mutable_tool_nodes, update_graph_structured, update_graph_unstructured
     
 load_dotenv()
-
-def update_graph_structured(old: dict, new:dict) -> dict:
-    nodes = old.get('nodes', {}).copy()
-    nodes.update(new.get('nodes', {}))
-
-    return {
-        'edges': (old.get('edges', [])) + (new.get('edges', [])),
-        'nodes': nodes
-    }
     
 class AgentState(MessagesState, TypedDict):
     rs_db: Annotated[dict, update_graph_structured] = dict()
-    media: dict
+    media: Annotated[dict, update_graph_unstructured] = dict()
     sender: str
     saved_graph_id: Optional[int]
 
@@ -46,18 +38,24 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     def router(state):
         lastMessage = state['messages'][-1]
         if calls := lastMessage.tool_calls:
+            #Should send each individual call but no time to refactor :/
+            sent_tool_node = False
+            sent_mut_tool_node = False
             for call in calls:
                 match call['name']:
                     case 'call_graph':
-                        yield 'call_graph'
+                        yield Send('tool_graph_adaptor', state)
                     case 'get_relationships' | 'get_relationships_from_media': #Probably shouldn't hardcode
-                        yield 'mut_tool_node'
+                        if not sent_mut_tool_node:
+                            yield Send('mut_tool_node', state)
                     case _:
-                        yield 'call_tool'
+                        if not sent_tool_node:
+                            yield Send('tool_node', state)
         else:
-            return 'end'
+            yield END
     
     workflow = StateGraph(AgentState)
+    
     workflow.add_node(researcher_name, researcher_node)
     workflow.add_node(grapher_name, grapher_node)
     workflow.add_node("tool_node", tool_node)
@@ -66,11 +64,7 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     
     workflow.add_conditional_edges(
         researcher_name,
-        router,
-        { "call_tool": "tool_node", 
-         "call_graph": "tool_graph_adaptor",
-         "mut_tool_node": "mut_tool_node",
-         "end": END }
+        router
     )
 
     workflow.add_edge("tool_graph_adaptor", grapher_name)

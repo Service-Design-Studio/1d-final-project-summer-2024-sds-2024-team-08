@@ -15,7 +15,8 @@ def create_agent(llm, tools):
                     
                     Important:
                     - Always use parallel tool calling!
-                    - Never use tools multiple times with the same arguments.
+                    - Call multiple tools when looking for several people.
+                    - Avoid sequential tool calls.
                     """
                 ),
                 MessagesPlaceholder(variable_name="messages"),
@@ -33,3 +34,4 @@ def create_node(llm, tools, name = "Not set"):
         }
         
     return create_agent(llm, tools) | parse_response
+    

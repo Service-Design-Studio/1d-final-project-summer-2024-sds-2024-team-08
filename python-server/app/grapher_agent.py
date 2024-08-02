@@ -7,6 +7,7 @@ from pyvis.network import Network
 from functools import partial
 from models import Network_Graph
 from random import randint
+from tools import filter_edges, parse_list
 import crud
 
 def print_pt(inp):
@@ -116,50 +117,7 @@ mapping_prompt = ChatPromptTemplate.from_messages(
     {B}
     """)])
 
-filter_prompt = ChatPromptTemplate.from_messages(
-    [("system", """
-    # Instructions
-    You are a highly specialised tool trained in text processing.
-    Your goal is to select only relationships relevant to a given prompt by indicating its number.
-    It is crucial that you only select relevant relationships.
 
-    ## Inputs
-    Relationships: A numbered list of relationships of the form subject -- predicate --> object. These form a network graph.
-    Prompt: A string containing the context to match against.
-
-    ## Output
-    A list of numbers that map to the relationship list.
-    All numbers in this list should exist in the relationship list.
-    No number should appear more than once.
-      
-    # Example
-    ## Prompt
-    Who are Bob's family members?
-
-    ## Relationships
-    0. Bob Jr. -- Son --> Bob.
-    1. Charlie -- Employee --> Foo Inc.
-    2. Bob -- Coworker --> John
-    3. Bob -- Husband --> Alice
-    4. Bob -- Employee --> Foo Inc.
-    5. Alice -- Sister --> Charlie
-
-    ## Your response
-    [0, 3]"""),
-     
-    ("user", """
-     Given the below input, calculate the resultant list.
-     Do not output anything else.
-    ## Prompt
-    {prompt}
-
-    ##Relationships
-    {relationships}
-    """)]
-)
-
-def parse_list(s:AIMessage):
-    return [sub.strip().strip('"') for sub in s.content.split('[', 1)[1].rsplit(']', 1)[0].split(',')]
 
 def save_graph(graph_str, config=None):
     with Session(user_engine) as session:
@@ -173,12 +131,12 @@ def save_graph(graph_str, config=None):
 
     return {"saved_graph_id": generated_id}
 
-def filter_graph(d, llm=None):
-    initial_msg = d['messages'][0].content
-    graph = d['combined_list']
+def filter_combined_graph(state, llm=None):
+    initial_msg = state['messages'][0].content
+    graph = state['combined_list']
     img = graph['imgs']
-    edges = '\n'.join([f"{i}. {edge['sub']} -- {edge['pred']} --> {edge['obj']}" for i, edge in enumerate(graph['edges'])])
-    return filter_prompt.partial(**{"prompt": initial_msg, "relationships": edges}) | llm | RunnableLambda(parse_list) | (lambda l : [e for i, e in enumerate(graph['edges']) if str(i) in l]) | (lambda edges: {"edges": edges, "imgs": img})
+    return filter_edges(llm, initial_msg, graph, map_names=False) | (lambda edges: {"edges": edges, "imgs": img})
+
 
 
 def parse_output(inp, name):
@@ -195,7 +153,7 @@ def create_agent(llm):
             return result.assign(map = (loaded | mapping_prompt | llm | parse_list)) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_graph).bind(llm=llm)| generate_graph | save_graph
+    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_combined_graph).bind(llm=llm)| generate_graph | save_graph
 
 def create_node(llm, name):
     return create_agent(llm) | RunnableLambda(parse_output).bind(name=name)

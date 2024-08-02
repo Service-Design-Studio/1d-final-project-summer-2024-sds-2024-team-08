@@ -10,7 +10,7 @@ from custom_workflow import create_workflow
 
 load_dotenv()
 checkpointer = PostgreSQLMemorySaver(user_engine)
-model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
+model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3, temperature=0)
 
 def query_model(query:str, user_id:int, chat_id:int) -> str:
     """
@@ -37,8 +37,6 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
         'configurable': {'thread_id': chat_id}
     }
 
-    graph.stream_channels = "messages"
-
     stream = graph.stream(inputs, config=config, stream_mode="updates")
 
     def unwrap_stream():
@@ -50,10 +48,23 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
                 else:
                     yield values
     
-    for v in unwrap_stream():
-        v.pretty_print()
-        response_str = v.content
-        graph_id = graph.saved_graph_id if isinstance(v, AIMessage) else None
+    graph_id = None
+    for update in unwrap_stream():
+        msg = update.get('messages')
+        update_graph_id = update.get('saved_graph_id')
+        
+        if msg:
+            if isinstance(msg, list):
+                for m in msg:
+                    m.pretty_print()
+            else:
+                msg.pretty_print()
+        
+        if isinstance(msg, AIMessage):
+            response_str = msg.content
+        
+        if update_graph_id:
+            graph_id = update_graph_id
             
     with Session(user_engine) as s:
         message = Message()
@@ -69,5 +80,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Generate a network graph to show the relationships Joe Biden has. Exclude all the relationships that includes stakeholders giving Joe Biden grants.", 3, 10))
+    print(query_model("Hello!", 3, 10))
     

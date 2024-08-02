@@ -89,7 +89,7 @@ if __name__ == "__main__":
     #print(app.get_graph().draw_mermaid())
     print("Compiled graph")
     
-    input = {"messages": [("user", "Draw me a graph showing the relationship between Joe Biden and Donald Trump.")]}
+    input = {"messages": [("user", "Draw me a graph showing the relationship between Joe Biden and Ben Carson.")]}
     config = {"configurable": {"thread_id": 20}}
     
     app.stream_channels = "messages" #"rs_db"

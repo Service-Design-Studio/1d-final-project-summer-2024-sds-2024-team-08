@@ -226,7 +226,7 @@ def filter_edges(model, prompt, graph, map_names):
     A list of numbers that map to the relationship list.
     All numbers in this list should exist in the relationship list.
     No number should appear more than once.
-    Return as few numbers as possible, limiting it to only the most relevant relationships. Unless otherwise instructed, a good soft maximum would be about 10 relationships.
+    Return as few numbers as possible, limiting it to only the most relevant relationships. Unless otherwise instructed, return a maximum of about 5 relationships.
     
     # Example
     ## Prompt
@@ -345,8 +345,13 @@ def get_tool_node(model):
     return ToolNode(get_tools(model))
 
 def update_graph_structured(old: dict, new:dict) -> dict:
+    #idk
     if not old:
+        if not new:
+            return dict()
         return new
+    elif not new:
+        return old
     
     nodes = old.get('nodes', {}).copy()
     nodes.update(new.get('nodes', {}))
@@ -358,7 +363,11 @@ def update_graph_structured(old: dict, new:dict) -> dict:
 
 def update_graph_unstructured(old: dict, new:dict) -> dict:
     if not old:
+        if not new:
+            return dict()
         return new
+    elif not new:
+        return old
     
     new_node_names = list(
         set(old.get('nodes', {}).values()).union(

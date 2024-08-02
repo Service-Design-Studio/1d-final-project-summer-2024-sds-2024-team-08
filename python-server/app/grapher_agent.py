@@ -156,7 +156,10 @@ def create_agent(llm):
     return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_combined_graph).bind(llm=llm)| generate_graph | save_graph
 
 def create_node(llm, name):
-    return create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
+    def print_pt(a):
+        print(a['rs_db'])
+        return a
+    return print_pt | create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
 
 if __name__ == "__main__":
     from langchain_core.messages import HumanMessage

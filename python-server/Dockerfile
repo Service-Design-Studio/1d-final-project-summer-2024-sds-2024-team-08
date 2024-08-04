@@ -1,7 +1,11 @@
 # Use the official image as a parent image
 FROM python:3.10.14-alpine3.20
 
+#Install requirements for some packages (especially shapely)
 RUN apk update && apk upgrade && apk add libpq-dev build-base geos geos-dev
+
+#Split up installs for easier caching
+RUN pip install --upgrade pip
 
 RUN pip install shapely
 
@@ -9,7 +13,8 @@ RUN pip install fastapi langchain langgraph
 
 COPY requirements.txt requirements.txt
 # Install any needed packages specified in requirements.txt
-RUN pip install -r requirements.txt
+
+RUN pip install -r requirements.txt --no-cache-dir
 
 COPY . .
 

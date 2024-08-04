@@ -6,8 +6,9 @@ from database import stakeholder_engine, user_engine
 from pyvis.network import Network
 from functools import partial
 from models import Network_Graph
+from langchain_core.output_parsers.json import JsonOutputParser
 from random import randint
-from tools import filter_edges, parse_list
+from tools import filter_edges
 import crud
 
 def print_pt(inp):
@@ -15,9 +16,9 @@ def print_pt(inp):
     return inp
 
 def apply_map(inp):
-    inp['media']['nodes'] = {id: name_map if name_map else name 
-                                for (id, name), name_map in 
-                                zip(inp['media']['nodes'].items(), inp['map'])}
+    for id, node in inp['media']['nodes'].items():
+        if node in inp['map']:
+            inp['media']['nodes'][id] = inp['map'][node]
     del inp['map']
     return inp
 
@@ -35,6 +36,10 @@ def combine_lists(inp):
                     if name not in imgs:
                         imgs[name] = None if s_name == 'media' else crud.get_photo(db, id)
                 for sub_id, pred, obj_id in source['edges']:
+                    #idk why some of the keys became strings but
+                    if isinstance(next(iter(source['nodes'])), str):
+                        sub_id = str(sub_id)
+                        obj_id = str(obj_id)
                     edges.append({
                         "sub": source['nodes'][sub_id],
                         "pred": pred,
@@ -91,10 +96,9 @@ mapping_prompt = ChatPromptTemplate.from_messages(
     If you find a suitable match, yield that match. Otherwise, yield an empty string.
 
     # Output
-    Your output should be another list of names C.
-    The length of C should be the same length as B.
-    The order of C depends on the order of B.
-    Each name in C should either be empty or appear in A.
+    Your output should be a JSON object which describes which names in B map to names in A.
+    Each key in the output should exist in B. It is case sensitive.
+    Each value in the output should exist in A. It is case sensitive.
 
     # Example
     ## A
@@ -104,7 +108,7 @@ mapping_prompt = ChatPromptTemplate.from_messages(
     ["Johnson", "Steve", "Alice", "Daniel"]
 
     ## Your response
-    ["John", "", "Alice", ""]"""),
+    {{"Johnson": "John", "Alice": "Alice"}}"""),
 
     ("user", """
     Given the below input, please calculate the output list C as described in the system message.
@@ -132,7 +136,10 @@ def save_graph(graph_str, config=None):
     return {"saved_graph_id": generated_id}
 
 def filter_combined_graph(state, llm=None):
-    initial_msg = state['messages'][0].content
+    if __name__ == '__main__':
+        initial_msg = state['messages'][0].content
+    else:
+        initial_msg = state['messages'][-2].tool_calls[0]['args']['reason']
     graph = state['combined_list']
     img = graph['imgs']
     return filter_edges(llm, initial_msg, graph, map_names=False) | (lambda edges: {"edges": edges, "imgs": img})
@@ -150,16 +157,13 @@ def create_agent(llm):
                 'A': str(list(d['rs_db']['nodes'].values())),
                 'B': str(list(d['media']['nodes'].values()))}
             
-            return result.assign(map = (loaded | mapping_prompt | llm | parse_list)) | apply_map
+            return result.assign(map = (loaded | mapping_prompt | llm | JsonOutputParser())) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_combined_graph).bind(llm=llm)| generate_graph | save_graph
+    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_combined_graph).bind(llm=llm) | generate_graph | save_graph
 
 def create_node(llm, name):
-    def print_pt(a):
-        print(a['rs_db'])
-        return a
-    return print_pt | create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
+    return create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
 
 if __name__ == "__main__":
     from langchain_core.messages import HumanMessage

@@ -1,20 +1,18 @@
-from sqlalchemy.orm import Session
-from sqlalchemy import select
-from models import Stakeholder, Alias
-from database import stakeholder_engine
-from functools import wraps, partial, reduce
-from langchain_core.tools import tool
-from langchain_core.runnables import RunnablePassthrough, RunnableParallel, RunnableLambda
-from langchain_core.prompts.chat import ChatPromptTemplate
-from langchain_core.runnables.config import get_executor_for_config
-from qdrant_media import derive_rs_from_media
-from langchain_google_vertexai import ChatVertexAI
-from langgraph.prebuilt import ToolNode
-from langchain_core.messages import ToolMessage
-import rapidfuzz
-import crud
 import re
 import time
+from functools import wraps, reduce
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from langchain_core.tools import tool
+from langchain_core.messages import ToolMessage
+from langchain_core.prompts.chat import ChatPromptTemplate
+from langchain_core.runnables.config import get_executor_for_config
+from langgraph.prebuilt import ToolNode
+import rapidfuzz
+from qdrant_media import derive_rs_from_media
+from models import Stakeholder, Alias
+from database import stakeholder_engine
+import crud
 
 def timing_decorator(func):
     """Decorator that logs the execution time of the function it decorates."""
@@ -105,38 +103,38 @@ def get_name_matches(name: str) -> list:
                 result.append(match[0])
         return result
 
-@tool 
-def get_relationships_with_names(subject_id:int = None) -> bytes:
-    '''
-    Use this tool to output to the user every relationship the stakeholders have with one another in natural language. This tool should be called when the user wants the relationships of stakeholders in natural language. 
-    This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
-    If the output is an empty list then it means that the subject has no relationships with the object.
+# @tool 
+# def get_relationships_with_names(subject_id:int = None) -> bytes:
+#     '''
+#     Use this tool to output to the user every relationship the stakeholders have with one another in natural language. This tool should be called when the user wants the relationships of stakeholders in natural language. 
+#     This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
+#     If the output is an empty list then it means that the subject has no relationships with the object.
 
-    Args:
-        subject_id (int): The name of the stakeholder you want to find matches for.
+#     Args:
+#         subject_id (int): The name of the stakeholder you want to find matches for.
         
-    Returns:
-        list: A list of subjects, predicates and objects
-    '''
+#     Returns:
+#         list: A list of subjects, predicates and objects
+#     '''
     
-    with Session(stakeholder_engine) as db:
-        subject_rs = crud.get_relationships(db, subject=subject_id)
-        object_rs = crud.get_relationships(db, object=subject_id)
-        relationships = subject_rs + object_rs
-        stakeholder_ids = {result.subject for result in relationships} | {result.object for result in relationships}
-        stakeholder_names = crud.get_stakeholder_names(db, list(stakeholder_ids))
+#     with Session(stakeholder_engine) as db:
+#         subject_rs = crud.get_relationships(db, subject=subject_id)
+#         object_rs = crud.get_relationships(db, object=subject_id)
+#         relationships = subject_rs + object_rs
+#         stakeholder_ids = {result.subject for result in relationships} | {result.object for result in relationships}
+#         stakeholder_names = crud.get_stakeholder_names(db, list(stakeholder_ids))
 
-    relationships_with_names = []
-    for result in relationships:
-        subject_name = stakeholder_names.get(result.subject, "Unknown")
-        object_name = stakeholder_names.get(result.object, "Unknown")
-        predicate = result.predicate
-        extracted_info = crud.extract_after_last_slash(predicate)
-        # Remove non-alphanumeric characters
-        extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
-        relationships_with_names.append((subject_name, extracted_info, object_name))
+#     relationships_with_names = []
+#     for result in relationships:
+#         subject_name = stakeholder_names.get(result.subject, "Unknown")
+#         object_name = stakeholder_names.get(result.object, "Unknown")
+#         predicate = result.predicate
+#         extracted_info = crud.extract_after_last_slash(predicate)
+#         # Remove non-alphanumeric characters
+#         extracted_info = re.sub(r'[^a-zA-Z0-9\' ]', '', extracted_info)
+#         relationships_with_names.append((subject_name, extracted_info, object_name))
 
-    return relationships_with_names
+#     return relationships_with_names
 
 def get_relationships_build(model):
     @tool
@@ -202,7 +200,7 @@ def get_relationships_build(model):
                 relevant_nodes.add(obj)
 
             relationships_graph["edges"] = edges
-            relationships_graph["nodes"] = dict({k:v for k, v in relationships_graph["nodes"].items() if k in relevant_nodes})
+            relationships_graph["nodes"] = dict({int(k):v for k, v in relationships_graph["nodes"].items() if k in relevant_nodes})
 
         relationships_graph['type'] = 'rs_db'
         
@@ -215,8 +213,7 @@ def filter_edges(model, prompt, graph, map_names):
     # Instructions
     You are a highly specialised tool trained in text processing.
     Your goal is to select only relationships relevant to a given prompt by indicating its number.
-    It is crucial that you only select relevant, direct relationships.
-    Avoid selecting relationships that may only be tangentially related.
+    It is crucial that you only select relevant, direct or indirect relationships.
 
     ## Inputs
     Relationships: A numbered list of relationships of the form subject -- predicate --> object. These form a network graph.
@@ -305,7 +302,9 @@ def call_graph(reason: str) -> None:
     Information gathered involves any results directly returned from get_relationships and get_relationships_from_media.
     If it is not evident what the connection is between this data and the user's prompt, make more queries until it is clear.
 
-    If you have made an inference from the data, pass it into the "reason" parameter.
+    If you have made an inference from the data, make sure to call add_unstructured_relationships first not in parallel to save inferred relationships.
+    The chat history will not be passed to the grapher.
+    Only results from tools will be passed to the grapher.
 
     Args:
         reason (str): Your reasoning for why you are confindent in your answer.
@@ -315,18 +314,18 @@ def call_graph(reason: str) -> None:
 
 def get_relationships_from_media_build(model):
     @tool
-    def get_relationships_from_media(stakeholder_id: int, query: str) -> dict:
+    def get_relationships_from_media(query: str, stakeholder_id: int) -> dict:
         """
-        Call this tool to extract relationships from existing media.
-        Given a specified stakeholder_id, this tool will extract media sources involving the stakeholder.
+        Call this tool to extract relationships from media scraped from the web. They can be used to answer questions about people, even if the question isn't very specific.
+        If given a specified stakeholder_id, this tool will extract media sources involving the stakeholder.
         These media sources will be ordered by their similarity to a given query, and only relationships from the closest matches will be returned.
         This information can be used to augment information from get_relationships_with_names if it has insufficient information.
         
         This tool will increase latency significatly so always execute it in parallel with other tools.
         
         Args:
-            stakeholder_id (int): The id of the stakeholder you wish to search for.
             query (str): A word, short phrase or sentence that filters the type of media that this tool will search for.
+            stakeholder_id (int | None): The id of the stakeholder you wish to search for.
         
         Returns:
             A dictionary representation of a graph. Edges are defined in (subject, predicate, object) order.
@@ -335,11 +334,49 @@ def get_relationships_from_media_build(model):
     
     return get_relationships_from_media
 
+@tool
+def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
+    """Add a relationship to the current working memory that will be used by the Grapher tool.
+    Only call this tool if you have inferred a relationship that was not directly returned by get_relationships or get_relationships_from_media, and the user requests a graph.
+
+    For example, if you learn that Bob is Alice's husband, you may call add_unstructured_relationships([["Bob", "Husband", "Alice"]]) if:
+    1. It is relevant to the user's query
+    2. The relationship has not already been returned by get_relationships or get_relationships_from_media
+
+    If you are already aware of the stakeholder from a previous tool call, ensure that you use exactly the same name.
+    Do not call this in parallel with call_graph.
+
+    Args:
+        stakeholder_id (list[list[str, str, str]]): A list of relationships you wish to add. One relationship consists of a list of 3 strings: subject, predicate, object.
+    
+    Returns:
+        A dictionary representation of the relationships generated from your input.
+    """
+
+    nodes = set()
+    edges = []
+    for edge in relationships:
+        nodes.add(edge[0])
+        nodes.add(edge[2])
+    nodes = list(nodes)
+    for edge in relationships:
+        edges.append(
+            [
+                nodes.index(edge[0]),
+                edge[1],
+                nodes.index(edge[2])
+            ]
+        )
+    nodes = {i:v for i, v in enumerate(nodes)}
+    update = {"edges": edges, "nodes": nodes, "type": "media"}
+    return update
+
+
 def get_tools(model):
-    return [read_stakeholders, get_name_matches, get_relationships_with_names]
+    return [read_stakeholders, get_name_matches]
 
 def get_all_tools(model):
-    return get_tools(model) + [call_graph, get_relationships_build(model), get_relationships_from_media_build(model)]
+    return get_tools(model) + [call_graph, get_relationships_build(model), get_relationships_from_media_build(model), add_unstructured_relationships]
 
 def get_tool_node(model):
     return ToolNode(get_tools(model))
@@ -380,11 +417,14 @@ def update_graph_unstructured(old: dict, new:dict) -> dict:
         remap = {id_: new_node_names.index(name) for id_, name in ids.items()}
         
         for edge in dic.get('edges'):
-            new_edges.append((remap[edge[0]], edge[1], remap[edge[2]]))
+            try:
+                new_edges.append((remap[edge[0]], edge[1], remap[edge[2]]))
+            except:
+                pass
 
     return {
         'edges': new_edges,
-        'nodes': {i:v for i, v in enumerate(remap)}
+        'nodes': {i:v for i, v in enumerate(new_node_names)}
     }
 
 def build_mutable_tool_nodes(model):
@@ -410,12 +450,31 @@ def build_mutable_tool_nodes(model):
 
     tools = {
         "get_relationships": get_relationships_build(model),
-        "get_relationships_from_media": get_relationships_from_media_build(model)
+        "get_relationships_from_media": get_relationships_from_media_build(model),
+        "add_unstructured_relationships": add_unstructured_relationships
     }
 
     return mutable_tool_node
 
 if __name__ == '__main__':
-    print(get_relationships_build(model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3)).invoke({
-        "prompt":"relationships between Joe Biden and Donald Trump", 
-        "subject_id":49279}))
+    print(update_graph_unstructured(
+        {
+            'nodes': {
+                    1: "Steve",
+                    2: "John",
+                    3: "Bob"},
+            'edges': [
+                [1, 'A', 2],
+                [1, 'B', 3]
+            ]
+        },
+        {
+            'nodes': {
+                    1: "Alice",
+                    2: "Steve",
+                    3: "Bob"},
+            'edges': [
+                [1, 'C', 2],
+                [1, 'D', 3]
+            ]
+        }))

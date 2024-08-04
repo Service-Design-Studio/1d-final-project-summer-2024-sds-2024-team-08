@@ -34,3 +34,5 @@ proxy.log
 cloud-sql-proxy
 cloud-sql-proxy
 cloud_sql_proxy.exe
+
+.env

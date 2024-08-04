@@ -2,17 +2,17 @@ from langchain_google_vertexai import ChatVertexAI
 from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_core.documents import Document
 from qdrant_client import models
-from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
 from database import media_engine, qdrant_client
+import requests
 from crud import get_media_ids_for_stakeholder, get_content_from_media_ids
 
 # Vectorize user query
 def vectorize_query(query):
-    encoder = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
-    query_vector = encoder.encode([query], convert_to_numpy=True, normalize_embeddings=True)
+    url = 'https://sentence-transformer-server-ohgaalojiq-de.a.run.app/embed/'
+    x = requests.post(url, json = {'query': query})
 
-    return query_vector[0].tolist()  # Convert to list
+    return x.json()
 
 
 def rank_ids_qdrant(query_vector, media_ids, limit=5):  

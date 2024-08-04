@@ -17,13 +17,10 @@ load_dotenv()
 class AgentState(MessagesState, TypedDict):
     rs_db: Annotated[dict, update_graph_structured] = dict()
     media: Annotated[dict, update_graph_unstructured] = dict()
-    sender: str
-    saved_graph_id: Optional[int]
+    had_error: bool
 
-def tool_graph_adaptor(state):
-    last_message : AIMessage = state['messages'][-1]
-    
-    return { "messages": ToolMessage("Redirecting to graph...", tool_call_id=last_message.tool_calls[0]["id"]) }
+def error_node(state):
+    return {"messages": state["message"]}
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     tool_node = get_tool_node(model)
@@ -35,17 +32,45 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     researcher_node = researcher_agent.create_node(model, get_all_tools(model), researcher_name)
     grapher_node = grapher_agent.create_node(model, grapher_name)
 
+    def tool_graph_adaptor(state):
+        last_message : AIMessage = state['messages'][-1]
+        calls = last_message.tool_calls
+
+        result = []
+        if len(calls) > 1:
+            had_error = True
+            for call in calls:
+                if call["name"] == "call_graph":
+                    message_s = "ParallelError: Call this tool sequentially only after the other tools have been called. Do not call it in parallel."
+                else:
+                    message_s = "ParallelError: Call this tool by itself again immediately to fix your mistake. Do not call call_graph until you get the return value from this tool."
+                result.append(ToolMessage(message_s, tool_call_id=call["id"]))
+        else:
+            message_s = "Redirecting to graph..."
+            result.append(ToolMessage(message_s, tool_call_id=calls[0]["id"]))
+            had_error = False
+
+        return({
+            "messages": result,
+            "had_error": had_error
+        })
+
+        
+
     def router(state):
         lastMessage = state['messages'][-1]
         if calls := lastMessage.tool_calls:
-            #Should send each individual call but no time to refactor :/
+            # Note: This is a bad implementation. 
+            # There should only be 1 node in charge of routing tool calls to ensure that the message state is consistent.
+            # I have no idea why this hasn't broken down earlier but do NOT use this method for new projects.
             sent_tool_node = False
             sent_mut_tool_node = False
+
             for call in calls:
                 match call['name']:
                     case 'call_graph':
-                        yield Send('tool_graph_adaptor', state)
-                    case 'get_relationships' | 'get_relationships_from_media': #Probably shouldn't hardcode
+                        yield Send("tool_graph_adaptor", state)
+                    case 'get_relationships' | 'get_relationships_from_media' | 'add_unstructured_relationships': #Probably shouldn't hardcode
                         if not sent_mut_tool_node:
                             yield Send('mut_tool_node', state)
                     case _:
@@ -58,8 +83,8 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     
     workflow.add_node(researcher_name, researcher_node)
     workflow.add_node(grapher_name, grapher_node)
-    workflow.add_node("tool_node", tool_node)
     workflow.add_node("tool_graph_adaptor", tool_graph_adaptor)
+    workflow.add_node("tool_node", tool_node)
     workflow.add_node("mut_tool_node", mutable_tool_node)
     
     workflow.add_conditional_edges(
@@ -67,7 +92,13 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
         router
     )
 
-    workflow.add_edge("tool_graph_adaptor", grapher_name)
+    workflow.add_conditional_edges(
+        "tool_graph_adaptor",
+        lambda state: state["had_error"], {
+            True: researcher_name,
+            False: grapher_name}
+    )
+
     workflow.add_edge("tool_node", researcher_name)
     workflow.add_edge("mut_tool_node", researcher_name)
 
@@ -80,23 +111,34 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
 if __name__ == "__main__":
     from langchain_google_vertexai import ChatVertexAI
     from langgraph.checkpoint.memory import MemorySaver
+    from langchain_core.messages import HumanMessage
+    import requests
 
-    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3)
+    try: # ping the thing lol
+        requests.get("https://sentence-transformer-server-ohgaalojiq-de.a.run.app", timeout=0.0001)
+    except:
+        pass
+
+    model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3, temperature=0.01)
 
     checkpointer = MemorySaver()
     app = create_workflow(model, checkpointer=checkpointer)
-    
+
     #print(app.get_graph().draw_mermaid())
     print("Compiled graph")
     
-    input = {"messages": [("user", "Draw me a graph showing the relationship between Joe Biden and Ben Carson.")]}
+    input_ = {"messages": [("user", "Generate a network graph of the relationship between ExxonMobil and Ivanka Trump.")]}
+    
     config = {"configurable": {"thread_id": 20}}
     
-    app.stream_channels = "messages" #"rs_db"
-    for chunk in app.stream(input, config, stream_mode="updates"):
-        for node, values in chunk.items():
-            if isinstance(values, list):
-                for v in values:
-                    v.pretty_print()
-            else:
-                values.pretty_print()
+    app.stream_channels = "messages"
+
+    while (True):
+        for chunk in app.stream(input_, config, stream_mode="updates"):
+            for node, values in chunk.items():
+                if isinstance(values, list):
+                    for v in values:
+                        v.pretty_print()
+                else:
+                    values.pretty_print()
+        input_ = {"messages": HumanMessage(input())}

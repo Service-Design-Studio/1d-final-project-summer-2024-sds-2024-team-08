@@ -9,6 +9,7 @@ cached-property==1.5.2
 cachetools==5.4.0
 certifi==2024.7.4
 charset-normalizer==3.3.2
+click==8.1.7
 dataclasses-json==0.6.7
 decorator==5.1.1
 docstring_parser==0.16
@@ -29,7 +30,7 @@ greenlet==3.0.3
 grpc-google-iam-v1==0.13.1
 grpcio==1.65.4
 grpcio-status==1.62.2
-grpcio-tools==1.60.1
+grpcio-tools==1.65.4
 h11==0.14.0
 h2==4.1.0
 hpack==4.0.0
@@ -66,7 +67,7 @@ pexpect==4.9.0
 portalocker==2.10.1
 prompt_toolkit==3.0.47
 proto-plus==1.24.0
-protobuf==4.25.4
+protobuf==5.27.3
 psycopg2-binary==2.9.9
 ptyprocess==0.7.0
 pure_eval==0.2.3
@@ -95,5 +96,6 @@ traitlets==5.14.3
 typing-inspect==0.9.0
 typing_extensions==4.12.2
 urllib3==2.2.2
+uvicorn==0.30.5
 wcwidth==0.2.13
 yarl==1.9.4

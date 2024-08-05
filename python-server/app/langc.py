@@ -1,16 +1,19 @@
-from langgraph.prebuilt import create_react_agent
 from langchain_google_vertexai import ChatVertexAI
 from sqlalchemy.orm import Session
-from PostgreSQLMemorySaver import PostgreSQLMemorySaver
+from PSQLCheckpointer import PostgresSaver
 from dotenv import load_dotenv
 from models import Message
-from database import user_engine
-from langchain_core.messages import AIMessage
+from database import user_engine, pool
+from langchain_core.messages import AIMessage, BaseMessage
 from custom_workflow import create_workflow
 
 load_dotenv()
-checkpointer = PostgreSQLMemorySaver(user_engine)
+
+checkpointer = PostgresSaver(sync_connection=pool)
+checkpointer.create_tables(pool)
+
 model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3, temperature=0)
+graph = create_workflow(model, checkpointer=checkpointer)
 
 def query_model(query:str, user_id:int, chat_id:int) -> str:
     """
@@ -27,8 +30,6 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
         s.add(message)
         s.commit()
     
-    graph = create_workflow(model, checkpointer=checkpointer)
-
     inputs = {"messages": [
         ("user", query)
         ]}
@@ -41,31 +42,35 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
 
     def unwrap_stream():
         for chunk in stream:
-            for values in list(chunk.values()):
-                if isinstance(values, list):
-                    for v in values:
-                        yield v
-                else:
-                    yield values
+            for updates in chunk.values():
+                for channel, update in updates.items():
+                    if channel == 'messages':
+                        if isinstance(update, list):
+                            for msg in update:
+                                yield msg
+                        else:
+                            yield update
+                    elif channel == 'saved_graph_id':
+                        print(updates)
+                        yield updates
     
     graph_id = None
+
     for update in unwrap_stream():
-        msg = update.get('messages')
-        update_graph_id = update.get('saved_graph_id')
+        if isinstance(update, BaseMessage):
+            update.pretty_print()        
+
+            if isinstance(update, AIMessage):
+                last_message_by = update.name
+                response_str = update.content
         
-        if msg:
-            if isinstance(msg, list):
-                for m in msg:
-                    m.pretty_print()
-            else:
-                msg.pretty_print()
+        if isinstance(update, dict) and (id_ := update.get('saved_graph_id')):
+            graph_id = id_ #TODO: Graph state not updating properly. Need to fix
+    
+    #Hacky workaround first
+    if last_message_by == 'Grapher' and response_str.startswith('Graph generated:'):
+        graph_id = int(response_str.split(': ')[1].strip())
         
-        if isinstance(msg, AIMessage):
-            response_str = msg.content
-        
-        if update_graph_id:
-            graph_id = update_graph_id
-            
     with Session(user_engine) as s:
         message = Message()
         message.chat_id = chat_id
@@ -80,5 +85,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Hello!", 3, 10))
+    print(query_model("Generate a network graph of the relationship between ExxonMobil and Ivanka Trump.", 3, 10))
     

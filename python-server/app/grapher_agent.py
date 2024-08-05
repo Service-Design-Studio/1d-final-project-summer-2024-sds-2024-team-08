@@ -127,7 +127,10 @@ def save_graph(graph_str, config=None):
     with Session(user_engine) as session:
         graph = Network_Graph()
         graph.content = graph_str
-        graph.chat_id = config["configurable"]["thread_id"]
+        
+        chat_id = config["configurable"]["thread_id"]
+        # Langgraph may mutate the thread_id without telling; for instance 10 could become 10-Grapher
+        graph.chat_id = int(str(chat_id).split('-')[0])
         
         session.add(graph)
         session.commit()
@@ -147,7 +150,9 @@ def filter_combined_graph(state, llm=None):
 
 
 def parse_output(inp, name):
-    return {"messages": AIMessage(f"Graph generated: {inp['saved_graph_id']}", name=name), **inp}
+    output = {"messages": AIMessage(f"Graph generated: {inp['saved_graph_id']}", name=name), **inp}
+
+    return output
 
 def create_agent(llm):
     def format_input(inp):

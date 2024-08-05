@@ -17,6 +17,7 @@ load_dotenv()
 class AgentState(MessagesState, TypedDict):
     rs_db: Annotated[dict, update_graph_structured] = dict()
     media: Annotated[dict, update_graph_unstructured] = dict()
+    generated_graph_id: Optional[int]
     had_error: bool
 
 def error_node(state):
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     #print(app.get_graph().draw_mermaid())
     print("Compiled graph")
     
-    input_ = {"messages": [("user", "Generate a network graph of the relationship between ExxonMobil and Ivanka Trump.")]}
+    input_ = {"messages": [("user", "Generate a network graph of the relationship between Donald Trump and Ivanka Trump.")]}
     
     config = {"configurable": {"thread_id": 20}}
     
@@ -141,4 +142,5 @@ if __name__ == "__main__":
                         v.pretty_print()
                 else:
                     values.pretty_print()
+                    
         input_ = {"messages": HumanMessage(input())}

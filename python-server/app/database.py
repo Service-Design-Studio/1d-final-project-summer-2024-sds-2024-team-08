@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from os import getenv
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
+from psycopg_pool import ConnectionPool
 
 load_dotenv()
 
@@ -45,7 +46,21 @@ def get_db_url(params):
     f"{params['dbname']}")
     return str
 
+def get_pool_url(params):
+    str = (f"postgresql://"+\
+    f"{params['user']}:"+\
+    f"{params['password']}@"+\
+    f"{params['host']}:"+\
+    f"{params['port']}/"+\
+    f"{params['dbname']}?sslmode=disable")
+    return str
+
 # Create a SQLAlchemy engine
 user_engine = create_engine(get_db_url(db_params_users))
 stakeholder_engine = create_engine(get_db_url(db_params_stakeholders))
 media_engine = create_engine(get_db_url(db_params_media))
+
+pool = ConnectionPool(
+    conninfo=get_pool_url(db_params_users),
+    max_size=5
+)

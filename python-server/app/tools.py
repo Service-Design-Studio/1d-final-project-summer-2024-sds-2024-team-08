@@ -36,6 +36,15 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
 
     The result returned will be in JSON format.
 
+    This tool will increase latency significatly so always execute it in parallel with the tools:
+        - get_names_matches
+        - read_stakeholders
+    Do not call it in parallel with the tools:
+        - get_relationships_from_media
+        - get_relationships
+        - add_unstructured_relationships
+        - call_graph
+
     Args:
         stakeholder_id (int, optional): Defaults to None.
         name (str, optional): Defaults to None.
@@ -80,6 +89,15 @@ def get_name_matches(name: str) -> list:
         2. [name 2]
         ..."
     If the output contains no names, then there are no matches for the given name.
+
+    This tool will increase latency significatly so always execute it in parallel with the tools:
+        - get_names_matches
+        - read_stakeholders
+    Do not call it in parallel with the tools:
+        - get_relationships_from_media
+        - get_relationships
+        - add_unstructured_relationships
+        - call_graph
     
     Args:
         name (str): The name of the stakeholder you want to find matches for.
@@ -151,17 +169,26 @@ def get_relationships_build(model):
         This tool will be used only if the user wants a network graph. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
         If the output is an empty list then it means that the subject has no relationships with the object.
 
-        This tool will increase latency so always execute it in parallel with other tools.
+        This tool will increase latency so always execute it in parallel with the tools:
+            - get_relationships_from_media
+            - get_relationships
+            - add_unstructured_relationships
+        Do not call it in parallel with the tools:
+            - get_names_matches
+            - read_stakeholders
+            - call_graph
 
         Args:
             subject_id (int): The name of the stakeholder you want to find matches for.
-            prompt (str): The type of matches you want to find matches for. This will be fed into another LLM to decide which relationships are relevant. Be specific but provide enough context.
+            prompt (str): The type of matches you want to filter matches for. Note that the output of this graph will NOT be directly related to this prompt.
+
             
         Returns:
             relationships_with_predicates (list[list[int, str, int]]): A list of subjects, predicates and objects. 
                 The subject is the stakeholder_id of the subject and it is an integer. 
                 The predicate is the relationship between the subject and the object. The predicate is a string. 
                 The object is the stakeholder_id of the object and it is an integer.
+                This output is not directly related to the prompt, and should not be interpreted as such. Each relationship should be interpreted soley based on its subject, predicate and object.
         
         Returns:
             dict: A dictionary with "edges" and "nodes". Where "edges" is a list of tuples with the format (subject, predicate, object) and "nodes" is a dictionary with the format {stakeholder_id: stakeholder_name}.
@@ -218,18 +245,18 @@ def filter_edges(model, prompt, graph, map_names):
     [("system", """
     # Instructions
     You are a highly specialised tool trained in text processing.
-    Your goal is to select only relationships relevant to a given prompt by indicating its number.
-    It is crucial that you only select relevant, direct or indirect relationships.
-
+    Your goal is to select relationships most relevant to a given prompt by indicating its number.
+    Scan through all the relationships and select the relationships that are directly related to the prompt. 
+    Try not to select more than 2 completely irrelevant relationships.
+    
     ## Inputs
     Relationships: A numbered list of relationships of the form subject -- predicate --> object. These form a network graph.
-    Prompt: A string containing the context to match against. 
+    Prompt: A string containing the context to match against. Your result does not have to match this input.
 
     ## Output
     A list of numbers that map to the relationship list.
     All numbers in this list should exist in the relationship list.
     No number should appear more than once.
-    Return as few numbers as possible, limiting it to only the most relevant relationships. Unless otherwise instructed, return a maximum of about 5 relationships.
     If the prompt tells you to return a certain number of relationships, only return that number of relationships.
     For instance, a query on the "Top 10" stakeholders should return a list that has a maximum of ten relationships.
     
@@ -246,7 +273,7 @@ def filter_edges(model, prompt, graph, map_names):
     5. Alice -- Sister --> Charlie
 
     ## Your response
-    [0, 3]"""),
+    [0, 3, 5]"""),
      
     ("user", """
      Given the below input, calculate the resultant list.
@@ -284,7 +311,7 @@ def filter_edges(model, prompt, graph, map_names):
     return result
 
 def parse_list(s):
-    return [sub.strip().strip('"') for sub in s.content.split('[', 1)[1].rsplit(']', 1)[0].split(',')]
+    return [sub.strip().strip('"').strip("'") for sub in s.content.split('[', 1)[1].rsplit(']', 1)[0].split(',')]
 
 
 def get_photo(stakeholder_id: int) -> str:
@@ -315,7 +342,7 @@ def call_graph(reason: str) -> None:
     Only results from tools will be passed to the grapher.
 
     Args:
-        reason (str): The query to filter the results with, which should be a short phrase or sentence describing the types of relationships and how many there should be.
+        reason (str): The query to filter the results with, which should be a short phrase or sentence describing the types of relationships and how many there should be. If you have identified a concrete relationship, state the start and end-points explicitly, as well as all stakeholders involved in the relationship.
     """
     # Note: Need to manually point this in the router
     return "calling the graphing agent..."
@@ -328,8 +355,15 @@ def get_relationships_from_media_build(model):
         If given a specified stakeholder_id, this tool will extract media sources involving the stakeholder.
         These media sources will be ordered by their similarity to a given query, and only relationships from the closest matches will be returned.
         This information can be used to augment information from get_relationships_with_names if it has insufficient information.
-        
-        This tool will increase latency significatly so always execute it in parallel with other tools.
+
+        This tool will increase latency significatly so always execute it in parallel with the tools:
+            - get_relationships_from_media
+            - get_relationships
+            - add_unstructured_relationships
+        Do not call it in parallel with the tools:
+            - get_names_matches
+            - read_stakeholders
+            - call_graph
         
         Args:
             query (str): A word, short phrase or sentence that filters the type of media that this tool will search for.
@@ -351,11 +385,20 @@ def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
     1. It is relevant to the user's query
     2. The relationship has not already been returned by get_relationships or get_relationships_from_media
 
+    This tool will increase latency significatly so always execute it in parallel with the tools:
+        - get_relationships_from_media
+        - get_relationships
+        - add_unstructured_relationships
+    Do not call it in parallel with the tools:
+        - get_names_matches
+        - read_stakeholders
+        - call_graph
+
     If you are already aware of the stakeholder from a previous tool call, ensure that you use exactly the same name.
     Do not call this in parallel with call_graph.
 
     Args:
-        stakeholder_id (list[list[str, str, str]]): A list of relationships you wish to add. One relationship consists of a list of 3 strings: subject, predicate, object.
+        stakeholder_id (list[list[str, str, str]]): A list of relationships you wish to add. One relationship consists of a list of 3 strings: subject, predicate, object. A bad example of a relationship is A -- "Has a son who works in" --> B. Instead, consider finding the relationship A -- "Father" --> C, C -- "Works in" --> B. 
     
     Returns:
         A dictionary representation of the relationships generated from your input.

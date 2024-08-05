@@ -21,7 +21,18 @@ class AgentState(MessagesState, TypedDict):
     had_error: bool
 
 def error_node(state):
-    return {"messages": state["message"]}
+    last_message : AIMessage = state['messages'][-1]
+    calls = last_message.tool_calls
+
+    result = []
+
+    for call in calls:
+        message_s = "ParallelError: Call these tools sequentially this time."
+        result.append(ToolMessage(message_s, tool_call_id=call["id"]))
+
+    return({
+        "messages": result
+    })
 
 def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     tool_node = get_tool_node(model)
@@ -60,25 +71,27 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
 
     def router(state):
         lastMessage = state['messages'][-1]
+        dest = []
         if calls := lastMessage.tool_calls:
             # Note: This is a bad implementation. 
             # There should only be 1 node in charge of routing tool calls to ensure that the message state is consistent.
             # I have no idea why this hasn't broken down earlier but do NOT use this method for new projects.
-            sent_tool_node = False
-            sent_mut_tool_node = False
-
-            for call in calls:
-                match call['name']:
-                    case 'call_graph':
-                        yield Send("tool_graph_adaptor", state)
-                    case 'get_relationships' | 'get_relationships_from_media' | 'add_unstructured_relationships': #Probably shouldn't hardcode
-                        if not sent_mut_tool_node:
-                            yield Send('mut_tool_node', state)
-                    case _:
-                        if not sent_tool_node:
-                            yield Send('tool_node', state)
+            call_names = set(call['name'] for call in calls)
+            
+            if ('get_relationships' in call_names or 'get_relationships_from_media' in call_names or 'add_unstructured_relationships' in call_names):
+                dest.append("mut_tool_node")
+            if ('get_name_matches' in call_names or 'read_stakeholders' in call_names or 'call_graph' in call_names):
+                dest.append("tool_node")
+            if ('call_graph' in call_names):
+                dest.append('tool_graph_adaptor')
         else:
-            yield END
+            dest.append('End')
+        if len(dest) == 1:
+            return dest[0]
+        elif 'tool_graph_adaptor' in dest:
+            return 'tool_graph_adaptor'
+        else:
+            return 'error_node'
     
     workflow = StateGraph(AgentState)
     
@@ -87,6 +100,8 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
     workflow.add_node("tool_graph_adaptor", tool_graph_adaptor)
     workflow.add_node("tool_node", tool_node)
     workflow.add_node("mut_tool_node", mutable_tool_node)
+    
+    workflow.add_node("error_node", error_node)
     
     workflow.add_conditional_edges(
         researcher_name,
@@ -102,6 +117,7 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
 
     workflow.add_edge("tool_node", researcher_name)
     workflow.add_edge("mut_tool_node", researcher_name)
+    workflow.add_edge("error_node", researcher_name)
 
     workflow.add_edge(START, researcher_name)
     workflow.add_edge(grapher_name, END)
@@ -113,12 +129,6 @@ if __name__ == "__main__":
     from langchain_google_vertexai import ChatVertexAI
     from langgraph.checkpoint.memory import MemorySaver
     from langchain_core.messages import HumanMessage
-    import requests
-
-    try: # ping the thing lol
-        requests.get("https://sentence-transformer-server-ohgaalojiq-de.a.run.app", timeout=0.0001)
-    except:
-        pass
 
     model = ChatVertexAI(model="gemini-1.5-flash", max_retries=3, temperature=0.01)
 
@@ -129,7 +139,7 @@ if __name__ == "__main__":
 
     print("Compiled graph")
     
-    input_ = {"messages": [("user", "give me a network graph of how different countries are related to one another in the oil and gas industry")]}
+    input_ = {"messages": [("user", "How is Joe Biden connected to the Oil and Gas industry? Draw me a graph.")]}
     
     config = {"configurable": {"thread_id": 20}, "recursion_limit": 50}
     

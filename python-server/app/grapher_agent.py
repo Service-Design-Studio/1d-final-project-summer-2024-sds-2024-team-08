@@ -1,14 +1,15 @@
-from langchain_core.runnables import RunnableLambda, RunnablePassthrough
+from langchain_core.runnables import RunnableLambda, RunnablePassthrough, RunnableParallel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage
 from sqlalchemy.orm import Session
 from database import stakeholder_engine, user_engine
 from pyvis.network import Network
+import networkx as nx
 from functools import partial
 from models import Network_Graph
 from langchain_core.output_parsers.json import JsonOutputParser
 from random import randint
-from tools import filter_edges
+from tools import filter_edges, parse_list
 import crud
 
 def print_pt(inp):
@@ -40,44 +41,59 @@ def combine_lists(inp):
                     if isinstance(next(iter(source['nodes'])), str):
                         sub_id = str(sub_id)
                         obj_id = str(obj_id)
-                    edges.append({
-                        "sub": source['nodes'][sub_id],
-                        "pred": pred,
-                        "obj": source['nodes'][obj_id]
-                    })
+                    try:
+                        edges.append({
+                            "sub": source['nodes'][sub_id],
+                            "pred": pred,
+                            "obj": source['nodes'][obj_id]
+                        })
+                    except KeyError:
+                        print('Unable to find key', sub_id, obj_id)
     
     return {"imgs": imgs, "edges": edges}
 
 def generate_graph(inp):
-    subj_color="#77E4C8"
-    obj_color="#3DC2EC"
-    edge_color="#96C9F4"
+    subj_colour="#77E4C8"
+    obj_colour="#3DC2EC"
+    edge_colour="#96C9F4"
+    alt_edge_colour="#FF2020"
 
     g = Network(height="1024px", width="100%",font_color="black")
     
-    for name, img in inp["imgs"].items():
+    filtered_graph = inp['filtered']
+
+    for name, img in filtered_graph["imgs"].items():
         node = partial(g.add_node, name)
         if img:
             node = partial(node, shape="image", image=img)
-        num_connections = len(list(filter(lambda e: name in [e['sub'], e['obj']], inp['edges'])))
+        num_connections = len(list(filter(lambda e: name in [e['sub'], e['obj']], filtered_graph["edges"]))) #don't ask
         if num_connections == 0:
             continue
         elif num_connections > 2:
             node = partial(node, 
-                           color = subj_color, 
+                           color = subj_colour, 
                            size = 40,
                            x = 0,
                            y = 0)
         else:
             node = partial(node, 
-                           color = obj_color, 
+                           color = obj_colour, 
                            size = 20,
                            x = randint(5,10),
                            y = randint(5,10))
         node() # Add the node by completing the partial fn
 
-    for edge in inp['edges']:
-        g.add_edge(edge['sub'], edge['obj'], label=edge['pred'], color=edge_color, smooth=False)
+    
+    spm = inp.get('spm')
+    spm_nodes = set(a for a in spm for a in a) if spm else {}
+    
+    for edge in filtered_graph['edges']:
+        if edge['sub'] in spm_nodes and edge['obj'] in spm_nodes:
+            color = alt_edge_colour
+        else:
+            color = edge_colour
+
+        g.add_edge(edge['sub'], edge['obj'], label=edge['pred'], color=color, smooth=False)
 
     g.repulsion(node_distance=250, spring_length=350)
     g.set_edge_smooth("dynamic")
@@ -154,6 +170,60 @@ def parse_output(inp, name):
 
     return output
 
+def identify_short_path(state, llm):
+    prompt_template = ChatPromptTemplate.from_messages([(
+        "system", """# Instructions
+        You are a highly specialised text parsing tool.
+        Given a prompt and a list of nodes,
+        1. If your task is draw a relationship between two nodes, identify only the start and end nodes. Try to identify only the start and end nodes as much as possible. Otherwise, identify all the primary names involved.
+        2. Output a list of ids, indicating the nodes identified.
+        3. Ensure that your output appears exactly as it does as in the input. It is case sensitive.
+
+        # Example
+        ## Nodes
+        ["A", "B", "C", "D"]
+
+        ## Prompt
+        "Identify the relationships between A and C. A is related to B and B is related to C."
+
+        ## Your response
+        ["A", "C"]
+        """), 
+        ("user", """
+        ## Nodes
+        {nodes}
+                
+        ## Prompt
+        {prompt}""")])
+    
+    if __name__ == '__main__':
+        initial_msg = state['messages'][0].content
+    else:
+        initial_msg = state['messages'][-2].tool_calls[0]['args']['reason']
+
+    graph = state['combined_list']
+
+    chain = prompt_template | llm | parse_list
+    
+    node_ids = list(graph['imgs'].keys())
+
+    choose = chain.invoke({
+        "prompt":initial_msg,
+        "nodes":node_ids
+    })
+    path = None
+    if len(choose) == 2:
+        print(graph['edges'])
+        G = nx.Graph()
+        G.add_nodes_from(node_ids)
+        G.add_edges_from((edge['sub'], edge['obj']) for edge in graph['edges'])
+        try: 
+            paths = nx.all_shortest_paths(G, choose[0], choose[1]) 
+            path = list(paths)
+        except:
+            print("Unable to parse edge: ", choose[0], choose[1])
+    return path
+
 def create_agent(llm):
     def format_input(inp):
         result = RunnablePassthrough()
@@ -165,7 +235,10 @@ def create_agent(llm):
             return result.assign(map = (loaded | mapping_prompt | llm | JsonOutputParser())) | apply_map
         else:
             return result
-    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableLambda(filter_combined_graph).bind(llm=llm) | generate_graph | save_graph
+    return RunnableLambda(format_input) | RunnablePassthrough.assign(combined_list=combine_lists) | RunnableParallel(
+        filtered=RunnableLambda(filter_combined_graph).bind(llm=llm),
+        spm     =RunnableLambda(identify_short_path).bind(llm=llm),
+        ) | generate_graph | save_graph
 
 def create_node(llm, name):
     return create_agent(llm) | RunnableLambda(parse_output).bind(name=name)
@@ -177,7 +250,7 @@ if __name__ == "__main__":
     print(create_node(ChatVertexAI(model="gemini-1.5-flash", max_retries=2), "Grapher").invoke(
         {
         'messages': [
-            HumanMessage("Who is related to Steve?")
+            HumanMessage("Steve is related to David through Alice")
         ],
          'rs_db': {
             'nodes': {
@@ -193,10 +266,13 @@ if __name__ == "__main__":
             'nodes': {
                     1: "Alice",
                     2: "Steven",
-                    3: "Bob"},
+                    3: "Bob",
+                    4: "David",
+            },
             'edges': [
                 [1, 'C', 2],
-                [1, 'D', 3]
+                [1, 'D', 3],
+                [1, 'E', 4]
             ]
          }
     },

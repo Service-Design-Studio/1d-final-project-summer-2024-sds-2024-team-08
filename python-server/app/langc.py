@@ -86,5 +86,5 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
     return response_str
 
 if __name__ == '__main__':
-    print(query_model("Generate a network graph of the relationship between ExxonMobil and Ivanka Trump.", 3, 10))
+    print(query_model("Draw me a graph of the top 10 people who have contributed financially to Joe Bidens presidency.", 3, 10))
     

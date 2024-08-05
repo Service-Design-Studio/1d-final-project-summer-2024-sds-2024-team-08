@@ -41,7 +41,7 @@ if __name__ == "__main__":
     import json
 
     with Session(user_engine) as s:
-        stmt = select(Checkpoint_ORM.cp_data).where(Checkpoint_ORM.chat_id == 10)
+        stmt = select(Checkpoint_ORM.cp_data).where(Checkpoint_ORM.chat_id == 10)[-1]
         obj = json.loads(s.scalar(stmt))
 
     print_checkpoint(obj)

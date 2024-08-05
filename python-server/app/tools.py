@@ -32,6 +32,8 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
     If you are using stakeholder_id, ensure that it is an integer before you input it into the read_stakeholders tool. You can also specify whether to include the summary, headline, and photo.
     This tool is used to get summaries and information about stakeholders from the database.
 
+    Always call this tool in parallel with as many stakeholders whos ids you are interested in finding out at once.
+
     The result returned will be in JSON format.
 
     Args:
@@ -56,6 +58,11 @@ def get_name_matches(name: str) -> list:
     """Use this tool to get the best matches for a given name. This tool will return a list of up to 5 stakeholder_ids who have names that are the best matches with the given name. 
     If the output only contains one stakeholder_id, then that is the best match. Depending on the context, if the the user wants to know more about the stakeholder, use the tool read_stakeholders tool to get the information about the identified stakeholder.
     If the user wants to draw a network graph, use the tool get_relationships to get the relationships of the identified stakeholder.
+
+    This tool introduces latency, so always call this tool in parallel.
+    For example, if you need to find the names of A, B, and C, you must call get_name_matches 3 times in parallel with A, B, C as the parameters.
+    Avoid calling this tool sequentially.
+
     If the output contains more than one stakeholder_id, then you should ask the user to clarify which stakeholder they are referring to. Following the format :
         "Which names are you referring to?: 
         1. [name 1]
@@ -217,13 +224,15 @@ def filter_edges(model, prompt, graph, map_names):
 
     ## Inputs
     Relationships: A numbered list of relationships of the form subject -- predicate --> object. These form a network graph.
-    Prompt: A string containing the context to match against.
+    Prompt: A string containing the context to match against. 
 
     ## Output
     A list of numbers that map to the relationship list.
     All numbers in this list should exist in the relationship list.
     No number should appear more than once.
     Return as few numbers as possible, limiting it to only the most relevant relationships. Unless otherwise instructed, return a maximum of about 5 relationships.
+    If the prompt tells you to return a certain number of relationships, only return that number of relationships.
+    For instance, a query on the "Top 10" stakeholders should return a list that has a maximum of ten relationships.
     
     # Example
     ## Prompt
@@ -307,7 +316,7 @@ def call_graph(reason: str) -> None:
     Only results from tools will be passed to the grapher.
 
     Args:
-        reason (str): Your reasoning for why you are confindent in your answer.
+        reason (str): The query to filter the results with, which should be a short phrase or sentence describing the types of relationships and how many there should be.
     """
     # Note: Need to manually point this in the router
     return "calling the graphing agent..."

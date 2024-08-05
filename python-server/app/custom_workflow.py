@@ -129,9 +129,9 @@ if __name__ == "__main__":
 
     print("Compiled graph")
     
-    input_ = {"messages": [("user", "Generate a network graph of the relationship between Exxonmobil and Ivanka Trump.")]}
+    input_ = {"messages": [("user", "Draw me a graph of the top 10 people who have contributed financially to Joe Bidens presidency.")]}
     
-    config = {"configurable": {"thread_id": 20}}
+    config = {"configurable": {"thread_id": 20}, "recursion_limit": 50}
     
     app.stream_channels = "messages"
 

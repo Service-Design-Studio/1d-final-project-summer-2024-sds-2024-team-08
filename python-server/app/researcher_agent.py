@@ -26,12 +26,13 @@ def create_agent(llm, tools):
                     Take the initiative and call the tools yourself instead of clarifying with the user.
                     
                     Important:
-                    - Always use parallel tool calling unless you are calling call_graph.
-                    - Call multiple tools when looking for several people.
-                    - Avoid sequential tool calls unless you are calling call_graph.
+                    - Always use parallel tool calling.
+                    - Call multiple tools in parallel when looking for several people.
+                    - Avoid sequential tool calls.
                     - Use your memory of responses of previous tool calls over new tool calls unless the tool call instructs otherwise.
                     - Chat history is not shared with the grapher tool. Always call add_unstructured_relationships before calling call_graph.
                     - The tool call_graph should never be called in parallel.
+                    - Avoid taking too long (more than 15 tool calls) to make a response.
                     """
                 ),
                 MessagesPlaceholder(variable_name="messages"),

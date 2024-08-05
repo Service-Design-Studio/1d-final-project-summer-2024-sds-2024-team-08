@@ -13,6 +13,7 @@ def llm_transformer_custom(user_query, media_text):
             It is crucial that you perform well and deliver the best results.
             If you are unsure about a stakeholder or relationship, you can skip them.
             Do not output any information that cannot be found from the text.
+            NEVER return multiple identical relationships.
         
         ## 2. STAKEHOLDERS
             Stakeholders are individuals, organizations, or locations that are mentioned in the text.
@@ -170,14 +171,14 @@ def llm_transformer_custom(user_query, media_text):
     conversation.append({"role": "user", "content": media_text, "user_query": user_query})
     response = chain.invoke(conversation)
     print(response)
-    result = { "edges": [], "nodes": {}}
+    result = { "edges": [], "nodes": {}, "type": "media" }
     i = 0
     for rs in response['output']:
-        if rs[0] not in result['nodes']:
+        if rs[0] not in result['nodes'].values():
             result['nodes'][i] = rs[0]
             rs[0] = i
             i += 1
-        if rs[2] not in result['nodes']:
+        if rs[2] not in result['nodes'].values():
             result['nodes'][i] = rs[2]
             rs[2] = i
             i += 1

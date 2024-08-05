@@ -42,10 +42,9 @@ def derive_rs_from_media(model, stakeholder_id, query: str=None):
     articles = get_content_from_media_ids(db, media_ids)
 
   # llm_transformer = LLMGraphTransformer(llm=model)
-  documents = [Document(page_content='\n'.join(articles))]
 
   # Derive relationships from filtered media ids
-  graph_documents = llm_transformer_custom(text=documents, user_query=query)
+  graph_documents = llm_transformer_custom(media_text='\n'.join(articles), user_query=query)
   
   return graph_documents
   # nodes = graph_documents[0].nodes

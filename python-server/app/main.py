@@ -4,8 +4,6 @@ from typing import List
 import crud, schemas, langc
 from database import stakeholder_engine
 
-#models.Base.metadata.create_all(bind=stakeholder_engine)
-
 app = FastAPI()
 
 @app.middleware("http")

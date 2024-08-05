@@ -27,6 +27,8 @@ __pycache__
 # Ignore everything in the data folder
 python-server/data/*
 
+myenv
+
 # But don't ignore the users.db file
 !python-server/data/users.db
 cloud-sql-proxy

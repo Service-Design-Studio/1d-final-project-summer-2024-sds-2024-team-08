@@ -27,7 +27,7 @@ will remove links later
   </ol>
 </details>
 
-# Global Infleunce Insight: Natural Language Business Intelligence Assistant 
+# Global Influence Insight: Natural Language Business Intelligence Assistant 
 This project was done in collaboration with The Stakeholder Company (TSC). Using data scraped from the internet or bought through various sources, we are able to leverage the power of LLMs (notably Google Gemini) to provide powerful insights from our data. 
 
 <img src="https://cdn.prod.website-files.com/642e4d2d40f4d8ae99d811e1/642e51bd6932b7e24ff238a0_TSC%20logo.svg" loading="lazy" alt="TSC Ai" class="logo">

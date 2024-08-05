@@ -71,6 +71,7 @@ group :test do
   gem 'cucumber-rails', require: false
   gem 'rspec-rails'
   gem 'simplecov', require: false
+  gem 'poltergeist'
 end
 
 group :production do

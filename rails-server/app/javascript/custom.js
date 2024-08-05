@@ -13,14 +13,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const inputField = document.getElementById("message-input");
     const formElements = form.querySelectorAll(".input-group");
     const allElements = [...formElements];
-    const messagesDiv = document.getElementById("chat-history-child");
 
     form.addEventListener("submit", function (event) {
       if (inputField.value.trim() === "") {
         event.preventDefault(); // Prevent form submission if input is empty
       } else {
         // add user msg
-        add_msg_to_div(messagesDiv, inputField.value, true);
+        add_msg_to_div(inputField.value, true);
 
         allElements.forEach((element) => element.classList.add("hidden"));
         loadingAnimation.classList.remove("d-none");
@@ -46,7 +45,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             console.log("Success:", res);
 
             // dynamically add to DOM
-            add_msg_to_div(messagesDiv, res);
+            add_msg_to_div(res);
           })
           .catch((error) => {
             console.error("Error:", error);
@@ -100,22 +99,41 @@ document.addEventListener("DOMContentLoaded", (event) => {
     });
 });
 
-function add_msg_to_div(targetDiv, res, is_user = false) {
+function add_msg_to_div(res, is_user = false) {
   let html_content;
   const chat_id = getChatIdFromPath();
-  const chatHistory = document.getElementById("center-content");
+
+  // check for welcome message 
+  const welcomeDiv = document.getElementById("welcome-message-div")
+  if (welcomeDiv !== null) {
+    // remove welcome div 
+    welcomeDiv.remove()
+
+    // insert wrapper div 
+    let wrapper = `
+      <div class="container chat-history d-flex justify-content-center" id="chat-history">
+        <div class="messages-wrapper w-100" id="chat-history-child">
+        </div>
+      </div>
+    `
+    let center_content = document.getElementById("center-content")
+    center_content.insertAdjacentHTML("beforeend", wrapper)
+  }
+
+  const chatHistory = document.getElementById("chat-history-child");
 
   if (res.includes("The network graph has been created!")) {
     // Create an iframe to display the latest graph for the specific chat ID
-    html_content = `
-        <div class="row mb-3">
-            <div class="d-flex justify-content-end w-100">
-                <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} rounded">
-                    <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen class="loaded"></iframe>
-                </div>
-            </div>
-        </div>
-    `;
+    // html_content = `
+    //     <div class="row mb-3">
+    //         <div class="d-flex justify-content-end w-100">
+    //             <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} rounded">
+    //                 <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen class="loaded"></iframe>
+    //             </div>
+    //         </div>
+    //     </div>
+    // `;
+    html_content = `<p class="mb-0">${res}</p>`
   } else {
     html_content = `
         <div class="row mb-3">
@@ -148,9 +166,8 @@ function add_msg_to_div(targetDiv, res, is_user = false) {
       </div>
     `;
   }
-  if (!targetDiv) return;
   console.log("beforeinsert");
-  targetDiv.insertAdjacentHTML("beforeend", html_content);
+  chatHistory.insertAdjacentHTML("beforeend", html_content);
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 

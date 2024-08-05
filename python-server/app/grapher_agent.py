@@ -150,7 +150,7 @@ def filter_combined_graph(state, llm=None):
 
 
 def parse_output(inp, name):
-    output = {"messages": AIMessage(f"Graph generated: {inp['saved_graph_id']}", name=name), **inp}
+    output = {"messages": AIMessage(f"The network graph has been created!: {inp['saved_graph_id']}", name=name), **inp}
 
     return output
 

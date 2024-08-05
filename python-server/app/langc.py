@@ -68,8 +68,9 @@ def query_model(query:str, user_id:int, chat_id:int) -> str:
             graph_id = id_ #TODO: Graph state not updating properly. Need to fix
     
     #Hacky workaround first
-    if last_message_by == 'Grapher' and response_str.startswith('Graph generated:'):
+    if last_message_by == 'Grapher' and response_str.startswith('The network graph has been created!:'):
         graph_id = int(response_str.split(': ')[1].strip())
+        response_str = response_str.split(': ')[0].strip()
         
     with Session(user_engine) as s:
         message = Message()

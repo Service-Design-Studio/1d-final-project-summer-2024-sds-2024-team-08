@@ -125,10 +125,11 @@ if __name__ == "__main__":
     checkpointer = MemorySaver()
     app = create_workflow(model, checkpointer=checkpointer)
 
-    #print(app.get_graph().draw_mermaid())
+    # print(app.get_graph().draw_mermaid())
+
     print("Compiled graph")
     
-    input_ = {"messages": [("user", "Generate a network graph of the relationship between Donald Trump and Ivanka Trump.")]}
+    input_ = {"messages": [("user", "Generate a network graph of the relationship between Exxonmobil and Ivanka Trump.")]}
     
     config = {"configurable": {"thread_id": 20}}
     

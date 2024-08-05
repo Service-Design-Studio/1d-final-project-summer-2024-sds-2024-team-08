@@ -52,6 +52,17 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
         stakeholders = crud.get_stakeholders(session, stakeholder_id, name, summary, headline, photo)
 
     return stakeholders
+def normalize_name(name):
+        """
+        Normalize names by converting to lowercase, removing special characters except spaces
+        """
+        name = re.sub(r'[^a-z0-9\s]', '', name.lower())
+        return name
+    
+with Session(stakeholder_engine) as session:
+    aliases = session.scalars(select(Alias)).all()
+    aliases_dict = {alias.id: normalize_name(alias.other_names) for alias in aliases}  # Dictionary of id : normalized name
+    aliases_sid_dict = {alias.id: [alias.stakeholder_id, normalize_name(alias.other_names)] for alias in aliases}  # Dictionary of id : [stakeholder_id, normalized name]
 
 @tool
 def get_name_matches(name: str) -> list:
@@ -76,18 +87,6 @@ def get_name_matches(name: str) -> list:
     Returns:
         list: A list of up to 5 stakeholder_id who have names that are the best matches with the given name. These stakeolder_id will be integers.
     """
-    def normalize_name(name):
-        """
-        Normalize names by converting to lowercase, removing special characters except spaces
-        """
-        name = re.sub(r'[^a-z0-9\s]', '', name.lower())
-        return name
-
-    with Session(stakeholder_engine) as session:
-        aliases = session.scalars(select(Alias)).all()
-        aliases_dict = {alias.id: normalize_name(alias.other_names) for alias in aliases}  # Dictionary of id : normalized name
-        aliases_sid_dict = {alias.id: [alias.stakeholder_id, normalize_name(alias.other_names)] for alias in aliases}  # Dictionary of id : [stakeholder_id, normalized name]
-
 
     normalized_input_name = normalize_name(name)
     
@@ -98,16 +97,16 @@ def get_name_matches(name: str) -> list:
     else:
         best_matches = rapidfuzz.process.extract(normalized_input_name, aliases_dict, score_cutoff=75)  # This wil return a list of tuples with the best matches, their scores and the key. (name, score, id)
         
-        if len(best_matches) == 1:
-            return [best_matches[0][2]]
+        if (len(best_matches) == 1):
+            return [aliases_sid_dict[best_matches[0][2]][0]]
         
         unique_stakeholders = set()
         result = []
         for match in best_matches:
-            
             if aliases_sid_dict[match[2]][0] not in unique_stakeholders:
                 unique_stakeholders.add(aliases_sid_dict[match[2]][0])
                 result.append(match[0])
+                
         return result
 
 # @tool 
@@ -466,24 +465,25 @@ def build_mutable_tool_nodes(model):
     return mutable_tool_node
 
 if __name__ == '__main__':
-    print(update_graph_unstructured(
-        {
-            'nodes': {
-                    1: "Steve",
-                    2: "John",
-                    3: "Bob"},
-            'edges': [
-                [1, 'A', 2],
-                [1, 'B', 3]
-            ]
-        },
-        {
-            'nodes': {
-                    1: "Alice",
-                    2: "Steve",
-                    3: "Bob"},
-            'edges': [
-                [1, 'C', 2],
-                [1, 'D', 3]
-            ]
-        }))
+      print(get_name_matches('loheesong'))
+#     print(update_graph_unstructured(
+#         {
+#             'nodes': {
+#                     1: "Steve",
+#                     2: "John",
+#                     3: "Bob"},
+#             'edges': [
+#                 [1, 'A', 2],
+#                 [1, 'B', 3]
+#             ]
+#         },
+#         {
+#             'nodes': {
+#                     1: "Alice",
+#                     2: "Steve",
+#                     3: "Bob"},
+#             'edges': [
+#                 [1, 'C', 2],
+#                 [1, 'D', 3]
+#             ]
+#         }))

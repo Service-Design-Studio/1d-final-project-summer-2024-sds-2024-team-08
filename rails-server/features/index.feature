@@ -45,3 +45,12 @@ Feature: For different users, display list of chats and chat history for each ch
     Scenario: SAD PATH: explicitly asking for graph (uid=3) 
         When I ask for a network graph about stakeholders but there is not enough information 
         Then I should see the response saying insufficient information for graph 
+
+    # sprint 4 
+    Scenario: Draw insights from media for network graph (uid=3) 
+        When I ask for a relationship between stakeholders that involves media content
+        Then I should see a network graph 
+
+    Scenario: SAD PATH: Draw insights from media for network graph (uid=3) 
+        When I ask for a network graph about stakeholders but there is not enough information 
+        Then I should see the response saying insufficient information for graph 

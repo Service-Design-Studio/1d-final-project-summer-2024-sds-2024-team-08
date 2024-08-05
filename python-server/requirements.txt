@@ -68,6 +68,8 @@ portalocker==2.10.1
 prompt_toolkit==3.0.47
 proto-plus==1.24.0
 protobuf==4.25.4
+psycopg==3.2.1
+psycopg-pool==3.2.2
 psycopg2-binary==2.9.9
 ptyprocess==0.7.0
 pure_eval==0.2.3

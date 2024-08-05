@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from database import media_engine, qdrant_client
 import requests
 from crud import get_media_ids_for_stakeholder, get_content_from_media_ids
+from rs_finder_llm import llm_transformer_custom
 
 # Vectorize user query
 def vectorize_query(query):
@@ -40,28 +41,30 @@ def derive_rs_from_media(model, stakeholder_id, query: str=None):
     
     articles = get_content_from_media_ids(db, media_ids)
 
-  llm_transformer = LLMGraphTransformer(llm=model)
+  # llm_transformer = LLMGraphTransformer(llm=model)
   documents = [Document(page_content='\n'.join(articles))]
 
   # Derive relationships from filtered media ids
-  graph_documents = llm_transformer.convert_to_graph_documents(documents)
-  nodes = graph_documents[0].nodes
-  rs = graph_documents[0].relationships
+  graph_documents = llm_transformer_custom(text=documents, user_query=query)
+  
+  return graph_documents
+  # nodes = graph_documents[0].nodes
+  # rs = graph_documents[0].relationships
 
-  nodes_map = {node.id: i for i, node in enumerate(nodes)}
+  # nodes_map = {node.id: i for i, node in enumerate(nodes)}
 
-  media_rs = []
-  for relation in rs:
-      source_id = nodes_map.get(relation.source.id)
-      target_id = nodes_map.get(relation.target.id)
+  # media_rs = []
+  # for relation in rs:
+  #     source_id = nodes_map.get(relation.source.id)
+  #     target_id = nodes_map.get(relation.target.id)
 
-      if source_id and target_id:
-          media_rs.append([source_id, relation.type, target_id])
-      else:
-          # Either source_id or target_id does not appear in the nodes
-          continue
+  #     if source_id and target_id:
+  #         media_rs.append([source_id, relation.type, target_id])
+  #     else:
+  #         # Either source_id or target_id does not appear in the nodes
+  #         continue
       
-  return {'nodes': {i: name for name, i in nodes_map.items()}, 'edges': media_rs, 'type': 'media'}
+  # return {'nodes': {i: name for name, i in nodes_map.items()}, 'edges': media_rs, 'type': 'media'}
   # return filtered_media_ids
 
 if __name__ == "__main__":

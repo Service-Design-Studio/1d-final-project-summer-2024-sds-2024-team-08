@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
     end
 
     def current_user_id
-        session[:user_id]
+        # session[:user_id]
     end
 
     def change_user

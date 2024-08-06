@@ -1,11 +1,11 @@
 class Message < ApplicationRecord
     def self.get_all
-        all
+        # all
     end 
 
     # returns a single message in array 
     def self.get_message_by_message_id(message_id) 
-        (res = where(message_id: message_id).first).nil? ? {} : res.attributes
+        # (res = where(message_id: message_id).first).nil? ? {} : res.attributes
     end
 
     # returns array of ordered messages, empty array if no messages 

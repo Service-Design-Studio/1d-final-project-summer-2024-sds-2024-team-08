@@ -31,11 +31,11 @@ class ChatsController < ApplicationController
     # run this when user send query 
     def handle_user_msg
         # handle empty request 
-        if params[:message] == "" 
-            params[:message] = nil
-            get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-            return 
-        end 
+        # if params[:message] == "" 
+        #     params[:message] = nil
+        #     get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
+        #     return 
+        # end 
 
         # message must be a string, post() expects a string
         message = {'message'=>params[:message], 'chat_id'=>params[:chat_id], 'user_id'=> $USER}.to_json.to_s

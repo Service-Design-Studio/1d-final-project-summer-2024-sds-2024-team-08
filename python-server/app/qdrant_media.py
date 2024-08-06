@@ -1,6 +1,6 @@
 from langchain_google_vertexai import ChatVertexAI
-from langchain_experimental.graph_transformers import LLMGraphTransformer
-from langchain_core.documents import Document
+# from langchain_experimental.graph_transformers import LLMGraphTransformer
+# from langchain_core.documents import Document
 from qdrant_client import models
 from sqlalchemy.orm import Session
 from database import media_engine, qdrant_client
@@ -30,7 +30,7 @@ def rank_ids_qdrant(query_vector, media_ids, limit=5):
   )
   return search_result
 
-def derive_rs_from_media(model, stakeholder_id, query: str=None):  
+def derive_rs_from_media(model, stakeholder_id, query: str=""):  
   with Session(media_engine) as db:
     media_ids = get_media_ids_for_stakeholder(db, int(float(stakeholder_id)))
   #Apply filter if query is defined
@@ -41,10 +41,11 @@ def derive_rs_from_media(model, stakeholder_id, query: str=None):
     
     articles = get_content_from_media_ids(db, media_ids)
 
-  # llm_transformer = LLMGraphTransformer(llm=model)
+  # # llm_transformer = LLMGraphTransformer(llm=model)
+  # documents = [Document(page_content='\n'.join(articles))]
 
   # Derive relationships from filtered media ids
-  graph_documents = llm_transformer_custom(media_text='\n'.join(articles), user_query=query)
+  graph_documents = llm_transformer_custom(model, media_text='\n'.join(articles), user_query=query)
   
   return graph_documents
   # nodes = graph_documents[0].nodes

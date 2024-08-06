@@ -48,7 +48,7 @@ def combine_lists(inp):
                             "obj": source['nodes'][obj_id]
                         })
                     except KeyError:
-                        print('Unable to find key', sub_id, obj_id)
+                        print('Unable to find sub or obj key for relationship', sub_id, pred, obj_id)
     
     return {"imgs": imgs, "edges": edges}
 
@@ -213,7 +213,6 @@ def identify_short_path(state, llm):
     })
     path = None
     if len(choose) == 2:
-        print(graph['edges'])
         G = nx.Graph()
         G.add_nodes_from(node_ids)
         G.add_edges_from((edge['sub'], edge['obj']) for edge in graph['edges'])

@@ -342,7 +342,10 @@ def call_graph(reason: str) -> None:
     Only results from tools will be passed to the grapher.
 
     Args:
-        reason (str): The query to filter the results with, which should be a short phrase or sentence describing the types of relationships and how many there should be. If you have identified a concrete relationship, state the start and end-points explicitly, as well as all stakeholders involved in the relationship.
+        reason (str): 
+            The query to filter the results with, which should be a short phrase or sentence describing the types of relationships and how many there should be. 
+            If you have identified a concrete relationship, state the start and end-points explicitly, as well as all stakeholders involved in the relationship concisely.
+            For example, you may say, "Start: A, End: D. A is B, B has a C, C is involved in D.
     """
     # Note: Need to manually point this in the router
     return "calling the graphing agent..."
@@ -398,8 +401,17 @@ def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
     Do not call this in parallel with call_graph.
 
     Args:
-        stakeholder_id (list[list[str, str, str]]): A list of relationships you wish to add. One relationship consists of a list of 3 strings: subject, predicate, object. A bad example of a relationship is A -- "Has a son who works in" --> B. Instead, consider finding the relationship A -- "Father" --> C, C -- "Works in" --> B. 
-    
+        stakeholder_id (list[list[str, str, str]]):
+            A list of relationships you wish to add.
+            Example input: 
+                [
+                ["A", //subject, cannot be empty
+                "Father", //predicate, cannot be empty
+                "B"] //obj, cannot be empty
+                ] 
+            One relationship consists of a list of 3 strings: subject, predicate, object.
+            Given the relationship A -- "Has a son who works in" --> B, consider finding the relationship A -- "Father" --> C, C -- "Works in" --> B. 
+            
     Returns:
         A dictionary representation of the relationships generated from your input.
     """
@@ -407,17 +419,19 @@ def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
     nodes = set()
     edges = []
     for edge in relationships:
-        nodes.add(edge[0])
-        nodes.add(edge[2])
+        if edge[0] and edge[2]:
+            nodes.add(edge[0])
+            nodes.add(edge[2])
     nodes = list(nodes)
     for edge in relationships:
-        edges.append(
-            [
-                nodes.index(edge[0]),
-                edge[1],
-                nodes.index(edge[2])
-            ]
-        )
+        if edge[0] and edge[2]:
+            edges.append(
+                [
+                    nodes.index(edge[0]),
+                    edge[1],
+                    nodes.index(edge[2])
+                ]
+            )
     nodes = {i:v for i, v in enumerate(nodes)}
     update = {"edges": edges, "nodes": nodes, "type": "media"}
     return update

@@ -36,7 +36,7 @@ def create_agent(llm, tools):
                     - Use your memory of responses of previous tool calls over new tool calls unless the tool call instructs otherwise.
                     - Chat history is not shared with the grapher tool. Always call add_unstructured_relationships before calling call_graph.
                     - The tool call_graph should never be called in parallel.
-                    - Avoid taking too long (more than 15 tool calls) to make a response.
+                    - Avoid taking too long (more than 15 tool calls) to make a response. If you take more than 15 tool calls, you must immediately come to a conclusion and return a response to the user.
                     - If the user requests specifically for data from media or articles, then use the tool "get_relationships_from_media" to extract those relationships.
                     """
                 ),

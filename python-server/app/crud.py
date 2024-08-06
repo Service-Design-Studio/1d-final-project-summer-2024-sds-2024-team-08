@@ -33,7 +33,7 @@ def get_stakeholders(db: Session, stakeholder_id: int = None, name: str = None, 
     results = query.all()
     
     if not results:
-        return 'No matching stakeholder found in the database. You may choose to use other tools to find the information.'
+        return 'No matching stakeholder, please refer to the media database to get more information.'
     
     # Format the results as a list of dictionaries
     formatted_results = [dict(zip([column.name for column in columns], row)) for row in results]

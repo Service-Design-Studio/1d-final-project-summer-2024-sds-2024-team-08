@@ -78,9 +78,9 @@ def create_workflow(model, checkpointer: Optional[BaseCheckpointSaver] = None):
             # I have no idea why this hasn't broken down earlier but do NOT use this method for new projects.
             call_names = set(call['name'] for call in calls)
             
-            if ('get_relationships' in call_names or 'get_relationships_from_media' in call_names or 'add_unstructured_relationships' in call_names):
+            if ('get_relationships' in call_names or 'add_unstructured_relationships' in call_names):
                 dest.append("mut_tool_node")
-            if ('get_name_matches' in call_names or 'read_stakeholders' in call_names or 'call_graph' in call_names):
+            if ('get_name_matches' in call_names or 'read_stakeholders' in call_names or 'read_media' in call_names):
                 dest.append("tool_node")
             if ('call_graph' in call_names):
                 dest.append('tool_graph_adaptor')
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 
     print("Compiled graph")
     
-    input_ = {"messages": [("user", "Tell me about the Oil and Gas industry in africa")]}
+    input_ = {"messages": [("user", "I want to know more about media information about the oil and gas industry pertaining to ExxonMobil")]}
     
     config = {"configurable": {"thread_id": 20}, "recursion_limit": 50}
     

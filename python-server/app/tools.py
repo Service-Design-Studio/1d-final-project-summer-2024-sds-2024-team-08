@@ -37,15 +37,6 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
 
     The result returned will be in JSON format.
 
-    This tool will increase latency significatly so always execute it in parallel with the tools:
-        - get_names_matches
-        - read_stakeholders
-    Do not call it in parallel with the tools:
-        - get_relationships_from_media
-        - get_relationships
-        - add_unstructured_relationships
-        - call_graph
-
     Args:
         stakeholder_id (int, optional): Defaults to None.
         name (str, optional): Defaults to None.
@@ -54,7 +45,7 @@ def read_stakeholders(stakeholder_id: int = None, name: str = None, summary: boo
         photo (bool, optional): Defaults to True.
         
     Returns:
-        str: _description_
+        str: The description of the user. If it fails to find a user, you can still find out more information about the user from media.
     """
     if stakeholder_id is not None:
         stakeholder_id = int(float(stakeholder_id))
@@ -90,15 +81,6 @@ def get_name_matches(name: str) -> list:
         2. [name 2]
         ..."
     If the output contains no names, then there are no matches for the given name.
-
-    This tool will increase latency significatly so always execute it in parallel with the tools:
-        - get_names_matches
-        - read_stakeholders
-    Do not call it in parallel with the tools:
-        - get_relationships_from_media
-        - get_relationships
-        - add_unstructured_relationships
-        - call_graph
     
     Args:
         name (str): The name of the stakeholder you want to find matches for.
@@ -169,15 +151,6 @@ def get_relationships_build(model):
         The data returned by this tool is not exhaustive and may be supplemented by media data.
         This tool will be used only if the user wants a network graph. This tool will return in JSON format, a list where each element is a list. The format is as such: '[[subject, predicate, object], [subject, predicate, object], ...]'. Where the subject is related to object by the predicate and the subject can have multiple relationships with objects.
         If the output is an empty list then it means that the subject has no relationships with the object.
-
-        This tool will increase latency so always execute it in parallel with the tools:
-            - get_relationships_from_media
-            - get_relationships
-            - add_unstructured_relationships
-        Do not call it in parallel with the tools:
-            - get_names_matches
-            - read_stakeholders
-            - call_graph
 
         Args:
             subject_id (int): The name of the stakeholder you want to find matches for.
@@ -335,7 +308,7 @@ def get_photo(stakeholder_id: int) -> str:
 def call_graph(reason: str) -> None:
     """
     Call this tool to activate the graphing agent only once you have obtained enough information from calling other tools.
-    Information gathered involves any results directly returned from get_relationships and get_relationships_from_media.
+    Information gathered involves any results directly returned from get_relationships.
     If it is not evident what the connection is between this data and the user's prompt, make more queries until it is clear.
 
     If you have made an inference from the data, make sure to call add_unstructured_relationships first not in parallel to save inferred relationships.
@@ -351,52 +324,36 @@ def call_graph(reason: str) -> None:
     # Note: Need to manually point this in the router
     return "calling the graphing agent..."
 
-def get_relationships_from_media_build(model):
+
+def read_media_build(model):
     @tool
-    def get_relationships_from_media(query: Optional[str], stakeholder_id: Optional[int]) -> dict:
+    def read_media(query: Optional[str] = None, stakeholder_id: Optional[int] = None) -> dict:
         """
         Call this tool to extract relationships from media scraped from the web. They can be used to answer questions about people, even if the question isn't very specific.
         If given a specified stakeholder_id, this tool will extract media sources involving the stakeholder.
         These media sources will be ordered by their similarity to a given query, and only relationships from the closest matches will be returned.
-        This information can be used to augment information from get_relationships_with_names if it has insufficient information.
+        This information can be used to augment information from get_relationships or read_stakeholders if they has insufficient information.
 
-        This tool will increase latency significatly so always execute it in parallel with the tools:
-            - get_relationships_from_media
-            - get_relationships
-            - add_unstructured_relationships
-        Do not call it in parallel with the tools:
-            - get_names_matches
-            - read_stakeholders
-            - call_graph
-        
+        If you need to build a graph, make sure to call add_unstructured_relationships on the information you have extracted.
         Args:
             query (str | None): A word, short phrase or sentence that filters the type of media that this tool will search for. Leave it empty for a general overview. 
             stakeholder_id (int | None): The optional id of the stakeholder you wish to search for.
         
         Returns:
-            A dictionary representation of a graph. Edges are defined in (subject, predicate, object) order.
+            Media content based on your query and stakeholder_id.
         """
         return derive_rs_from_media(model, query, stakeholder_id)
     
-    return get_relationships_from_media
+    return read_media
 
 @tool
 def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
     """Add a relationship to the current working memory that will be used by the Grapher tool.
-    Only call this tool if you have inferred a relationship that was not directly returned by get_relationships or get_relationships_from_media, and the user requests a graph.
+    Only call this tool if you have inferred a relationship that was not directly returned by get_relationships, and the user requests a graph.
 
     For example, if you learn that Bob is Alice's husband, you may call add_unstructured_relationships([["Bob", "Husband", "Alice"]]) if:
     1. It is relevant to the user's query
-    2. The relationship has not already been returned by get_relationships or get_relationships_from_media
-
-    This tool will increase latency significatly so always execute it in parallel with the tools:
-        - get_relationships_from_media
-        - get_relationships
-        - add_unstructured_relationships
-    Do not call it in parallel with the tools:
-        - get_names_matches
-        - read_stakeholders
-        - call_graph
+    2. The relationship has not already been returned by get_relationships.
 
     If you are already aware of the stakeholder from a previous tool call, ensure that you use exactly the same name.
     Do not call this in parallel with call_graph.
@@ -439,10 +396,10 @@ def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
 
 
 def get_tools(model):
-    return [read_stakeholders, get_name_matches]
+    return [read_stakeholders, get_name_matches, read_media_build(model)]
 
 def get_all_tools(model):
-    return get_tools(model) + [call_graph, get_relationships_build(model), get_relationships_from_media_build(model), add_unstructured_relationships]
+    return get_tools(model) + [call_graph, get_relationships_build(model), read_media_build(model), add_unstructured_relationships]
 
 def get_tool_node(model):
     return ToolNode(get_tools(model))
@@ -516,7 +473,6 @@ def build_mutable_tool_nodes(model):
 
     tools = {
         "get_relationships": get_relationships_build(model),
-        "get_relationships_from_media": get_relationships_from_media_build(model),
         "add_unstructured_relationships": add_unstructured_relationships
     }
 

@@ -369,13 +369,13 @@ def get_relationships_from_media_build(model):
             - call_graph
         
         Args:
-            query (str): A word, short phrase or sentence that filters the type of media that this tool will search for.
-            stakeholder_id (int): The id of the stakeholder you wish to search for. If you do not have a stakeholder_id, find one, or tell the user that you are not able to carry out general media queries without a specified stakeholder.
+            query (str | None): A word, short phrase or sentence that filters the type of media that this tool will search for. Leave it empty for a general overview. 
+            stakeholder_id (int | None): The optional id of the stakeholder you wish to search for.
         
         Returns:
             A dictionary representation of a graph. Edges are defined in (subject, predicate, object) order.
         """
-        return derive_rs_from_media(model, stakeholder_id, query)
+        return derive_rs_from_media(model, query, stakeholder_id)
     
     return get_relationships_from_media
 

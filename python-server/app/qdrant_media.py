@@ -55,18 +55,17 @@ def derive_rs_from_media(model, stakeholder_id: int=None, query: str=""):
   response = '\n'.join(articles)
   return response
 
-def derive_rs_from_media(stakeholder_id: int=None, query: str=None):  
-
-  page_content=read_media(stakeholder_id, query)
+def derive_rs_from_media(model, query: str="", stakeholder_id: int=None):  
+  page_content = read_media(stakeholder_id, query)
 
   # Derive relationships from filtered media ids
-  graph_documents = llm_transformer_custom(model, media_text='\n'.join(articles), user_query=query)
+  graph_documents = llm_transformer_custom(model, user_query=query, media_text=page_content)
   
   return graph_documents
 
 if __name__ == "__main__":
-  # model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
+  model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
   query = "Joe Biden supporters"
-  # stakeholder_id=28235
-  ls = derive_rs_from_media(query=query)
+  stakeholder_id=28235
+  ls = derive_rs_from_media(ChatVertexAI(model="gemini-1.5-flash", max_retries=3, temperature=0.01), query="")
   print(ls)

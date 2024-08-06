@@ -30,21 +30,34 @@ def rank_ids_qdrant(query_vector, media_ids, limit=5):
   )
   return search_result
 
-def derive_rs_from_media(model, stakeholder_id, query: str=""):  
+def derive_rs_from_media(model, stakeholder_id: int=None, query: str=""):  
   with Session(media_engine) as db:
-    media_ids = get_media_ids_for_stakeholder(db, int(float(stakeholder_id)))
-  #Apply filter if query is defined
-    if query:
+    if stakeholder_id is not None:
+        media_ids = get_media_ids_for_stakeholder(db, int(float(stakeholder_id)))
+      #Apply filter if query is defined
+        if query:
+          query_vector = vectorize_query(query)
+          hits = rank_ids_qdrant(query_vector, media_ids, limit=2)
+          # media_ids = [hit.id for hit in hits]
+      
+    elif stakeholder_id is None:
       query_vector = vectorize_query(query)
-      hits = rank_ids_qdrant(query_vector, media_ids, limit=2)
-      media_ids = [hit.id for hit in hits]
+      hits = qdrant_client.search(
+        collection_name="media_collection", 
+        query_vector=query_vector, 
+        with_payload=True,
+        limit=2
+      )
     
+    media_ids = [hit.id for hit in hits]
+    # Get content from media ids
     articles = get_content_from_media_ids(db, media_ids)
-    response = '\n'.join(articles)
-    return response
+  response = '\n'.join(articles)
+  return response
 
-  # # llm_transformer = LLMGraphTransformer(llm=model)
-  # documents = [Document(page_content='\n'.join(articles))]
+def derive_rs_from_media(stakeholder_id: int=None, query: str=None):  
+
+  page_content=read_media(stakeholder_id, query)
 
   # Derive relationships from filtered media ids
   graph_documents = llm_transformer_custom(model, media_text='\n'.join(articles), user_query=query)
@@ -54,5 +67,6 @@ def derive_rs_from_media(model, stakeholder_id, query: str=""):
 if __name__ == "__main__":
   # model = ChatVertexAI(model="gemini-1.5-flash", max_retries=2)
   query = "Joe Biden supporters"
-  ls = derive_rs_from_media(stakeholder_id=28235, query=query)
+  # stakeholder_id=28235
+  ls = derive_rs_from_media(query=query)
   print(ls)

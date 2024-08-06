@@ -3,7 +3,7 @@ from langchain_google_vertexai import ChatVertexAI
 # from langchain_core.documents import Document
 from qdrant_client import models
 from sqlalchemy.orm import Session
-from database import media_engine, qdrant_client
+from database import media_engine, qdrant_client, stakeholder_engine
 import requests
 from crud import get_media_ids_for_stakeholder, get_content_from_media_ids, get_stakeholder_name
 from rs_finder_llm import llm_transformer_custom
@@ -36,7 +36,7 @@ def read_media(stakeholder_id, query):
         media_ids = get_media_ids_for_stakeholder(db, int(float(stakeholder_id)))
       #Apply filter if query is defined
         if not query:
-          query = get_stakeholder_name(db, stakeholder_id)
+          query = get_stakeholder_name(Session(stakeholder_engine), stakeholder_id)
           
         query_vector = vectorize_query(query)
         hits = rank_ids_qdrant(query_vector, media_ids, limit=5)

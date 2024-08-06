@@ -350,6 +350,7 @@ def read_media_build(model):
 def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
     """Add a relationship to the current working memory that will be used by the Grapher tool.
     Only call this tool if you have inferred a relationship that was not directly returned by get_relationships, and the user requests a graph.
+    
 
     For example, if you learn that Bob is Alice's husband, you may call add_unstructured_relationships([["Bob", "Husband", "Alice"]]) if:
     1. It is relevant to the user's query
@@ -369,6 +370,8 @@ def add_unstructured_relationships(relationships:list[list[str]]) -> dict:
                 ] 
             One relationship consists of a list of 3 strings: subject, predicate, object.
             Given the relationship A -- "Has a son who works in" --> B, consider finding the relationship A -- "Father" --> C, C -- "Works in" --> B. 
+
+            Do not send more than 10 relationships at a time. Consider splitting your request into multiple tool calls if needed.
             
     Returns:
         A dictionary representation of the relationships generated from your input.

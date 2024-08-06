@@ -30,7 +30,7 @@ def rank_ids_qdrant(query_vector, media_ids, limit=5):
   )
   return search_result
 
-def derive_rs_from_media(model, stakeholder_id: int=None, query: str=""):  
+def read_media(stakeholder_id: int=None, query: str=""):  
   with Session(media_engine) as db:
     if stakeholder_id is not None:
         media_ids = get_media_ids_for_stakeholder(db, int(float(stakeholder_id)))
@@ -55,9 +55,8 @@ def derive_rs_from_media(model, stakeholder_id: int=None, query: str=""):
   response = '\n'.join(articles)
   return response
 
-def derive_rs_from_media(model, query: str="", stakeholder_id: int=None):  
+def derive_rs_from_media(model, query: str=None, stakeholder_id: int=None):
   page_content = read_media(stakeholder_id, query)
-
   # Derive relationships from filtered media ids
   graph_documents = llm_transformer_custom(model, user_query=query, media_text=page_content)
   

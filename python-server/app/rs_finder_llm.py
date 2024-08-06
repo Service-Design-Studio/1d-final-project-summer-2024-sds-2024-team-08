@@ -4,7 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 # Define a function to send a message
 def llm_transformer_custom(model, user_query, media_text):
-    if user_query == "":
+    if not user_query:
         user_query = "Give me a concise summary of the text."
 
     system_message = """

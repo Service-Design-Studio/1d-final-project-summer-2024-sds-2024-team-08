@@ -139,7 +139,7 @@ if __name__ == "__main__":
 
     print("Compiled graph")
     
-    input_ = {"messages": [("user", "I want to know more about media information about the oil and gas industry pertaining to ExxonMobil")]}
+    input_ = {"messages": [("user", "What is the connection between Ben Carson and Ivanka Trump?")]}
     
     config = {"configurable": {"thread_id": 20}, "recursion_limit": 50}
     

@@ -1,7 +1,3 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/QpCtzJAE)
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=15048531&assignment_repo_type=AssignmentRepo)
-will remove links later 
-
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -45,19 +41,19 @@ We made the interface similar to the familiar ChatGPT that everyone knows as fam
 How can we streamline information collection and report generation to reduce the time and effort required by the users?
 
 ## Project Architecture 
-![architecture diagram](assets/architecture.png)
+![architecture diagram](assets/overallarchi.png)
 The overall architectureof the project. 
 
-![user db ER diagram](assets/users%20ERD.png)
+![architecture diagram](assets/aiarchi.png)
+How the AI works on the Python server. 
 
+![user db ER diagram](assets/users%20ERD.png)
 ER diagram for Users DB. 
 
 ![Stakeholder db ER diagram](assets/stakeholders%20ERD.png)
-
 ER diagram for Stakeholders DB. 
 
 ![media db ER diagram](assets/media%20ERD.png)
-
 ER diagram for Media DB. 
 
 ### Technologies Used
@@ -67,6 +63,7 @@ ER diagram for Media DB.
 ![JavaScript](https://img.shields.io/badge/JavaScript-323330.svg?logo=javascript&logoColor=F7DF1E)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26.svg?logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-239120.svg?logo=css3&logoColor=white)
+![LangGraph](https://img.shields.io/badge/-%F0%9F%A6%9C%F0%9F%95%B8%EF%B8%8F%20LangGraph-black)
 
 The main web page is served by a Ruby on Rails server, while all the processing is done on a separate server written in Python. For the rest of the Readme, we will use the terms Rails server and Python server. 
 
@@ -205,7 +202,7 @@ The auto deploy build steps are described in `.github/workflows/deploy-rails.yml
 # Testing 
 ![Cucumber](https://img.shields.io/badge/Cucumber-43B02A?style=for-the-badge&logo=cucumber&logoColor=white)
 
-Written in Cucumber and automated with Capbybara. Cucumber is a tool for running automated tests written in plain language. Capybara helps you test web applications by simulating how a real user would interact with your app.
+Written in Cucumber and automated with Capybara. Cucumber is a tool for running automated tests written in plain language. Capybara helps you test web applications by simulating how a real user would interact with your app.
 
 ## Rails Server 
 Run the tests with this command. 

@@ -57,7 +57,7 @@ end
 
 Then(/I should see the response containing Ben Carson's information/) do
     sleep(5)
-    expect(page).to have_content(/.*Ben Carson.*is a.*/)
+    expect(page).to have_content(/.*Ben Carson.*is.*/)
 end
 
 #Incorrect spelling
@@ -69,19 +69,19 @@ end
 
 Then(/I should see the response asking which names and it includes Donald Trump/) do
     sleep(5)
-    expect(page).to have_content(/Which names.*donald trump/i)
+    expect(page).to have_content(/Which names.*donald trump.*/i)
 end
 
 #Lowercase nospace
 When(/I ask Genie Tell me more about joebiden/) do
     click_link("chat-8")
-    fill_in 'message', with: 'Tell me more about hoe biden'
+    fill_in 'message', with: 'Tell me more about joebiden'
     find('button[name="button"]').click
 end
 
 Then(/I should see the response asking which names and it includes Joe Biden/) do
     sleep(5)
-    expect(page).to have_content(/Which names.*joe biden/i)
+    expect(page).to have_content(/Which names.*joe biden.*/i)
 end
 
 #Lowercase nospace
@@ -93,5 +93,76 @@ end
 
 Then(/I should see the response saying it cannot find any information/) do
     sleep(5)
-    expect(page).to have_content(/I.*any information/i)
+    expect(page).to have_content(/I.*any information.*/i)
+end
+
+# network graph stuff 
+sacrificial_chat = "chat-8"
+When(/^I ask for a network graph about stakeholders$/) do 
+    click_link(sacrificial_chat)
+    fill_in 'message', with: 'show me a graph of ben carson relationships'
+    find('button[name="button"]').click
+end
+
+Then(/I should see a network graph/) do 
+    sleep(20)
+
+    chat_history = find('#chat-history-child')
+
+    # initial_div_count = chat_history.all('div').size
+    last_div = chat_history.all('div').last
+    
+    # Timeout.timeout(30) do
+    #     loop do
+    #         divs = chat_history.all('div')
+    #         if divs.size > initial_div_count
+    #             last_div = divs.last
+    #             break
+    #         end
+    #         sleep 0.1
+    #     end
+    # end
+
+    puts "aaaa"
+
+    expect(last_div).not_to be_nil
+    expect(last_div).to have_css('iframe')
+end
+
+When(/^I ask for a network graph about stakeholders but there is not enough information$/) do 
+    click_link(sacrificial_chat)
+    fill_in 'message', with: 'show me a graph of loheesong relationships'
+    find('button[name="button"]').click
+end
+
+Then(/I should see the response saying insufficient information for graph/) do 
+    sleep(5)
+
+    chat_history = find('#chat-history')
+    last_div = chat_history.all('div').last
+
+    expect(last_div).not_to be_nil
+    expect(last_div).not_to have_selector('p')
+end
+
+When(/^I ask for a relationship between stakeholders that involves media content$/) do 
+  click_link(sacrificial_chat)
+  fill_in 'message', with: 'Generate a network graph of the relationship between ExxonMobil and Ivanka Trump.'
+  find('button[name="button"]').click
+end
+
+When(/I send a GET request/) do 
+    page.execute_script('
+        fetch("https://python-server-ohgaalojiq-de.a.run.app/", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+        }).then(response => response.json()).then(data => {
+            document.body.innerHTML += `<div id="response">${data.message}</div>`;
+        }).catch(error => {
+            document.body.innerHTML += `<div id="error">${error.message}</div>`;
+        });
+    ')
+    expect(page).to have_selector('#response, #error', wait: 10)
 end

@@ -15,23 +15,21 @@ class ChatsController < ApplicationController
         @chat_id = params[:chat_id] || 0
         @chat_history = []
         @default_landing_page = true
+
     end
 
+    # run this when user go to /c/:id 
     def get_chat_with_id
         @chat_id = params[:chat_id].to_i # use :chat_id as defined in config/routes.rb, not :id like in application.html.erb
+        
+        # this fetches all messages to display, will need to change this if we using JS to load messages async
         @chat_history = get_messages_given_chatid(@chat_id)
         @default_landing_page = false
         render("index")
     end 
 
+    # run this when user send query, empty request handled on frontend 
     def handle_user_msg
-        # handle empty request 
-        if params[:message] == "" 
-            params[:message] = nil
-            get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-            return 
-        end 
-
         # message must be a string, post() expects a string
         message = {'message'=>params[:message], 'chat_id'=>params[:chat_id], 'user_id'=> $USER}.to_json.to_s
         puts message
@@ -41,20 +39,39 @@ class ChatsController < ApplicationController
         uri = URI.parse(LANGCHAIN_API + langchain_endpoint)
         response = Net::HTTP.post(uri, message, {'content-type': 'application/json'})
 
+        parsed_response = JSON.parse(response.body)["responses"] rescue ""
+
         if response.is_a?(Net::HTTPSuccess)
-            data = JSON.parse(response.body)
+            # Process the successful response
+            puts parsed_response
         else
+            # Handle the error response
             puts "Error: #{response.message}"
         end
-        p data 
-
-        # package response
-        # data = {"id"=>100, "role"=>"assistant", "content"=> (data == nil ? "" : data["responses"])}
-
+        
+        # reset message to have empty text input 
         params[:message] = nil
-        get_chat_with_id # call this method to handle redirect to get_chat_with_id screen 
-        return 
+        render(json: { 
+            success: true, 
+            reply: parsed_response, 
+            redirect_to: get_chat_with_id_path(params[:chat_id]) 
+        })
     end 
+
+    # for /g/:graph_id endpoint 
+    def get_graph_with_id
+        graph_id = params[:graph_id]
+
+        # pull graph html from db 
+        @graph_content = NetworkGraph.get_graph_by_id(graph_id)
+        render("graph", layout: false) # dont use application.html.erb as template 
+    end
+
+    def get_latest_graph_by_chat_id
+        chat_id = params[:chat_id]
+        @graph_content = NetworkGraph.get_latest_graph_by_chat_id(chat_id)
+        render("graph", layout: false) # dont use application.html.erb as template 
+    end
 
     private # methods defined here onwards is private 
 
@@ -76,8 +93,12 @@ class ChatsController < ApplicationController
         res[:chat_ids].map {|e| {chat_id: e, chat_name: "chat id: #{e}"}}
     end
 
+    # prepares each message for display in erb file, prepare network graph html also 
     def get_messages_given_chatid(chat_id)
         res = Message.get_messages_given_chatid(chat_id)
-        res.map{|e| {"id"=> e['message_id'], "role"=> e['role'], "content"=> e['content']}}
-    end 
+        res.map{|e| {"id"=> e['message_id'],
+                    "role"=> e['role'],
+                    "content"=> e['content'],
+                    "graph_id"=> e['network_graph_id']}}
+    end
 end

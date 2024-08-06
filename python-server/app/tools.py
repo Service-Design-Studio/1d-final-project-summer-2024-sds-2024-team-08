@@ -1,5 +1,6 @@
 import re
 import time
+from typing import Optional
 from functools import wraps, reduce
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -352,7 +353,7 @@ def call_graph(reason: str) -> None:
 
 def get_relationships_from_media_build(model):
     @tool
-    def get_relationships_from_media(query: str, stakeholder_id: int) -> dict:
+    def get_relationships_from_media(query: Optional[str], stakeholder_id: Optional[int]) -> dict:
         """
         Call this tool to extract relationships from media scraped from the web. They can be used to answer questions about people, even if the question isn't very specific.
         If given a specified stakeholder_id, this tool will extract media sources involving the stakeholder.

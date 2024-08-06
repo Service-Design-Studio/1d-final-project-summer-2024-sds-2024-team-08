@@ -124,16 +124,15 @@ function add_msg_to_div(res, is_user = false) {
 
   if (res.includes("The network graph has been created!")) {
     // Create an iframe to display the latest graph for the specific chat ID
-    // html_content = `
-    //     <div class="row mb-3">
-    //         <div class="d-flex justify-content-end w-100">
-    //             <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} rounded">
-    //                 <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen class="loaded"></iframe>
-    //             </div>
-    //         </div>
-    //     </div>
-    // `;
-    html_content = `<p class="mb-0">${res}</p>`
+    html_content = `
+        <div class="row mb-3">
+            <div class="d-flex justify-content-end w-100">
+                <div id="message-content-${new Date().getTime()}" class="message-content ${is_user ? "user" : "genie"} rounded">
+                    <iframe src="/g/latest/${chat_id}" scrolling="no" allowfullscreen class="loaded"></iframe>
+                </div>
+            </div>
+        </div>
+    `;
   } else {
     html_content = `
         <div class="row mb-3">

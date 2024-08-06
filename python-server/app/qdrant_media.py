@@ -5,7 +5,7 @@ from qdrant_client import models
 from sqlalchemy.orm import Session
 from database import media_engine, qdrant_client
 import requests
-from crud import get_media_ids_for_stakeholder, get_content_from_media_ids
+from crud import get_media_ids_for_stakeholder, get_content_from_media_ids, get_stakeholder_name
 from rs_finder_llm import llm_transformer_custom
 
 # Vectorize user query
@@ -35,10 +35,12 @@ def read_media(stakeholder_id, query):
     if stakeholder_id is not None:
         media_ids = get_media_ids_for_stakeholder(db, int(float(stakeholder_id)))
       #Apply filter if query is defined
-        if query:
-          query_vector = vectorize_query(query)
-          hits = rank_ids_qdrant(query_vector, media_ids, limit=5)
-          # media_ids = [hit.id for hit in hits]
+        if not query:
+          query = get_stakeholder_name(db, stakeholder_id)
+          
+        query_vector = vectorize_query(query)
+        hits = rank_ids_qdrant(query_vector, media_ids, limit=5)
+        # media_ids = [hit.id for hit in hits]
     else:
       query_vector = vectorize_query(query)
       hits = qdrant_client.search(

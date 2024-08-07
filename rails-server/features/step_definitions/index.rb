@@ -130,14 +130,23 @@ Then(/I should see the response saying insufficient information for graph/) do
     expect(last_div).not_to have_selector('iframe')
 end
 
-When(/^I ask for a relationship between stakeholders that involves media content$/) do 
+When(/^I ask for media content$/) do 
     click_link(sacrificial_chat)
-    fill_in 'message', with: 'Generate a network graph of the relationship between ExxonMobil and Ivanka Trump.'
+    fill_in 'message', with: 'Tell me about the oil and gas industry in africa'
     find('button[name="button"]').click
 end
 
-When(/^I ask for a relationship between stakeholders that involves media content but there isnt enough information$/) do 
+Then(/^I should see a response with media content/) do
+    expect(page).to have_content(/.*oil.*gas/i)
+end
+
+Then(/^I ask for a network graph based on the media content$/) do 
+    fill_in 'message', with: 'Based on this response, help me draw a network graph for this'
+    find('button[name="button"]').click
+end
+
+When(/^I ask for media content but there isnt enough information$/) do 
     click_link(sacrificial_chat)
-    fill_in 'message', with: 'Generate a network graph of the relationship between ExxonMobil and oka kurniawan'
+    fill_in 'message', with: 'tell me about programming assignment 2'
     find('button[name="button"]').click
 end

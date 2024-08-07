@@ -170,6 +170,13 @@ Now your PostgreSQL has been created within Google Cloud and is ready to receive
 ## Features Experimentation Files
 * `MemorySaver.py` files for initial testing and integration of chat conversation history.
 * `GraphRScustom.py`, `Graphing with LLM.py` for testing relationship generation to graphing function.
+* `add_derive_rs.py` file for adding in query functions for the media database, get_media_id_from_stakeholder to get media ID based on stakeholders mentioned, to obtain content from media to pass through the LLM to process and derive relationships in the media content.
+* `generate_bokeh.py` file for initial testing and graphing using bokeh library.
+* `generate_dash.py` file for initial testing and graphing using dash library
+* `generate_network.py` file for initial testing and graphing using networkX library
+* `generate_regraph.py` file for initial testing and graphing using pyvis library
+* `qdrant_media.py` file to integrate qdrant vector database to match vectorized queries to embedddings in database from filtered media IDs from get_media_id_from_stakeholder and get top 2 medias.
+
 
 # Deployment 
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?logo=google-cloud&logoColor=white)

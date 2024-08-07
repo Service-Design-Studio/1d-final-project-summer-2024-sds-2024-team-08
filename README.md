@@ -112,6 +112,8 @@ This project requires both Ruby, with Ruby on Rails and Python to work.
 
 Clone the repo and open 2 separate terminal windows, one for the Rails server and one for the Python server. ```cd``` into the respective folders. 
 
+The `Features Experimentation Files/` folder contains files that were used in the experimentation process. The features were later integrated into the Python server for chat history and graphing from media content. 
+
 ## Rails Server 
 
 Install all dependencies for Rails. Please change the path according to where you cloned the repo. 
@@ -164,6 +166,10 @@ To create a new database in Google Cloud:
 7. Go to the "Users" tab and click on "ADD USER ACCOUNT". Make sure that "Built-in authentication" is checked. Enter the User name and Password. Click "Add"
 
 Now your PostgreSQL has been created within Google Cloud and is ready to receive data!
+
+## Features Experimentation Files
+* `MemorySaver.py` files for initial testing and integration of chat conversation history.
+* `GraphRScustom.py`, `Graphing with LLM.py` for testing relationship generation to graphing function.
 
 # Deployment 
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?logo=google-cloud&logoColor=white)

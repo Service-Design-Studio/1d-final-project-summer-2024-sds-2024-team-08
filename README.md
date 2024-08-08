@@ -38,7 +38,7 @@ This project was done in collaboration with The Stakeholder Company (TSC). Using
 We made the interface similar to the familiar ChatGPT that everyone knows as familiar designs are more likely to be easily understood and navigated by the user. Since we are making something similar to a chatbot, we want the users to quickly understand that. 
 
 ## Problem Statement 
-How can we streamline information collection and report generation to reduce the time and effort required by the users?
+> How can we streamline information collection and report generation to reduce the time and effort required by the users?
 
 ## Project Architecture 
 ![architecture diagram](assets/overallarchi.png)
@@ -47,13 +47,13 @@ The overall architectureof the project.
 ![architecture diagram](assets/aiarchi.png)
 How the AI works on the Python server. 
 
-![user db ER diagram](assets/users%20ERD.png)
+![user db ER diagram](assets/users_erd.png)
 ER diagram for Users DB. 
 
-![Stakeholder db ER diagram](assets/stakeholders%20ERD.png)
+![Stakeholder db ER diagram](assets/stakeholders_erd.png)
 ER diagram for Stakeholders DB. 
 
-![media db ER diagram](assets/media%20ERD.png)
+![media db ER diagram](assets/media_erd.png)
 ER diagram for Media DB. 
 
 ### Technologies Used
@@ -64,6 +64,7 @@ ER diagram for Media DB.
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26.svg?logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-239120.svg?logo=css3&logoColor=white)
 ![LangGraph](https://img.shields.io/badge/-%F0%9F%A6%9C%F0%9F%95%B8%EF%B8%8F%20LangGraph-black)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-886FBF?logo=googlegemini&logoColor=fff)](#)
 
 The main web page is served by a Ruby on Rails server, while all the processing is done on a separate server written in Python. For the rest of the Readme, we will use the terms Rails server and Python server. 
 
@@ -99,13 +100,11 @@ Example prompt
 
 > Help me generate a graph on the relationships of Joe Biden.
 
-
-
 ### Checkpoints 
 [Checkpoints](https://langchain-ai.github.io/langgraph/reference/checkpoints/) is the LangChain way of giving your agent  "memory" by persisting its state. With this, the agent is able to use previous messages context to craft the next response. 
 
 # Demo 
-Insert youtube demo here 
+Check our our promo video [here](https://youtu.be/TI8BxVQJWHo). 
 
 # Getting Started 
 This project requires both Ruby, with Ruby on Rails and Python to work. 
